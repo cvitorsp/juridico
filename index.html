@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Jurídico | Emissão de CNPJ RP</title>
+    
+    <!-- Tailwind CSS para estilização moderna e rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Biblioteca para gerar PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Fontes Solicitadas -->
+    <link rel="stylesheet" href="https://use.typekit.net/rvb2bnx.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@200..800&display=swap" rel="stylesheet"> 
+
+    <style>
+        :root {
+            --primary: #cba871; /* Dourado Jurídico */
+            --bg-dark: #0f172a;
+            --panel-dark: #1e293b;
+        }
+
+        body {
+            font-family: "Assistant", sans-serif;
+            background-color: var(--bg-dark);
+            color: #e2e8f0;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Fonte da Assinatura */
+        .assinatura-font {
+            font-family: "lindsey-signature", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        /* Estilização da Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark); 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary); 
+            border-radius: 4px;
+        }
+
+        /* Container do Documento A4 */
+        .a4-container {
+            width: 210mm;
+            height: 296mm; /* Ajustado de min-height para height fixo para evitar a página dupla no PDF */
+            overflow: hidden; /* Corta qualquer excesso de pixel que cause a página extra */
+            background: white;
+            color: black;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin: 0 auto;
+            position: relative;
+            transform-origin: top center;
+        }
+
+        /* Estilos específicos para o formulário oficial dentro do PDF */
+        .doc-border {
+            border: 2px solid #000;
+        }
+        
+        .doc-row {
+            display: flex;
+            border-bottom: 2px solid #000;
+        }
+        
+        .doc-row:last-child {
+            border-bottom: none;
+        }
+
+        .doc-cell {
+            padding: 4px 8px;
+            border-right: 2px solid #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .doc-cell:last-child {
+            border-right: none;
+        }
+
+        .doc-label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .doc-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            min-height: 1.2rem;
+            color: #000;
+        }
+
+        /* Efeito glassmorphism no painel */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Efeito de carregamento para o botão de PDF */
+        .loading-pdf {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
+
+    <!-- Tela de Carregamento (Loading Screen) -->
+    <div id="loading-screen" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000">
+        <img src="https://i.imgur.com/7NDAXqU.png" alt="Logo RP" class="h-40 mb-8 animate-pulse drop-shadow-lg">
+        <div class="flex items-center gap-4">
+            <i class="fa-solid fa-circle-notch fa-spin text-[#cba871] text-3xl"></i>
+            <h2 class="text-[#cba871] font-bold text-2xl tracking-widest uppercase">Carregando Sistema...</h2>
+        </div>
+        <p class="text-slate-500 mt-4 text-sm font-semibold tracking-widest">SISTEMA JURÍDICO INTEGRADO</p>
+    </div>
+
+    <!-- Banner de Cookies -->
+    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-[#cba871]/30 p-4 z-50 flex justify-between items-center transform translate-y-full transition-transform duration-500">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-cookie-bite text-[#cba871] text-2xl"></i>
+            <p class="text-sm text-slate-300">
+                Este sistema utiliza cookies e armazenamento local (Local Storage) para salvar suas preferências e agilizar o carregamento.<br>
+                Ao continuar utilizando nossa plataforma, você concorda com nossas políticas.
+            </p>
+        </div>
+        <button onclick="aceitarCookies()" class="bg-[#cba871] text-slate-900 px-6 py-2 rounded-lg font-bold text-sm hover:bg-[#b3925c] transition shadow-lg shadow-[#cba871]/20 whitespace-nowrap ml-4">
+            Ciente e Aceito
+        </button>
+    </div>
+
+    <!-- Topbar Oficial -->
+    <header class="bg-slate-900 border-b border-slate-700 h-16 flex items-center justify-between px-6 shrink-0 z-10 shadow-md">
+        <div class="flex items-center gap-4">
+            <img src="https://i.imgur.com/7NDAXqU.png" alt="Brasil RP" class="h-10 object-contain">
+            <div class="h-8 w-px bg-slate-600"></div>
+            <img src="https://i.imgur.com/DPg5b1B.png" alt="Poder Judiciário" class="h-10 object-contain">
+            <div class="h-8 w-px bg-slate-600"></div>
+            <img src="https://i.imgur.com/mLampIb.png" alt="OAB" class="h-10 object-contain">
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="text-right">
+                <h1 class="text-white font-bold text-lg tracking-wide">SISTEMA JURÍDICO INTEGRADO</h1>
+                <p class="text-xs text-[#cba871]">Módulo de Emissão de CNPJ</p>
+            </div>
+            <i class="fa-solid fa-scale-balanced text-[#cba871] text-2xl ml-2"></i>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- PAINEL DE CONTROLE (ESQUERDA) -->
+        <aside class="w-1/3 min-w-[400px] max-w-[500px] glass-panel overflow-y-auto p-6 flex flex-col gap-6 relative z-10">
+            
+            <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
+                <h2 class="text-[#cba871] font-bold text-xl mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-file-signature"></i> Dados da Empresa
+                </h2>
+
+                <!-- Gerador de CNPJ -->
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NÚMERO DO CNPJ</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-cnpj" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white font-mono focus:border-[#cba871] focus:outline-none transition" readonly>
+                        <button onclick="gerarCNPJ()" class="bg-[#cba871] hover:bg-[#b3925c] text-slate-900 px-3 py-2 rounded font-bold transition flex items-center justify-center" title="Gerar Novo CNPJ">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME EMPRESARIAL (Razão Social)</label>
+                    <input type="text" id="input-razao" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase" placeholder="Ex: LOS SANTOS MECHANIC LTDA">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME FANTASIA</label>
+                    <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase" placeholder="Ex: BENNYS MOTORWORKS">
+                </div>
+
+                <div class="mb-2">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">LOCAL DA EMPRESA (ENDEREÇO)</label>
+                    <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase" placeholder="Ex: AV. ALTA STREET, 123 - VINEWOOD">
+                </div>
+            </div>
+
+            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
+                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-briefcase"></i> Atividade e Natureza
+                </h2>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA</label>
+                    <select id="input-cnae" onchange="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition">
+                        <option value="">Selecione uma atividade...</option>
+                        <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições. Esta subclasse abrange a produção de munições, cartuchos, revólveres e acessórios.">2542-0/00 - Indústria Bélica / Armamento</option>
+                        <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos automotores. Inclui customização, pintura e funilaria.">4520-0/01 - Mecânica / Oficina Customizada</option>
+                        <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares. Atividades de entretenimento noturno e fornecimento de bebidas.">9329-8/01 - Boate / Vanilla Unicorn</option>
+                        <option value="8610-1/01 - Atividades de atendimento hospitalar. Serviços médicos de urgência, emergência e cirurgias.">8610-1/01 - Hospital / Clínica Médica</option>
+                        <option value="5611-2/01 - Restaurantes e similares. Serviços de alimentação, preparo de refeições e lanchonetes.">5611-2/01 - Restaurante / Lanchonete</option>
+                        <option value="4731-8/00 - Comércio varejista de combustíveis para veículos automotores.">4731-8/00 - Posto de Combustível</option>
+                        <option value="6911-7/01 - Serviços advocatícios. Representação legal e consultoria jurídica.">6911-7/01 - Escritório de Advocacia</option>
+                        <option value="8011-1/01 - Atividades de vigilância e segurança privada. Proteção de bens e pessoas.">8011-1/01 - Segurança Privada</option>
+                        <option value="3999-9/99 - Associação Privada de cunho social ou recreativo (Sem fins lucrativos).">3999-9/99 - Associação Privada / Motoclube</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NATUREZA JURÍDICA</label>
+                    <select id="input-natureza" onchange="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition">
+                        <option value="">Selecione a natureza...</option>
+                        <option value="206-2 - Sociedade Empresária Limitada">206-2 - Sociedade Empresária Limitada (LTDA)</option>
+                        <option value="213-5 - Empresário Individual">213-5 - Empresário Individual (EI)</option>
+                        <option value="230-5 - Empresa Individual de Responsabilidade Limitada">230-5 - EIRELI</option>
+                        <option value="399-9 - Associação Privada">399-9 - Associação Privada</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
+                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie"></i> Representante Legal
+                </h2>
+
+                <div class="flex gap-4 mb-4">
+                    <label class="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="radio" name="tipo_rep" value="Representante" checked onchange="updateDoc()" class="accent-[#cba871]"> Representante
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#cba871]"> Preposto
+                    </label>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME COMPLETO</label>
+                    <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">CPF / PASSAPORTE</label>
+                        <input type="text" id="input-rep-cpf" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">DATA</label>
+                        <input type="text" id="input-rep-data" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
+                <h2 class="text-[#cba871] font-bold text-lg mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-gavel"></i> Advogado Responsável
+                </h2>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME DO ADVOGADO</label>
+                    <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase" placeholder="Ex: SAUL GOODMAN">
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">REGISTRO (OAB / PASSAPORTE)</label>
+                    <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase" placeholder="Ex: OAB/LS 12345">
+                </div>
+                
+                <div class="mb-2">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 text-indigo-400"><i class="fa-brands fa-discord"></i> URL DO WEBHOOK (DISCORD)</label>
+                    <input type="password" id="input-webhook" value="https://discord.com/api/webhooks/1492550407308837057/JInr_ekobOHNb9MFZRIDaKCWxmUhmjlvdvqgLfzBsMFZMYJkN5TJJ_AlJOL76GDIwPJQ" class="w-full bg-slate-900 border border-indigo-500/50 rounded px-3 py-2 text-white focus:border-indigo-400 focus:outline-none transition text-xs" placeholder="https://discord.com/api/webhooks/...">
+                </div>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="flex flex-col gap-3 mb-8">
+                <button onclick="downloadPDF()" id="btn-pdf" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 text-sm border border-slate-500">
+                    <i class="fa-solid fa-download"></i>
+                    APENAS BAIXAR (PDF)
+                </button>
+
+                <button onclick="enviarDiscord()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg py-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-discord text-xl"></i>
+                    ENVIAR PARA O DISCORD
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- VISUALIZAÇÃO DO DOCUMENTO (DIREITA) -->
+        <main class="w-2/3 bg-gray-300 overflow-y-auto p-8 flex justify-center items-start" id="preview-area">
+            
+            <!-- Folha A4 que será transformada em PDF -->
+            <div id="documento-pdf" class="a4-container p-10 flex flex-col">
+                
+                <!-- Cabeçalho Oficial -->
+                <div class="flex items-center justify-between mb-4 border-b-2 border-black pb-4">
+                    <div class="w-1/4 flex justify-start items-center gap-3">
+                        <img src="https://i.imgur.com/7NDAXqU.png" alt="Brasão" class="h-16 grayscale" style="filter: grayscale(100%) contrast(120%); opacity: 0.9;">
+                    </div>
+                    <div class="w-2/4 text-center">
+                        <h2 class="font-bold text-xl uppercase leading-tight">República Federativa do Brasil</h2>
+                        <h3 class="font-bold text-lg uppercase mt-1">Cadastro Nacional da Pessoa Jurídica</h3>
+                        <h4 class="font-bold text-[0.65rem] uppercase mt-2 border border-black inline-block px-3 py-1 bg-gray-100">Documento Básico de Entrada do CNPJ</h4>
+                    </div>
+                    <div class="w-1/4 flex justify-end">
+                        <img src="https://i.imgur.com/mLampIb.png" alt="OAB" class="h-16 grayscale" style="filter: grayscale(100%) contrast(120%); opacity: 0.9;">
+                    </div>
+                </div>
+
+                <!-- Corpo do Formulário / Grid -->
+                <div class="doc-border flex flex-col mb-4">
+                    
+                    <!-- Linha 1: CNPJ -->
+                    <div class="doc-row">
+                        <div class="doc-cell w-full text-center bg-gray-100 py-2">
+                            <span class="doc-label text-[0.65rem]">NÚMERO DE INSCRIÇÃO (CNPJ)</span>
+                            <span class="doc-value text-xl font-bold tracking-widest mt-1" id="doc-cnpj"></span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 2: Razão Social -->
+                    <div class="doc-row">
+                        <div class="doc-cell w-full">
+                            <span class="doc-label">01. NOME EMPRESARIAL</span>
+                            <span class="doc-value mt-1" id="doc-razao"></span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 3: Fantasia -->
+                    <div class="doc-row">
+                        <div class="doc-cell w-full">
+                            <span class="doc-label">02. NOME FANTASIA</span>
+                            <span class="doc-value mt-1" id="doc-fantasia"></span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 4: Endereço (NOVO) -->
+                    <div class="doc-row">
+                        <div class="doc-cell w-full">
+                            <span class="doc-label">03. LOCAL DA EMPRESA (ENDEREÇO)</span>
+                            <span class="doc-value mt-1" id="doc-endereco"></span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 5: CNAE -->
+                    <div class="doc-row">
+                        <div class="doc-cell w-full min-h-[50px]">
+                            <span class="doc-label">04. CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA PRINCIPAL</span>
+                            <span class="doc-value mt-1 text-sm leading-tight" id="doc-cnae"></span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 6: Natureza -->
+                    <div class="doc-row">
+                        <div class="doc-cell w-full">
+                            <span class="doc-label">05. CÓDIGO E DESCRIÇÃO DA NATUREZA JURÍDICA</span>
+                            <span class="doc-value mt-1" id="doc-natureza"></span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 7: Título Representante -->
+                    <div class="doc-row bg-gray-100">
+                        <div class="doc-cell w-full text-center py-1">
+                            <span class="doc-label !mb-0">06. IDENTIFICAÇÃO DO REPRESENTANTE DA ENTIDADE</span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 8: Checkboxes e Nome -->
+                    <div class="doc-row">
+                        <div class="doc-cell w-[30%] border-r-0 flex flex-col justify-center gap-2 py-2">
+                            <label class="text-[0.65rem] font-bold flex items-center gap-2">
+                                <span class="border border-black w-4 h-4 flex items-center justify-center bg-white" id="box-rep"></span> REPRESENTANTE
+                            </label>
+                            <label class="text-[0.65rem] font-bold flex items-center gap-2">
+                                <span class="border border-black w-4 h-4 flex items-center justify-center bg-white" id="box-pre"></span> PREPOSTO
+                            </label>
+                        </div>
+                        <div class="doc-cell w-[70%] border-l-2 border-black">
+                            <span class="doc-label">NOME</span>
+                            <span class="doc-value mt-1" id="doc-rep-nome"></span>
+                        </div>
+                    </div>
+
+                    <!-- Linha 9: CPF, Data e Assinatura -->
+                    <div class="doc-row border-b-2 border-black">
+                        <div class="doc-cell w-[25%]">
+                            <span class="doc-label">CPF</span>
+                            <span class="doc-value mt-1" id="doc-rep-cpf"></span>
+                        </div>
+                        <div class="doc-cell w-[25%]">
+                            <span class="doc-label">LOCAL E DATA</span>
+                            <span class="doc-value mt-1 text-xs" id="doc-rep-data"></span>
+                        </div>
+                        <div class="doc-cell w-[50%] relative min-h-[60px] overflow-hidden">
+                            <span class="doc-label absolute top-1 left-2">ASSINATURA DO REPRESENTANTE</span>
+                            <div class="flex-1 flex items-center justify-center mt-3">
+                                <span class="assinatura-font text-3xl text-blue-900" style="transform: rotate(-3deg);" id="doc-rep-assinatura"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Linha 10: Cartório e Recibo (MENORES E COM CARIMBOS) -->
+                    <div class="doc-row h-[130px]">
+                        <div class="doc-cell w-1/2 p-0 border-r-2 border-black">
+                            <div class="bg-gray-100 border-b-2 border-black py-1 text-center">
+                                <span class="doc-label !mb-0">07. RECONHECIMENTO DE FIRMA (CARTÓRIO)</span>
+                            </div>
+                            <div class="p-2 h-full flex flex-col justify-center items-center relative">
+                                <!-- Carimbo Fake -->
+                                <div class="border-[3px] border-red-800/80 rounded-full w-24 h-24 flex flex-col justify-center items-center transform -rotate-12 absolute opacity-80" style="box-shadow: inset 0 0 0 1px rgba(153, 27, 27, 0.5);">
+                                    <span class="text-[0.45rem] font-bold text-red-800 leading-none text-center">PODER JUDICIÁRIO</span>
+                                    <i class="fa-solid fa-scale-balanced text-red-800 text-xs my-[2px]"></i>
+                                    <span class="text-[0.4rem] font-bold text-red-800 leading-none border-t border-red-800/50 pt-[2px] mt-[1px]">AUTENTICADO</span>
+                                    <span class="text-[0.45rem] font-bold text-red-800 mt-[2px]" id="doc-carimbo-data"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="doc-cell w-1/2 p-0">
+                            <div class="bg-gray-100 border-b-2 border-black py-1 text-center">
+                                <span class="doc-label !mb-0">08. RECIBO DE ENTREGA (ADVOGADO)</span>
+                            </div>
+                            <div class="p-2 h-full flex flex-col justify-end">
+                                <div class="flex-1 flex items-center justify-center">
+                                    <span class="assinatura-font text-3xl text-blue-900" style="transform: rotate(-2deg);" id="doc-adv-assinatura"></span>
+                                </div>
+                                <div class="text-center mt-auto">
+                                    <div class="border-b border-black w-4/5 mx-auto mb-1"></div>
+                                    <span class="doc-label text-[0.55rem] block !mb-0" id="doc-adv-nome-rodape">NOME DO ADVOGADO</span>
+                                    <span class="doc-label text-[0.45rem] block text-gray-600">REGISTRO: <span id="doc-adv-id-rodape"></span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Rodapé -->
+                <div class="mt-auto pt-4 flex justify-between items-end">
+                    <div class="flex items-center gap-4 w-3/4">
+                        <img src="https://i.imgur.com/DPg5b1B.png" alt="Judiciário" class="h-12 grayscale" style="filter: grayscale(100%) contrast(120%); opacity: 0.9;">
+                        <div class="text-[0.55rem] text-gray-800 font-bold leading-tight text-justify border-l-2 border-black pl-3 py-1 uppercase">
+                            Confira os dados de identificação da pessoa jurídica e, se houver qualquer divergência, providencie junto ao seu advogado a sua atualização cadastral.
+                        </div>
+                    </div>
+                    <div class="w-1/4 text-right">
+                        <span class="text-[0.55rem] text-gray-600 font-bold block">Modelo aprovado pela IN RFB nº 1.470/2014.</span>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Função para gerar número aleatório de CNPJ formato XX.XXX.XXX/0001-XX
+        function gerarCNPJ() {
+            const randomDigit = () => Math.floor(Math.random() * 10);
+            
+            const n1 = randomDigit();
+            const n2 = randomDigit();
+            const n3 = randomDigit();
+            const n4 = randomDigit();
+            const n5 = randomDigit();
+            const n6 = randomDigit();
+            const n7 = randomDigit();
+            const n8 = randomDigit();
+            
+            // Calculando os dígitos verificadores para dar um ar de realidade (opcional, mas legal)
+            // Aqui vamos apenas gerar randômico como solicitado para o RP, mantendo o final /0001-XX
+            const d1 = randomDigit();
+            const d2 = randomDigit();
+
+            const cnpjFormatado = `${n1}${n2}.${n3}${n4}${n5}.${n6}${n7}${n8}/0001-${d1}${d2}`;
+            
+            document.getElementById('input-cnpj').value = cnpjFormatado;
+            updateDoc();
+        }
+
+        // Função para atualizar o documento em tempo real
+        function updateDoc() {
+            // Atualizar textos normais
+            document.getElementById('doc-cnpj').innerText = document.getElementById('input-cnpj').value;
+            document.getElementById('doc-razao').innerText = document.getElementById('input-razao').value;
+            document.getElementById('doc-fantasia').innerText = document.getElementById('input-fantasia').value;
+            document.getElementById('doc-endereco').innerText = document.getElementById('input-endereco').value;
+            
+            // Textos dos Selects
+            const cnaeSelect = document.getElementById('input-cnae');
+            if (cnaeSelect && cnaeSelect.options.length > 0) {
+                document.getElementById('doc-cnae').innerText = cnaeSelect.options[cnaeSelect.selectedIndex].text !== "Selecione uma atividade..." ? cnaeSelect.value : "";
+            }
+            
+            const natSelect = document.getElementById('input-natureza');
+            if (natSelect && natSelect.options.length > 0) {
+                document.getElementById('doc-natureza').innerText = natSelect.options[natSelect.selectedIndex].text !== "Selecione a natureza..." ? natSelect.value : "";
+            }
+
+            // Representante
+            const repNome = document.getElementById('input-rep-nome').value;
+            document.getElementById('doc-rep-nome').innerText = repNome;
+            document.getElementById('doc-rep-assinatura').innerText = repNome; // A fonte Typekit transformará isso em assinatura
+            
+            document.getElementById('doc-rep-cpf').innerText = document.getElementById('input-rep-cpf').value;
+            document.getElementById('doc-rep-data').innerText = document.getElementById('input-rep-data').value;
+
+            // Advogado Responsável
+            const advNome = document.getElementById('input-adv-nome').value;
+            document.getElementById('doc-adv-nome-rodape').innerText = advNome || 'NOME DO ADVOGADO';
+            document.getElementById('doc-adv-assinatura').innerText = advNome;
+            document.getElementById('doc-adv-id-rodape').innerText = document.getElementById('input-adv-id').value || '___';
+
+            // Checkbox Representante/Preposto
+            const tipoRep = document.querySelector('input[name="tipo_rep"]:checked').value;
+            if(tipoRep === 'Representante') {
+                document.getElementById('box-rep').innerHTML = '<i class="fa-solid fa-xmark text-[12px]"></i>';
+                document.getElementById('box-pre').innerHTML = '';
+            } else {
+                document.getElementById('box-rep').innerHTML = '';
+                document.getElementById('box-pre').innerHTML = '<i class="fa-solid fa-xmark text-[12px]"></i>';
+            }
+        }
+
+        // Ajustar escala do A4 para caber na tela mantendo proporção
+        function ajustarEscala() {
+            const wrapper = document.getElementById('preview-area');
+            const doc = document.getElementById('documento-pdf');
+            
+            // Largura do A4 é fixa em 210mm (~794px). 
+            // Vamos escalar com base na largura disponível do container
+            const availableWidth = wrapper.clientWidth - 64; // 64px de padding (32px de cada lado)
+            const docWidth = 794; 
+
+            if (availableWidth < docWidth) {
+                const scale = availableWidth / docWidth;
+                doc.style.transform = `scale(${scale})`;
+                // Ajustar margem inferior para compensar o scale no layout flex
+                doc.style.marginBottom = `-${(1 - scale) * 1123}px`; 
+            } else {
+                doc.style.transform = 'scale(1)';
+                doc.style.marginBottom = '0';
+            }
+        }
+
+        // Função para Exportar em PDF usando html2pdf.js
+        function downloadPDF() {
+            const element = document.getElementById('documento-pdf');
+            const btn = document.getElementById('btn-pdf');
+            
+            // Efeito visual no botão
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> GERANDO...';
+            btn.classList.add('loading-pdf');
+
+            // Temporariamente remove o scale de CSS para garantir que a renderização do Canvas não saia cortada
+            const oldTransform = element.style.transform;
+            const oldMargin = element.style.marginBottom;
+            element.style.transform = 'scale(1)';
+            element.style.marginBottom = '0';
+
+            // Nome do arquivo baseado na empresa
+            let nomeEmpresa = document.getElementById('input-fantasia').value.trim();
+            if(!nomeEmpresa) nomeEmpresa = "EMPRESA";
+            const filename = `CNPJ_${nomeEmpresa.replace(/\s+/g, '_').toUpperCase()}.pdf`;
+
+            const opt = {
+                margin:       [0, 0, 0, 0], // Sem margem externa pois o elemento já simula o papel
+                filename:     filename,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 3, useCORS: true, logging: false }, // Alta qualidade e liberação CORS para as imagens imgur
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Gera e baixa
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restaura o botão e os estilos visuais
+                btn.innerHTML = originalText;
+                btn.classList.remove('loading-pdf');
+                element.style.transform = oldTransform;
+                element.style.marginBottom = oldMargin;
+            });
+        }
+
+        // Função para gerar o PDF e enviar pro Discord
+        async function enviarDiscord() {
+            const webhookUrl = document.getElementById('input-webhook').value.trim();
+            
+            if(!webhookUrl) {
+                const btn = document.getElementById('btn-discord');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> INSIRA O WEBHOOK';
+                btn.classList.replace('bg-[#5865F2]', 'bg-red-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.replace('bg-red-600', 'bg-[#5865F2]');
+                }, 3000);
+                return;
+            }
+
+            const element = document.getElementById('documento-pdf');
+            const btn = document.getElementById('btn-discord');
+            
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> ENVIANDO...';
+            btn.classList.add('loading-pdf');
+
+            // Temporariamente remove o scale
+            const oldTransform = element.style.transform;
+            const oldMargin = element.style.marginBottom;
+            element.style.transform = 'scale(1)';
+            element.style.marginBottom = '0';
+
+            // Coleta de dados
+            let nomeEmpresa = document.getElementById('input-fantasia').value.trim() || "EMPRESA";
+            const filename = `CNPJ_${nomeEmpresa.replace(/\s+/g, '_').toUpperCase()}.pdf`;
+            const advNome = document.getElementById('input-adv-nome').value.trim() || "NOME DO ADVOGADO";
+            const advId = document.getElementById('input-adv-id').value.trim() || "REGISTRO NÃO INFORMADO";
+            const cnpjNum = document.getElementById('input-cnpj').value;
+
+            const opt = {
+                margin: [0, 0, 0, 0],
+                filename: filename,
+                image: { type: 'jpeg', quality: 1 },
+                html2canvas: { scale: 3, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            try {
+                // Salva webhook no localStorage para a próxima vez
+                localStorage.setItem('rp_juridico_webhook', webhookUrl);
+
+                // Gera o arquivo Blob
+                const pdfBlob = await html2pdf().set(opt).from(element).output('blob');
+
+                // Cria o formulário para o Discord
+                const formData = new FormData();
+                
+                // Monta a mensagem personalizada
+                const payload = {
+                    username: "Jurídico",
+                    avatar_url: "https://i.imgur.com/DPg5b1B.png",
+                    content: `🏛️ **NOVO REGISTRO EMPRESARIAL EFETIVADO**\n\nO advogado **${advNome}** (OAB: **${advId}**) efetivou a entrada do CNPJ **${cnpjNum}**.\nEmpresa registrada: **${nomeEmpresa}**\n\nConfira os dados completos no documento anexado abaixo.`
+                };
+                formData.append('payload_json', JSON.stringify(payload));
+                formData.append('file', pdfBlob, filename);
+
+                // Dispara pro Webhook
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> ENVIADO COM SUCESSO';
+                    btn.classList.replace('bg-[#5865F2]', 'bg-green-600');
+                } else {
+                    throw new Error("Erro na requisição HTTP");
+                }
+            } catch (error) {
+                console.error("Erro ao enviar para o Discord:", error);
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> ERRO AO ENVIAR';
+                btn.classList.replace('bg-[#5865F2]', 'bg-red-600');
+            } finally {
+                // Restaura visual
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('loading-pdf', 'bg-green-600', 'bg-red-600');
+                    btn.classList.add('bg-[#5865F2]');
+                }, 4000);
+                
+                element.style.transform = oldTransform;
+                element.style.marginBottom = oldMargin;
+            }
+        }
+
+        // --- SISTEMA DE LOADING E COOKIES --- //
+        function checkLoadingAndCookies() {
+            const loader = document.getElementById('loading-screen');
+            const banner = document.getElementById('cookie-banner');
+            
+            // Verifica se é a primeira visita (Loading)
+            if (!localStorage.getItem('rp_juridico_visited')) {
+                // Primeira vez: Mostra o loading por 2.5 segundos
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        localStorage.setItem('rp_juridico_visited', 'true');
+                        // Depois de carregar, verifica o banner de cookies
+                        mostrarBannerCookies(banner);
+                    }, 1000); // tempo do fade out
+                }, 2500);
+            } else {
+                // Já visitou: esconde o loader na hora
+                loader.style.display = 'none';
+                mostrarBannerCookies(banner);
+            }
+        }
+
+        function mostrarBannerCookies(banner) {
+            if (!localStorage.getItem('rp_juridico_cookies_accepted')) {
+                setTimeout(() => {
+                    banner.classList.remove('translate-y-full');
+                }, 1000); // Atrasa 1s pra ficar mais suave
+            }
+        }
+
+        function aceitarCookies() {
+            localStorage.setItem('rp_juridico_cookies_accepted', 'true');
+            document.getElementById('cookie-banner').classList.add('translate-y-full');
+        }
+
+        // Setup Inicial
+        window.onload = () => {
+            // Executa verificação de Loading e Cookies
+            checkLoadingAndCookies();
+
+            // Puxa o Webhook salvo anteriormente
+            const savedWebhook = localStorage.getItem('rp_juridico_webhook');
+            if(savedWebhook) {
+                document.getElementById('input-webhook').value = savedWebhook;
+            }
+
+            // Data de hoje padrão
+            const hoje = new Date();
+            const dataFormatada = `Brasil RP, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+            document.getElementById('input-rep-data').value = dataFormatada;
+
+            // Data para o Carimbo
+            const dataCarimbo = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+            document.getElementById('doc-carimbo-data').innerText = dataCarimbo;
+
+            gerarCNPJ();
+            ajustarEscala();
+        };
+        
+        window.onresize = ajustarEscala;
+
+    </script>
+</body>
+</html>
