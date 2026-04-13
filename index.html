@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistema Jurídico | Emissão de CNPJ, Porte & Calculadora</title>
     
     <!-- Tailwind CSS -->
@@ -34,7 +34,7 @@
             color: #e2e8f0;
             margin: 0;
             height: 100vh;
-            overflow: hidden;
+            overflow: hidden; /* Prevent body scroll, let internal containers scroll */
         }
 
         .assinatura-font {
@@ -43,9 +43,15 @@
             font-style: normal;
         }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: rgba(203, 168, 113, 0.5); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(203, 168, 113, 0.8); }
+
+        /* Hide scrollbar for nav but allow scroll */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
         .a4-container {
             width: 210mm;
@@ -57,8 +63,10 @@
             margin: 0 auto;
             position: relative;
             transform-origin: top center;
+            flex-shrink: 0;
         }
 
+        /* PDF Styles Base */
         .doc-border { border: 2px solid #000; }
         .doc-row { display: flex; border-bottom: 2px solid #000; }
         .doc-row:last-child { border-bottom: none; }
@@ -72,100 +80,119 @@
         .tj-table tr:last-child td { border-bottom: none; }
         .tj-table td.tj-label { font-weight: 700; width: 40%; color: #1f2937; }
 
-        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.1); }
+        .glass-panel { background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.1); }
         .loading-pdf { pointer-events: none; opacity: 0.7; }
 
         .crime-item { transition: all 0.2s ease; cursor: pointer; }
         .crime-item:hover { background-color: rgba(203, 168, 113, 0.1); border-color: var(--primary); }
         .crime-item.selected { background-color: rgba(203, 168, 113, 0.2); border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
-        .tab-btn { border-bottom: 2px solid transparent; transition: all 0.3s ease; }
-        .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); background: rgba(203, 168, 113, 0.1); }
         
-        .atenuante-item { transition: all 0.2s; cursor: pointer; }
-        .atenuante-item.selected { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
+        .tab-btn { border-bottom: 2px solid transparent; transition: all 0.3s ease; white-space: nowrap; }
+        .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); background: rgba(203, 168, 113, 0.1); }
+
+        /* Toast Animation */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter { animation: slideInUp 0.4s ease-out forwards; }
+        .toast-exit { animation: fadeOut 0.4s ease-out forwards; }
     </style>
 </head>
-<body class="flex flex-col h-screen">
+<body class="flex flex-col h-screen text-sm lg:text-base">
 
+    <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000">
-        <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Logo RP" class="h-40 mb-8 animate-pulse drop-shadow-lg">
+        <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Logo RP" class="h-32 lg:h-40 mb-8 animate-pulse drop-shadow-lg">
         <div class="flex items-center gap-4">
-            <i class="fa-solid fa-circle-notch fa-spin text-[#cba871] text-3xl"></i>
-            <h2 class="text-[#cba871] font-bold text-2xl tracking-widest uppercase">Carregando Sistema...</h2>
+            <i class="fa-solid fa-circle-notch fa-spin text-[#cba871] text-2xl lg:text-3xl"></i>
+            <h2 class="text-[#cba871] font-bold text-xl lg:text-2xl tracking-widest uppercase text-center px-4">Carregando Sistema...</h2>
         </div>
     </div>
     
-    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-[#cba871]/30 p-4 z-50 flex justify-between items-center transform translate-y-full transition-transform duration-500">
-        <div class="flex items-center gap-3">
-            <i class="fa-solid fa-cookie-bite text-[#cba871] text-2xl"></i>
-            <p class="text-sm text-slate-300">Este sistema utiliza cookies para salvar suas preferências.<br>Ao continuar, você concorda com nossas políticas.</p>
+    <!-- Cookie Banner -->
+    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-[#cba871]/30 p-4 z-50 flex flex-col lg:flex-row justify-between items-center gap-4 transform translate-y-full transition-transform duration-500 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+        <div class="flex items-center gap-3 text-center lg:text-left">
+            <i class="fa-solid fa-cookie-bite text-[#cba871] text-2xl hidden lg:block"></i>
+            <p class="text-xs lg:text-sm text-slate-300">Este sistema utiliza cookies para salvar suas preferências locais.<br class="hidden lg:block">Ao continuar, você concorda com nossas políticas.</p>
         </div>
-        <button onclick="aceitarCookies()" class="bg-[#cba871] text-slate-900 px-6 py-2 rounded-lg font-bold text-sm hover:bg-[#b3925c] transition shadow-lg ml-4">Ciente e Aceito</button>
+        <button onclick="aceitarCookies()" class="w-full lg:w-auto bg-[#cba871] text-slate-900 px-6 py-2.5 rounded-lg font-bold text-sm hover:bg-[#b3925c] transition shadow-lg">Ciente e Aceito</button>
     </div>
 
-    <header class="bg-slate-900 border-b border-slate-700 h-16 flex items-center justify-between px-6 shrink-0 z-10 shadow-md">
-        <div class="flex items-center gap-4">
-            <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-10 object-contain">
-            <div class="h-8 w-px bg-slate-600"></div>
-            <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-10 object-contain">
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[60] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-700 h-16 lg:h-16 flex items-center justify-between px-4 lg:px-6 shrink-0 z-20 shadow-md">
+        <div class="flex items-center gap-3 lg:gap-4 shrink-0">
+            <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-8 lg:h-10 object-contain">
+            <div class="h-6 lg:h-8 w-px bg-slate-600"></div>
+            <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-8 lg:h-10 object-contain">
         </div>
 
-        <nav class="flex h-full">
-            <button onclick="switchTab('cnpj')" id="tab-cnpj" class="tab-btn active h-full px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide">
-                <i class="fa-solid fa-file-contract"></i> Emissão CNPJ
+        <!-- Navegação (Rolável no mobile) -->
+        <nav class="flex h-full overflow-x-auto hide-scroll flex-1 mx-2 lg:mx-8 lg:justify-center">
+            <button onclick="switchTab('cnpj')" id="tab-cnpj" class="tab-btn active h-full px-4 lg:px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-[0.7rem] lg:text-sm tracking-wide shrink-0">
+                <i class="fa-solid fa-file-contract"></i> <span class="hidden sm:inline">Emissão</span> CNPJ
             </button>
-            <button onclick="switchTab('porte')" id="tab-porte" class="tab-btn h-full px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide border-l border-slate-700">
-                <i class="fa-solid fa-id-card-clip"></i> Solicitação Porte
+            <button onclick="switchTab('porte')" id="tab-porte" class="tab-btn h-full px-4 lg:px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-[0.7rem] lg:text-sm tracking-wide border-l border-slate-700 shrink-0">
+                <i class="fa-solid fa-id-card-clip"></i> <span class="hidden sm:inline">Solicitação</span> Porte
             </button>
-            <button onclick="switchTab('calc')" id="tab-calc" class="tab-btn h-full px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide border-l border-slate-700">
-                <i class="fa-solid fa-calculator"></i> Calculadora Penal
+            <button onclick="switchTab('calc')" id="tab-calc" class="tab-btn h-full px-4 lg:px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-[0.7rem] lg:text-sm tracking-wide border-l border-slate-700 shrink-0">
+                <i class="fa-solid fa-calculator"></i> Calculadora <span class="hidden sm:inline">Penal</span>
             </button>
         </nav>
 
-        <div class="flex items-center gap-3">
-            <div class="text-right hidden md:block">
+        <div class="flex items-center gap-3 shrink-0">
+            <div class="text-right hidden xl:block">
                 <h1 class="text-white font-bold text-lg tracking-wide">SISTEMA JURÍDICO INTEGRADO</h1>
             </div>
-            <i class="fa-solid fa-scale-balanced text-[#cba871] text-2xl ml-2"></i>
+            <i class="fa-solid fa-scale-balanced text-[#cba871] text-xl lg:text-2xl ml-0 lg:ml-2"></i>
         </div>
     </header>
 
     <!-- ==================== ABA 1: CNPJ ==================== -->
-    <div id="view-cnpj" class="flex flex-1 overflow-hidden">
-        <aside class="w-1/3 min-w-[400px] max-w-[500px] glass-panel overflow-y-auto p-6 flex flex-col gap-6 relative z-10">
+    <div id="view-cnpj" class="flex flex-col lg:flex-row flex-1 overflow-hidden h-full">
+        <!-- Sidebar -->
+        <aside class="w-full lg:w-1/3 lg:min-w-[400px] lg:max-w-[450px] glass-panel overflow-y-auto p-4 lg:p-6 flex flex-col gap-5 lg:gap-6 relative z-10 shadow-lg">
+            
             <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
-                <h2 class="text-[#cba871] font-bold text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> Dados da Empresa</h2>
+                <h2 class="text-[#cba871] font-bold text-lg lg:text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> Dados da Empresa</h2>
                 <div class="mb-4">
                     <label class="block text-xs font-semibold text-slate-400 mb-1">NÚMERO DO CNPJ</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-cnpj" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white font-mono focus:border-[#cba871] focus:outline-none transition" readonly>
-                        <button onclick="gerarCNPJ()" class="bg-[#cba871] text-slate-900 px-3 py-2 rounded font-bold"><i class="fa-solid fa-rotate"></i></button>
+                        <input type="text" id="input-cnpj" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white font-mono focus:border-[#cba871] focus:outline-none transition text-sm" readonly>
+                        <button onclick="gerarCNPJ()" class="bg-[#cba871] hover:bg-[#b3925c] text-slate-900 px-3 py-2 rounded font-bold transition"><i class="fa-solid fa-rotate"></i></button>
                     </div>
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-semibold text-slate-400 mb-1">RAZÃO SOCIAL</label>
-                    <input type="text" id="input-razao" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] uppercase">
+                    <input type="text" id="input-razao" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm">
                 </div>
                 <div class="mb-4">
                     <label class="block text-xs font-semibold text-slate-400 mb-1">NOME FANTASIA</label>
-                    <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] uppercase">
+                    <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm">
                 </div>
                 <div class="mb-2">
                     <label class="block text-xs font-semibold text-slate-400 mb-1">ENDEREÇO</label>
-                    <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] uppercase">
+                    <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm">
                 </div>
             </div>
 
             <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
-                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase"></i> Atividade e Natureza</h2>
-                <select id="input-cnae" onchange="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871]">
+                <h2 class="text-white font-bold text-base lg:text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase"></i> Atividade e Natureza</h2>
+                <select id="input-cnae" onchange="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm">
                     <option value="">Selecione a atividade...</option>
                     <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições.">2542-0/00 - Indústria Bélica</option>
                     <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos.">4520-0/01 - Mecânica</option>
                     <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares.">9329-8/01 - Boate</option>
                     <option value="8610-1/01 - Atividades de atendimento hospitalar.">8610-1/01 - Hospital</option>
                 </select>
-                <select id="input-natureza" onchange="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871]">
+                <select id="input-natureza" onchange="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm">
                     <option value="">Selecione a natureza...</option>
                     <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
                     <option value="213-5 - Empresário Individual">213-5 - EI</option>
@@ -173,132 +200,136 @@
             </div>
 
             <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
-                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-user-tie"></i> Representante Legal</h2>
-                <div class="flex gap-4 mb-4">
-                    <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="radio" name="tipo_rep" value="Representante" checked onchange="updateDoc()" class="accent-[#cba871]"> Representante</label>
-                    <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#cba871]"> Preposto</label>
+                <h2 class="text-white font-bold text-base lg:text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-user-tie"></i> Representante Legal</h2>
+                <div class="flex gap-4 mb-4 bg-slate-900 p-2 rounded border border-slate-700">
+                    <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="radio" name="tipo_rep" value="Representante" checked onchange="updateDoc()" class="accent-[#cba871] w-4 h-4"> Representante</label>
+                    <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#cba871] w-4 h-4"> Preposto</label>
                 </div>
-                <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white uppercase" placeholder="NOME COMPLETO">
+                <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm" placeholder="NOME COMPLETO">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="input-rep-cpf" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white" placeholder="PASSAPORTE">
-                    <input type="text" id="input-rep-data" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white">
+                    <input type="text" id="input-rep-cpf" oninput="this.value = maskPassaporte(this.value); updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" placeholder="PASSAPORTE (Apenas nº)" maxlength="14">
+                    <input type="text" id="input-rep-data" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" placeholder="LOCAL E DATA">
                 </div>
             </div>
 
             <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
-                <h2 class="text-[#cba871] font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-gavel"></i> Advogado Responsável</h2>
-                <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white uppercase" placeholder="NOME DO ADVOGADO">
+                <h2 class="text-[#cba871] font-bold text-base lg:text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-gavel"></i> Advogado Responsável</h2>
+                <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm" placeholder="NOME DO ADVOGADO">
                 
                 <label class="block text-xs font-semibold text-slate-400 mb-1">Nº DA OAB</label>
-                <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white uppercase" placeholder="Ex: FMA6Y4JE">
+                <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm" placeholder="Ex: FMA6Y4JE">
                 
                 <label class="block text-xs font-semibold text-indigo-400 mb-1"><i class="fa-brands fa-discord"></i> WEBHOOK (DISCORD)</label>
-                <input type="password" id="input-webhook" value="https://discord.com/api/webhooks/1492550407308837057/JInr_ekobOHNb9MFZRIDaKCWxmUhmjlvdvqgLfzBsMFZMYJkN5TJJ_AlJOL76GDIwPJQ" class="w-full bg-slate-900 border border-indigo-500/50 rounded px-3 py-2 text-white text-xs">
+                <input type="password" id="input-webhook" value="https://discord.com/api/webhooks/1492550407308837057/JInr_ekobOHNb9MFZRIDaKCWxmUhmjlvdvqgLfzBsMFZMYJkN5TJJ_AlJOL76GDIwPJQ" class="w-full bg-slate-900 border border-indigo-500/50 rounded px-3 py-2 text-white text-xs focus:border-indigo-400 focus:outline-none transition">
             </div>
 
-            <div class="flex flex-col gap-3 mb-8">
+            <div class="flex flex-col gap-3 mb-4 lg:mb-8 mt-auto lg:mt-0">
                 <button onclick="downloadPDF('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 text-sm border border-slate-500"><i class="fa-solid fa-download"></i> BAIXAR (PDF)</button>
-                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg py-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex justify-center gap-3"><i class="fa-brands fa-discord text-xl"></i> ENVIAR PARA O DISCORD</button>
+                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-base lg:text-lg py-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex justify-center items-center gap-3"><i class="fa-brands fa-discord text-xl"></i> ENVIAR P/ DISCORD</button>
             </div>
         </aside>
 
-        <main class="w-2/3 bg-gray-300 overflow-y-auto p-8 flex justify-center items-start" id="preview-area">
-            <div id="documento-pdf" class="a4-container p-10 flex flex-col">
-                <div class="flex items-center justify-between mb-4 border-b-2 border-black pb-4">
-                    <div class="w-1/4"><img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" class="h-16 grayscale opacity-90"></div>
-                    <div class="w-2/4 text-center">
-                        <h2 class="font-bold text-xl uppercase leading-tight">República Federativa do Brasil RP</h2>
-                        <h3 class="font-bold text-lg uppercase mt-1">Cadastro Nacional da Pessoa Jurídica</h3>
-                    </div>
-                    <div class="w-1/4 flex justify-end"><img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" class="h-16 grayscale opacity-90"></div>
-                </div>
-                <div class="doc-border flex flex-col mb-4">
-                    <div class="doc-row"><div class="doc-cell w-full text-center bg-gray-100 py-2"><span class="doc-label">NÚMERO DE INSCRIÇÃO (CNPJ)</span><span class="doc-value text-xl font-bold tracking-widest mt-1" id="doc-cnpj"></span></div></div>
-                    <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">01. NOME EMPRESARIAL</span><span class="doc-value mt-1" id="doc-razao"></span></div></div>
-                    <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">02. NOME FANTASIA</span><span class="doc-value mt-1" id="doc-fantasia"></span></div></div>
-                    <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">03. LOCAL DA EMPRESA (ENDEREÇO)</span><span class="doc-value mt-1" id="doc-endereco"></span></div></div>
-                    <div class="doc-row"><div class="doc-cell w-full min-h-[50px]"><span class="doc-label">04. CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA</span><span class="doc-value mt-1 text-sm leading-tight" id="doc-cnae"></span></div></div>
-                    <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">05. CÓDIGO E DESCRIÇÃO DA NATUREZA JURÍDICA</span><span class="doc-value mt-1" id="doc-natureza"></span></div></div>
-                    <div class="doc-row bg-gray-100"><div class="doc-cell w-full text-center py-1"><span class="doc-label !mb-0">06. IDENTIFICAÇÃO DO REPRESENTANTE</span></div></div>
-                    <div class="doc-row">
-                        <div class="doc-cell w-[30%] border-r-0 flex flex-col justify-center gap-2 py-2">
-                            <label class="text-[0.65rem] font-bold flex items-center gap-2"><span class="border border-black w-4 h-4 flex items-center justify-center bg-white" id="box-rep"></span> REPRESENTANTE</label>
-                            <label class="text-[0.65rem] font-bold flex items-center gap-2"><span class="border border-black w-4 h-4 flex items-center justify-center bg-white" id="box-pre"></span> PREPOSTO</label>
+        <!-- Preview Area -->
+        <main class="w-full lg:w-2/3 bg-gray-300 overflow-y-auto overflow-x-hidden p-4 lg:p-8 flex flex-col items-center justify-start relative" id="preview-area">
+            <div class="w-full max-w-[900px] flex justify-center origin-top" id="scale-wrapper">
+                <div id="documento-pdf" class="a4-container p-10 flex flex-col bg-white">
+                    <div class="flex items-center justify-between mb-4 border-b-2 border-black pb-4">
+                        <div class="w-1/4"><img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" class="h-16 grayscale opacity-90"></div>
+                        <div class="w-2/4 text-center">
+                            <h2 class="font-bold text-xl uppercase leading-tight">República Federativa do Brasil RP</h2>
+                            <h3 class="font-bold text-lg uppercase mt-1">Cadastro Nacional da Pessoa Jurídica</h3>
                         </div>
-                        <div class="doc-cell w-[70%] border-l-2 border-black"><span class="doc-label">NOME</span><span class="doc-value mt-1" id="doc-rep-nome"></span></div>
+                        <div class="w-1/4 flex justify-end"><img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" class="h-16 grayscale opacity-90"></div>
                     </div>
-                    <div class="doc-row border-b-2 border-black">
-                        <div class="doc-cell w-[25%]"><span class="doc-label">CPF</span><span class="doc-value mt-1" id="doc-rep-cpf"></span></div>
-                        <div class="doc-cell w-[25%]"><span class="doc-label">LOCAL E DATA</span><span class="doc-value mt-1 text-xs" id="doc-rep-data"></span></div>
-                        <div class="doc-cell w-[50%] relative min-h-[60px] overflow-hidden">
-                            <span class="doc-label absolute top-1 left-2">ASSINATURA</span>
-                            <div class="flex-1 flex items-center justify-center mt-3"><span class="assinatura-font text-3xl text-blue-900" style="transform: rotate(-3deg);" id="doc-rep-assinatura"></span></div>
+                    <div class="doc-border flex flex-col mb-4">
+                        <div class="doc-row"><div class="doc-cell w-full text-center bg-gray-100 py-2"><span class="doc-label">NÚMERO DE INSCRIÇÃO (CNPJ)</span><span class="doc-value text-xl font-bold tracking-widest mt-1" id="doc-cnpj"></span></div></div>
+                        <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">01. NOME EMPRESARIAL</span><span class="doc-value mt-1 uppercase" id="doc-razao"></span></div></div>
+                        <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">02. NOME FANTASIA</span><span class="doc-value mt-1 uppercase" id="doc-fantasia"></span></div></div>
+                        <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">03. LOCAL DA EMPRESA (ENDEREÇO)</span><span class="doc-value mt-1 uppercase" id="doc-endereco"></span></div></div>
+                        <div class="doc-row"><div class="doc-cell w-full min-h-[50px]"><span class="doc-label">04. CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA</span><span class="doc-value mt-1 text-sm leading-tight uppercase" id="doc-cnae"></span></div></div>
+                        <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">05. CÓDIGO E DESCRIÇÃO DA NATUREZA JURÍDICA</span><span class="doc-value mt-1 uppercase" id="doc-natureza"></span></div></div>
+                        <div class="doc-row bg-gray-100"><div class="doc-cell w-full text-center py-1"><span class="doc-label !mb-0">06. IDENTIFICAÇÃO DO REPRESENTANTE</span></div></div>
+                        <div class="doc-row">
+                            <div class="doc-cell w-[30%] border-r-0 flex flex-col justify-center gap-2 py-2">
+                                <label class="text-[0.65rem] font-bold flex items-center gap-2"><span class="border border-black w-4 h-4 flex items-center justify-center bg-white" id="box-rep"></span> REPRESENTANTE</label>
+                                <label class="text-[0.65rem] font-bold flex items-center gap-2"><span class="border border-black w-4 h-4 flex items-center justify-center bg-white" id="box-pre"></span> PREPOSTO</label>
+                            </div>
+                            <div class="doc-cell w-[70%] border-l-2 border-black"><span class="doc-label">NOME</span><span class="doc-value mt-1 uppercase" id="doc-rep-nome"></span></div>
                         </div>
-                    </div>
-                    <div class="doc-row h-[130px]">
-                        <div class="doc-cell w-1/2 p-0 border-r-2 border-black">
-                            <div class="bg-gray-100 border-b-2 border-black py-1 text-center"><span class="doc-label !mb-0">07. CARTÓRIO</span></div>
-                            <div class="p-2 h-full flex flex-col justify-center items-center relative">
-                                <div class="border-[3px] border-red-800/80 rounded-full w-24 h-24 flex flex-col justify-center items-center transform -rotate-12 absolute opacity-80" style="box-shadow: inset 0 0 0 1px rgba(153, 27, 27, 0.5);">
-                                    <span class="text-[0.45rem] font-bold text-red-800 leading-none">PODER JUDICIÁRIO</span>
-                                    <i class="fa-solid fa-scale-balanced text-red-800 text-xs my-[2px]"></i>
-                                    <span class="text-[0.4rem] font-bold text-red-800 border-t border-red-800/50 pt-[2px]">AUTENTICADO</span>
-                                    <span class="text-[0.45rem] font-bold text-red-800 mt-[2px]" id="doc-carimbo-data"></span>
+                        <div class="doc-row border-b-2 border-black">
+                            <div class="doc-cell w-[25%]"><span class="doc-label">CPF (ID)</span><span class="doc-value mt-1" id="doc-rep-cpf"></span></div>
+                            <div class="doc-cell w-[25%]"><span class="doc-label">LOCAL E DATA</span><span class="doc-value mt-1 text-xs uppercase" id="doc-rep-data"></span></div>
+                            <div class="doc-cell w-[50%] relative min-h-[60px] overflow-hidden">
+                                <span class="doc-label absolute top-1 left-2">ASSINATURA</span>
+                                <div class="flex-1 flex items-center justify-center mt-3"><span class="assinatura-font text-3xl text-blue-900" style="transform: rotate(-3deg);" id="doc-rep-assinatura"></span></div>
+                            </div>
+                        </div>
+                        <div class="doc-row h-[130px]">
+                            <div class="doc-cell w-1/2 p-0 border-r-2 border-black">
+                                <div class="bg-gray-100 border-b-2 border-black py-1 text-center"><span class="doc-label !mb-0">07. CARTÓRIO</span></div>
+                                <div class="p-2 h-full flex flex-col justify-center items-center relative">
+                                    <div class="border-[3px] border-red-800/80 rounded-full w-24 h-24 flex flex-col justify-center items-center transform -rotate-12 absolute opacity-80" style="box-shadow: inset 0 0 0 1px rgba(153, 27, 27, 0.5);">
+                                        <span class="text-[0.45rem] font-bold text-red-800 leading-none">PODER JUDICIÁRIO</span>
+                                        <i class="fa-solid fa-scale-balanced text-red-800 text-xs my-[2px]"></i>
+                                        <span class="text-[0.4rem] font-bold text-red-800 border-t border-red-800/50 pt-[2px]">AUTENTICADO</span>
+                                        <span class="text-[0.45rem] font-bold text-red-800 mt-[2px]" id="doc-carimbo-data"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="doc-cell w-1/2 p-0">
+                                <div class="bg-gray-100 border-b-2 border-black py-1 text-center"><span class="doc-label !mb-0">08. RECIBO ADVOGADO</span></div>
+                                <div class="p-2 h-full flex flex-col justify-end">
+                                    <div class="flex-1 flex items-center justify-center overflow-hidden"><span class="assinatura-font text-3xl text-blue-900" style="transform: rotate(-2deg);" id="doc-adv-assinatura"></span></div>
+                                    <div class="text-center mt-auto">
+                                        <div class="border-b border-black w-4/5 mx-auto mb-1"></div>
+                                        <span class="doc-label text-[0.55rem] block !mb-0 uppercase truncate px-2" id="doc-adv-nome-rodape"></span>
+                                        <span class="doc-label text-[0.45rem] block text-gray-600 uppercase">OAB: <span id="doc-adv-id-rodape"></span></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="doc-cell w-1/2 p-0">
-                            <div class="bg-gray-100 border-b-2 border-black py-1 text-center"><span class="doc-label !mb-0">08. RECIBO ADVOGADO</span></div>
-                            <div class="p-2 h-full flex flex-col justify-end">
-                                <div class="flex-1 flex items-center justify-center"><span class="assinatura-font text-3xl text-blue-900" style="transform: rotate(-2deg);" id="doc-adv-assinatura"></span></div>
-                                <div class="text-center mt-auto">
-                                    <div class="border-b border-black w-4/5 mx-auto mb-1"></div>
-                                    <span class="doc-label text-[0.55rem] block !mb-0" id="doc-adv-nome-rodape"></span>
-                                    <span class="doc-label text-[0.45rem] block text-gray-600">OAB: <span id="doc-adv-id-rodape"></span></span>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="mt-auto pt-4 flex justify-between items-end">
+                        <div class="flex items-center gap-4 w-3/4">
+                            <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" class="h-12 grayscale opacity-90">
+                            <div class="text-[0.55rem] text-gray-800 font-bold leading-tight text-justify border-l-2 border-black pl-3 uppercase">Confira os dados, se houver divergência providencie atualização cadastral.</div>
                         </div>
+                        <div class="w-1/4 text-right"><span class="text-[0.55rem] text-gray-600 font-bold">IN RFB nº 1.470/2014.</span></div>
                     </div>
-                </div>
-                <div class="mt-auto pt-4 flex justify-between items-end">
-                    <div class="flex items-center gap-4 w-3/4">
-                        <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" class="h-12 grayscale opacity-90">
-                        <div class="text-[0.55rem] text-gray-800 font-bold leading-tight text-justify border-l-2 border-black pl-3 uppercase">Confira os dados, se houver divergência providencie atualização cadastral.</div>
-                    </div>
-                    <div class="w-1/4 text-right"><span class="text-[0.55rem] text-gray-600 font-bold">IN RFB nº 1.470/2014.</span></div>
                 </div>
             </div>
         </main>
     </div>
 
     <!-- ==================== ABA 2: PORTE DE ARMA ==================== -->
-    <div id="view-porte" class="hidden flex flex-1 overflow-hidden">
-        <aside class="w-1/3 min-w-[400px] max-w-[500px] glass-panel overflow-y-auto p-6 flex flex-col gap-6 relative z-10">
+    <div id="view-porte" class="hidden flex-col lg:flex-row flex-1 overflow-hidden h-full">
+        <!-- Sidebar -->
+        <aside class="w-full lg:w-1/3 lg:min-w-[400px] lg:max-w-[450px] glass-panel overflow-y-auto p-4 lg:p-6 flex flex-col gap-5 lg:gap-6 relative z-10 shadow-lg">
             
             <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
-                <h2 class="text-[#cba871] font-bold text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-user"></i> Dados Pessoais</h2>
+                <h2 class="text-[#cba871] font-bold text-lg lg:text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-user"></i> Dados Pessoais</h2>
                 <div class="mb-4">
                     <label class="block text-xs font-semibold text-slate-400 mb-1">NOME COMPLETO</label>
-                    <input type="text" id="input-porte-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none uppercase">
+                    <input type="text" id="input-porte-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm">
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">PASSAPORTE (CPF)</label>
-                        <input type="text" id="input-porte-passaporte" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1">PASSAPORTE (ID)</label>
+                        <input type="text" id="input-porte-passaporte" oninput="this.value = maskPassaporte(this.value); updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" maxlength="14" placeholder="Apenas números">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">DATA DE NASCIMENTO</label>
-                        <input type="text" id="input-porte-nasc" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="DD/MM/AAAA">
+                        <input type="text" id="input-porte-nasc" oninput="this.value = maskData(this.value); updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" placeholder="DD/MM/AAAA" maxlength="10">
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-2">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">TELEFONE</label>
-                        <input type="text" id="input-porte-tel" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="XXX-XXX">
+                        <input type="text" id="input-porte-tel" oninput="this.value = maskTelefone(this.value); updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" placeholder="XXX-XXX" maxlength="8">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">ESTADO CIVIL</label>
-                        <select id="input-porte-civil" onchange="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none uppercase">
+                        <select id="input-porte-civil" onchange="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm">
                             <option value="Solteiro(a)">Solteiro(a)</option>
                             <option value="Casado(a)">Casado(a)</option>
                             <option value="Divorciado(a)">Divorciado(a)</option>
@@ -309,45 +340,45 @@
             </div>
 
             <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
-                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Informações Complementares</h2>
+                <h2 class="text-white font-bold text-base lg:text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Informações Complementares</h2>
                 <div class="mb-4">
                     <label class="block text-xs font-semibold text-slate-400 mb-1">PROFISSÃO ATUAL</label>
-                    <input type="text" id="input-porte-profissao" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none uppercase" placeholder="Ex: Líder Mecânica">
+                    <input type="text" id="input-porte-profissao" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition uppercase text-sm" placeholder="Ex: Líder Mecânica">
                 </div>
-                <div class="grid grid-cols-3 gap-4 mb-4">
+                <div class="grid grid-cols-3 gap-3 lg:gap-4 mb-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Nº FILHOS</label>
-                        <input type="number" min="0" id="input-porte-filhos" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" value="0">
+                        <input type="number" min="0" id="input-porte-filhos" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" value="0">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">CASAS</label>
-                        <input type="number" min="0" id="input-porte-casas" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" value="0">
+                        <input type="number" min="0" id="input-porte-casas" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" value="0">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">CARROS</label>
-                        <input type="number" min="0" id="input-porte-carros" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" value="0">
+                        <input type="number" min="0" id="input-porte-carros" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" value="0">
                     </div>
                 </div>
                 <div class="mb-2">
                     <label class="block text-xs font-semibold text-slate-400 mb-1">RENDA MENSAL (R$)</label>
-                    <input type="number" min="0" id="input-porte-salario" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: 10000">
+                    <input type="number" min="0" id="input-porte-salario" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm" placeholder="Ex: 10000">
                 </div>
             </div>
 
             <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
-                <h2 class="text-[#cba871] font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-signature"></i> Assinatura (Autoridade)</h2>
+                <h2 class="text-[#cba871] font-bold text-base lg:text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-signature"></i> Assinatura (Advogado)</h2>
                 <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME DA AUTORIDADE EMISSORA</label>
-                    <input type="text" id="input-porte-adv-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: Vitor Lazerri">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME DO ADVOGADO EMISSOR</label>
+                    <input type="text" id="input-porte-adv-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm uppercase" placeholder="Ex: Vitor Lazerri">
                 </div>
                 <div class="grid grid-cols-2 gap-4 mb-2">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">CARGO</label>
-                        <input type="text" id="input-porte-adv-cargo" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: Advogado Sênior">
+                        <input type="text" id="input-porte-adv-cargo" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm uppercase" placeholder="Ex: Advogado Sênior">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1">Nº DA OAB</label>
-                        <input type="text" id="input-porte-adv-oab" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: FMA6Y4JE">
+                        <input type="text" id="input-porte-adv-oab" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none transition text-sm uppercase" placeholder="Ex: FMA6Y4JE">
                     </div>
                 </div>
                 
@@ -355,93 +386,94 @@
                 <input type="password" id="input-webhook-porte" value="https://discord.com/api/webhooks/1492636062592274442/c3fsqPnSm4VACNr351knOcBLGl8a9uxtmD3gFLNDHCkNY0G0CJWTFXOHX88aZX5s7Pzj" class="w-full bg-slate-900 border border-indigo-500/50 rounded px-3 py-2 text-white focus:border-indigo-400 focus:outline-none transition text-xs">
             </div>
 
-            <div class="flex flex-col gap-3 mb-8">
+            <div class="flex flex-col gap-3 mb-4 lg:mb-8 mt-auto lg:mt-0">
                 <button onclick="downloadPDF('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 text-sm border border-slate-500">
-                    <i class="fa-solid fa-download"></i> BAIXAR ENCAMINHAMENTO (PDF)
+                    <i class="fa-solid fa-download"></i> BAIXAR (PDF)
                 </button>
-                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg py-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-3">
-                    <i class="fa-brands fa-discord text-xl"></i> ENVIAR PARA O DISCORD
+                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-base lg:text-lg py-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-3">
+                    <i class="fa-brands fa-discord text-xl"></i> ENVIAR P/ DISCORD
                 </button>
             </div>
         </aside>
 
-        <main class="w-2/3 bg-gray-300 overflow-y-auto p-8 flex justify-center items-start" id="preview-area-porte">
-            <div id="documento-pdf-porte" class="a4-container p-10 flex flex-col bg-white text-black justify-between">
-                
-                <div>
-                    <!-- CABEÇALHO TRIBUNAL DE JUSTIÇA -->
-                    <div class="w-full text-center pb-4 mb-6">
-                        <div class="border-t-[1.5px] border-black pt-5 mb-4 mx-auto w-full"></div>
-                        <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-[70px] mx-auto mb-3 drop-shadow-sm opacity-90">
-                        <h2 class="font-bold text-[0.8rem] italic uppercase mt-1">- Poder Judiciário do Estado -</h2>
-                        <h1 class="font-bold text-lg uppercase tracking-wide">Tribunal de Justiça</h1>
-                        <div class="text-xs tracking-[0.2em] mb-4 text-gray-500">******************************</div>
-                        <h2 class="font-bold text-md uppercase tracking-wider mt-2">Encaminhamento para Avaliação Psicológica</h2>
-                        <div class="border-t-[1.5px] border-black mt-5 mx-auto w-full"></div>
+        <!-- Preview Area -->
+        <main class="w-full lg:w-2/3 bg-gray-300 overflow-y-auto overflow-x-hidden p-4 lg:p-8 flex flex-col items-center justify-start relative" id="preview-area-porte">
+            <div class="w-full max-w-[900px] flex justify-center origin-top" id="scale-wrapper-porte">
+                <div id="documento-pdf-porte" class="a4-container p-10 flex flex-col bg-white text-black justify-between">
+                    <div>
+                        <!-- CABEÇALHO -->
+                        <div class="w-full text-center pb-4 mb-6">
+                            <div class="border-t-[1.5px] border-black pt-5 mb-4 mx-auto w-full"></div>
+                            <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-[70px] mx-auto mb-3 drop-shadow-sm opacity-90">
+                            <h2 class="font-bold text-[0.8rem] italic uppercase mt-1">- Poder Judiciário do Estado -</h2>
+                            <h1 class="font-bold text-lg uppercase tracking-wide">Tribunal de Justiça</h1>
+                            <div class="text-xs tracking-[0.2em] mb-4 text-gray-500">******************************</div>
+                            <h2 class="font-bold text-md uppercase tracking-wider mt-2">Encaminhamento para Avaliação Psicológica</h2>
+                            <div class="border-t-[1.5px] border-black mt-5 mx-auto w-full"></div>
+                        </div>
+
+                        <!-- TEXTO INTRODUTÓRIO -->
+                        <p class="text-justify text-[0.85rem] mb-4 leading-relaxed">
+                            O <strong>PODER JUDICIÁRIO DO BRASIL RP</strong>, por intermédio deste ato administrativo, ENCAMINHA o(a) cidadão(ã) abaixo identificado(a) para realização de <strong>AVALIAÇÃO PSICOLÓGICA</strong>, etapa obrigatória e indispensável ao processo administrativo de concessão de porte de arma de fogo, nos termos das normas internas vigentes.
+                        </p>
+
+                        <!-- TABELA 1: DADOS PESSOAIS -->
+                        <h3 class="font-bold uppercase text-[0.85rem] mb-1">Dados Pessoais</h3>
+                        <table class="tj-table mb-4">
+                            <tr><td class="tj-label">Nome:</td><td id="doc-porte-nome" class="uppercase">-</td></tr>
+                            <tr><td class="tj-label">CPF (ID):</td><td id="doc-porte-passaporte">-</td></tr>
+                            <tr><td class="tj-label">Data de Nascimento:</td><td id="doc-porte-nasc">-</td></tr>
+                            <tr><td class="tj-label">Telefone:</td><td id="doc-porte-tel">-</td></tr>
+                            <tr><td class="tj-label">Estado Civil:</td><td id="doc-porte-civil" class="uppercase">Solteiro(a)</td></tr>
+                            <tr><td class="tj-label">Filhos:</td><td id="doc-porte-filhos">0</td></tr>
+                        </table>
+
+                        <!-- TABELA 2: INFORMAÇÕES COMPLEMENTARES -->
+                        <h3 class="font-bold uppercase text-[0.85rem] mb-1">Informações Complementares</h3>
+                        <table class="tj-table mb-4">
+                            <tr><td class="tj-label">Situação Residencial:</td><td id="doc-porte-casas">Não informado</td></tr>
+                            <tr><td class="tj-label">Veículos Registrados:</td><td id="doc-porte-carros">0 veículos</td></tr>
+                            <tr><td class="tj-label">Profissão Atual:</td><td id="doc-porte-profissao" class="uppercase">-</td></tr>
+                            <tr><td class="tj-label">Renda Declarada:</td><td id="doc-porte-salario">R$ 0,00</td></tr>
+                            <tr><td class="tj-label">Declaração de Imposto:</td><td id="doc-porte-ir">Não apresentada</td></tr>
+                        </table>
+
+                        <!-- TABELA 3: ANTECEDENTES -->
+                        <h3 class="font-bold uppercase text-[0.85rem] mb-1">Antecedentes Criminais</h3>
+                        <table class="tj-table">
+                            <tr><td class="tj-label">Passagens:</td><td class="uppercase font-semibold text-green-700">NÃO POSSUI</td></tr>
+                        </table>
                     </div>
 
-                    <!-- TEXTO INTRODUTÓRIO -->
-                    <p class="text-justify text-[0.85rem] mb-4 leading-relaxed">
-                        O <strong>PODER JUDICIÁRIO DO BRASIL RP</strong>, por intermédio deste ato administrativo, ENCAMINHA o(a) cidadão(ã) abaixo identificado(a) para realização de <strong>AVALIAÇÃO PSICOLÓGICA</strong>, etapa obrigatória e indispensável ao processo administrativo de concessão de porte de arma de fogo, nos termos das normas internas vigentes.
-                    </p>
+                    <div>
+                        <!-- ÁREA DE ASSINATURA -->
+                        <div class="mt-4 flex flex-col items-center justify-center w-full">
+                            <div class="h-[60px] flex items-center justify-center overflow-hidden w-full"><span class="assinatura-font text-4xl text-black" style="transform: rotate(-2deg);" id="doc-porte-adv-assinatura"></span></div>
+                            <div class="border-t border-gray-400 w-[55%] mx-auto mt-2 pt-1 text-center">
+                                <span class="block text-[0.7rem] italic text-gray-700 uppercase" id="doc-porte-adv-cargo-rodape">Assinatura do Advogado</span>
+                                <span class="block text-[0.7rem] font-bold mt-0.5 uppercase" id="doc-porte-adv-nome-rodape">Nome - OAB: ID</span>
+                                <span class="block text-[0.7rem] italic mt-0.5" id="doc-porte-data-extenso"></span>
+                            </div>
+                        </div>
 
-                    <!-- TABELA 1: DADOS PESSOAIS -->
-                    <h3 class="font-bold uppercase text-[0.85rem] mb-1">Dados Pessoais</h3>
-                    <table class="tj-table mb-4">
-                        <tr><td class="tj-label">Nome:</td><td id="doc-porte-nome">-</td></tr>
-                        <tr><td class="tj-label">CPF (ID):</td><td id="doc-porte-passaporte">-</td></tr>
-                        <tr><td class="tj-label">Data de Nascimento:</td><td id="doc-porte-nasc">-</td></tr>
-                        <tr><td class="tj-label">Telefone:</td><td id="doc-porte-tel">-</td></tr>
-                        <tr><td class="tj-label">Estado Civil:</td><td id="doc-porte-civil">Solteiro(a)</td></tr>
-                        <tr><td class="tj-label">Filhos:</td><td id="doc-porte-filhos">0</td></tr>
-                    </table>
-
-                    <!-- TABELA 2: INFORMAÇÕES COMPLEMENTARES -->
-                    <h3 class="font-bold uppercase text-[0.85rem] mb-1">Informações Complementares</h3>
-                    <table class="tj-table mb-4">
-                        <tr><td class="tj-label">Situação Residencial:</td><td id="doc-porte-casas">Não informado</td></tr>
-                        <tr><td class="tj-label">Veículos Registrados:</td><td id="doc-porte-carros">0 veículos</td></tr>
-                        <tr><td class="tj-label">Profissão Atual:</td><td id="doc-porte-profissao">-</td></tr>
-                        <tr><td class="tj-label">Renda Declarada:</td><td id="doc-porte-salario">R$ 0,00</td></tr>
-                        <tr><td class="tj-label">Declaração de Imposto:</td><td id="doc-porte-ir">Não apresentada</td></tr>
-                    </table>
-
-                    <!-- TABELA 3: ANTECEDENTES (AGORA FECHADA CORRETAMENTE) -->
-                    <h3 class="font-bold uppercase text-[0.85rem] mb-1">Antecedentes Criminais</h3>
-                    <table class="tj-table">
-                        <tr><td class="tj-label">Passagens:</td><td>não possui</td></tr>
-                    </table>
-                </div>
-
-                <div>
-                    <!-- ÁREA DE ASSINATURA -->
-                    <div class="mt-4 flex flex-col items-center justify-center w-full">
-                        <span class="assinatura-font text-4xl text-black" style="transform: rotate(-2deg);" id="doc-porte-adv-assinatura"></span>
-                        <div class="border-t border-gray-400 w-[45%] mx-auto mt-2 pt-1 text-center">
-                            <span class="block text-[0.7rem] italic text-gray-700" id="doc-porte-adv-cargo-rodape">Assinatura do Advogado</span>
-                            <span class="block text-[0.7rem] font-bold mt-0.5" id="doc-porte-adv-nome-rodape">Nome - OAB: ID</span>
-                            <span class="block text-[0.7rem] italic mt-0.5" id="doc-porte-data-extenso"></span>
+                        <!-- RODAPÉ COM LOGOS -->
+                        <div class="mt-8 flex items-end justify-center gap-12 pb-2">
+                            <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-10 opacity-90 grayscale">
+                            <img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" alt="OAB" class="h-10 opacity-90 grayscale">
                         </div>
                     </div>
-
-                    <!-- RODAPÉ COM LOGOS (DIMINUÍDOS E ALINHADOS) -->
-                    <div class="mt-8 flex items-end justify-center gap-12 pb-2">
-                        <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-10 opacity-90 grayscale">
-                        <img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" alt="OAB" class="h-10 opacity-90 grayscale">
-                    </div>
                 </div>
-
             </div>
         </main>
     </div>
 
-    <!-- ==================== ABA 3: CALCULADORA (RESTAURADA 100%) ==================== -->
-    <div id="view-calc" class="hidden flex-1 overflow-hidden bg-slate-900 p-8 flex gap-8">
+    <!-- ==================== ABA 3: CALCULADORA ==================== -->
+    <div id="view-calc" class="hidden flex-col lg:flex-row flex-1 overflow-hidden bg-slate-900 p-4 lg:p-8 gap-4 lg:gap-8 h-full">
         
         <!-- COLUNA 1: CRIMES -->
-        <div class="w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
-            <div class="p-5 border-b border-slate-700 bg-slate-800/80">
-                <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-book-journal-whills text-[#cba871]"></i> Código Penal</h2>
+        <div class="w-full lg:w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden h-[50vh] lg:h-auto">
+            <div class="p-4 lg:p-5 border-b border-slate-700 bg-slate-800/80 shrink-0">
+                <h2 class="text-lg lg:text-xl font-bold text-white mb-4"><i class="fa-solid fa-book-journal-whills text-[#cba871]"></i> Código Penal</h2>
                 <div class="relative">
                     <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
                     <input type="text" id="crimeSearchInput" placeholder="Buscar artigo ou descrição..." class="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-sm text-white focus:border-[#cba871] focus:outline-none transition">
@@ -451,49 +483,52 @@
         </div>
 
         <!-- COLUNA 2: RESULTADOS -->
-        <div class="w-1/2 flex flex-col gap-6 overflow-y-auto pr-2">
-            <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-xl">
-                <h3 class="text-[#cba871] font-bold text-lg mb-4 border-b border-slate-700 pb-2">CRIMES SELECIONADOS</h3>
-                <ul id="selected-crimes-list" class="space-y-2 mb-4 empty:hidden text-sm"></ul>
+        <div class="w-full lg:w-1/2 flex flex-col gap-4 lg:gap-6 overflow-y-auto pr-1 lg:pr-2 pb-6 lg:pb-0 h-[50vh] lg:h-auto">
+            <div class="bg-slate-800 rounded-xl border border-slate-700 p-4 lg:p-6 shadow-xl shrink-0">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                    <h3 class="text-[#cba871] font-bold text-base lg:text-lg">CRIMES SELECIONADOS</h3>
+                    <button onclick="limparCalculadora()" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition font-semibold"><i class="fa-solid fa-trash-can mr-1"></i> Limpar</button>
+                </div>
+                <ul id="selected-crimes-list" class="space-y-2 mb-2 empty:hidden text-xs lg:text-sm max-h-[150px] overflow-y-auto pr-2"></ul>
                 <div id="empty-crimes" class="text-slate-500 text-sm italic text-center py-4">Nenhum crime selecionado.</div>
             </div>
 
-            <div id="resultado-fianca" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-xl relative overflow-hidden">
+            <div id="resultado-fianca" class="bg-slate-800 rounded-xl border border-slate-700 p-4 lg:p-6 shadow-xl relative overflow-hidden shrink-0">
                 <div class="absolute top-0 left-0 w-full h-1" id="status-bar"></div>
                 <div class="flex justify-between items-start mb-6">
                     <div>
-                        <h3 class="text-white font-bold text-xl">Análise de Fiança</h3>
-                        <p id="status-text" class="text-sm font-bold mt-1">-</p>
+                        <h3 class="text-white font-bold text-lg lg:text-xl">Análise de Fiança</h3>
+                        <p id="status-text" class="text-xs lg:text-sm font-bold mt-1">-</p>
                     </div>
-                    <i class="fa-solid fa-scale-unbalanced text-3xl opacity-20 text-white" id="status-icon"></i>
+                    <i class="fa-solid fa-scale-unbalanced text-2xl lg:text-3xl opacity-20 text-white" id="status-icon"></i>
                 </div>
 
                 <div id="motivo-inafiancavel" class="hidden bg-red-900/30 border border-red-500/50 rounded-lg p-3 mb-6">
                     <p class="text-red-400 text-xs font-bold mb-1 uppercase"><i class="fa-solid fa-ban"></i> Negação (Prisão Direta):</p>
-                    <ul id="lista-motivos" class="text-white text-sm list-disc pl-5"></ul>
+                    <ul id="lista-motivos" class="text-white text-xs lg:text-sm list-disc pl-5"></ul>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                        <span class="text-slate-400 text-xs font-bold uppercase tracking-wider">Fiança Total</span>
-                        <div class="text-2xl font-bold text-white mt-1 truncate" id="valor-fianca">R$ 0</div>
+                <div class="grid grid-cols-2 gap-3 lg:gap-4">
+                    <div class="bg-slate-900 p-3 lg:p-4 rounded-lg border border-slate-700">
+                        <span class="text-slate-400 text-[0.65rem] lg:text-xs font-bold uppercase tracking-wider">Fiança Total</span>
+                        <div class="text-lg lg:text-2xl font-bold text-white mt-1 truncate" id="valor-fianca">R$ 0</div>
                     </div>
-                    <div class="bg-slate-900 p-4 rounded-lg border border-[#cba871]/50 relative overflow-hidden">
-                        <div class="absolute -right-2 -bottom-2 opacity-10"><i class="fa-solid fa-hand-holding-dollar text-6xl text-[#cba871]"></i></div>
-                        <span class="text-[#cba871] text-xs font-bold uppercase tracking-wider">Taxa Policial (50%)</span>
-                        <div class="text-2xl font-bold text-[#cba871] mt-1 relative z-10 truncate" id="valor-policial">R$ 0</div>
+                    <div class="bg-slate-900 p-3 lg:p-4 rounded-lg border border-[#cba871]/50 relative overflow-hidden">
+                        <div class="absolute -right-2 -bottom-2 opacity-10"><i class="fa-solid fa-hand-holding-dollar text-5xl lg:text-6xl text-[#cba871]"></i></div>
+                        <span class="text-[#cba871] text-[0.65rem] lg:text-xs font-bold uppercase tracking-wider">Taxa Policial (50%)</span>
+                        <div class="text-lg lg:text-2xl font-bold text-[#cba871] mt-1 relative z-10 truncate" id="valor-policial">R$ 0</div>
                     </div>
                 </div>
 
-                <div id="aviso-mdt" class="mt-6 bg-[#cba871]/10 border border-[#cba871] rounded-lg p-4 hidden">
+                <div id="aviso-mdt" class="mt-4 lg:mt-6 bg-[#cba871]/10 border border-[#cba871]/30 rounded-lg p-3 lg:p-4 hidden">
                     <div class="flex items-start gap-3">
-                        <i class="fa-solid fa-circle-info text-[#cba871] text-xl mt-0.5"></i>
+                        <i class="fa-solid fa-circle-info text-[#cba871] text-lg lg:text-xl mt-0.5"></i>
                         <div>
-                            <h4 class="text-[#cba871] font-bold text-sm uppercase tracking-wide">Atenção Advogado</h4>
-                            <p class="text-slate-300 text-xs mt-1 leading-relaxed text-justify">
-                                Por favor, informe ao seu cliente que, <strong>devido a um erro do MDT nas fianças</strong>, quando o policial registrar a pena, ele será encaminhado para a prisão. Peça ao policial para <strong>sempre colocar a redução em 100% no sistema</strong>. 
+                            <h4 class="text-[#cba871] font-bold text-xs lg:text-sm uppercase tracking-wide">Atenção Advogado</h4>
+                            <p class="text-slate-300 text-[0.65rem] lg:text-xs mt-1 leading-relaxed text-justify">
+                                Por favor, informe ao cliente que, <strong>devido a um erro do MDT</strong>, quando o policial registrar a pena, ele será encaminhado para a prisão. Peça ao policial para <strong>colocar a redução em 100% no sistema</strong>. 
                                 <br><br>
-                                Até o sistema reconhecer a fiança paga, pode haver uma demora. Caso ele fique preso por mais de 5 minutos, deverá <strong>abrir um ticket de polícia no email da cidade (Discord)</strong>.
+                                Até o sistema reconhecer a fiança paga, pode haver demora. Caso fique preso por mais de 5 minutos, deverá <strong>abrir ticket de polícia no Discord</strong>.
                             </p>
                         </div>
                     </div>
@@ -503,21 +538,98 @@
     </div>
 
     <script>
-        // ==================== LÓGICA DE ABAS ====================
+        // ==================== UTILITÁRIOS E MÁSCARAS ====================
+        function maskPassaporte(v) { return v.replace(/\D/g, ""); } // Somente números
+        function maskData(v) {
+            v = v.replace(/\D/g, "");
+            if (v.length > 2) v = v.substring(0, 2) + "/" + v.substring(2);
+            if (v.length > 5) v = v.substring(0, 5) + "/" + v.substring(5, 9);
+            return v;
+        }
+        function maskTelefone(v) {
+            v = v.replace(/\D/g, "");
+            if (v.length > 3) v = v.substring(0, 3) + "-" + v.substring(3, 6);
+            return v;
+        }
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+            const iconClass = type === 'success' ? 'fa-check-circle' : 'fa-triangle-exclamation';
+            
+            toast.className = `toast-enter flex items-center gap-3 ${bgClass} text-white px-4 py-3 rounded-lg shadow-lg font-bold text-sm pointer-events-auto`;
+            toast.innerHTML = `<i class="fa-solid ${iconClass} text-lg"></i> ${message}`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-exit');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        // ==================== LÓGICA DE ABAS E ESCALA ====================
         function switchTab(tab) {
             document.getElementById('view-cnpj').classList.add('hidden');
             document.getElementById('view-calc').classList.add('hidden');
             document.getElementById('view-porte').classList.add('hidden');
+            
+            document.getElementById('view-cnpj').classList.remove('flex');
+            document.getElementById('view-calc').classList.remove('flex');
+            document.getElementById('view-porte').classList.remove('flex');
             
             document.getElementById('tab-cnpj').classList.remove('active');
             document.getElementById('tab-calc').classList.remove('active');
             document.getElementById('tab-porte').classList.remove('active');
 
             document.getElementById(`view-${tab}`).classList.remove('hidden');
+            
+            // Re-apply flex depending on tab layout
+            if(tab === 'calc') {
+                document.getElementById('view-calc').classList.add('flex');
+            } else {
+                document.getElementById(`view-${tab}`).classList.add('flex');
+            }
+            
             document.getElementById(`tab-${tab}`).classList.add('active');
 
-            if(tab === 'cnpj') ajustarEscala('preview-area', 'documento-pdf');
-            if(tab === 'porte') ajustarEscala('preview-area-porte', 'documento-pdf-porte');
+            // Timeout ensures DOM is visible before calculating scale
+            setTimeout(() => {
+                if(tab === 'cnpj') ajustarEscalaDinamicamente('preview-area', 'documento-pdf', 'scale-wrapper');
+                if(tab === 'porte') ajustarEscalaDinamicamente('preview-area-porte', 'documento-pdf-porte', 'scale-wrapper-porte');
+            }, 50);
+        }
+
+        // NOVA FUNÇÃO DE ESCALA CORRIGIDA (Remove o bug "Esticado ou Pequeno")
+        function ajustarEscalaDinamicamente(containerId, docId, wrapperId) {
+            const container = document.getElementById(containerId);
+            const doc = document.getElementById(docId);
+            const wrapper = document.getElementById(wrapperId);
+            
+            if (!container || !doc || !wrapper || container.clientWidth === 0) return;
+            
+            // A4 dimensions at 96 DPI
+            const a4Width = 794; 
+            const a4Height = 1123;
+            
+            // Obter largura disponível (descontando padding)
+            const padding = window.innerWidth < 1024 ? 32 : 64; // Menos padding no mobile
+            const availableWidth = container.clientWidth - padding; 
+            
+            let scale = availableWidth / a4Width;
+            
+            // Limitadores lógicos de escala para não ficar feio no desktop
+            if (scale > 1.2) scale = 1.2; 
+            
+            // Aplicar escala
+            doc.style.transform = `scale(${scale})`;
+            
+            // O truque: ajustar a altura do wrapper para que a div externa 
+            // entenda o tamanho real do documento escalado, permitindo scroll perfeito
+            const finalHeight = a4Height * scale;
+            wrapper.style.height = `${finalHeight}px`;
         }
 
         function formatBRL(value) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }); }
@@ -528,33 +640,16 @@
             return `Cidade Brasil RP, ${hoje.getDate()} de ${meses[hoje.getMonth()]} de ${hoje.getFullYear()}.`;
         }
 
-        function ajustarEscala(wrapperId, docId) {
-            const wrapper = document.getElementById(wrapperId);
-            const doc = document.getElementById(docId);
-            if (!wrapper || !doc || wrapper.clientWidth === 0) return;
-            const availableWidth = wrapper.clientWidth - 64; 
-            const docWidth = 794; 
-            if (availableWidth < docWidth) {
-                const scale = availableWidth / docWidth;
-                doc.style.transform = `scale(${scale})`;
-                doc.style.marginBottom = `-${(1 - scale) * 1118}px`; 
-            } else {
-                doc.style.transform = 'scale(1)';
-                doc.style.marginBottom = '0';
-            }
-        }
-
         function downloadPDF(docId, btnId, namePrefix) {
             const element = document.getElementById(docId);
             const btn = document.getElementById(btnId);
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> GERANDO...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> GERANDO PDF...';
             btn.classList.add('loading-pdf');
 
+            // Temporariamente remover a escala para gerar o PDF em qualidade total
             const oldTransform = element.style.transform;
-            const oldMargin = element.style.marginBottom;
             element.style.transform = 'scale(1)';
-            element.style.marginBottom = '0';
 
             let nameTarget = namePrefix === 'CNPJ' ? document.getElementById('input-fantasia').value : document.getElementById('input-porte-nome').value;
             let nomeStr = nameTarget.trim() || "DOCUMENTO";
@@ -562,12 +657,11 @@
 
             html2pdf().set({
                 margin: [0, 0, 0, 0], filename: filename, image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas: { scale: 2.5, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }).from(element).save().then(() => {
                 btn.innerHTML = originalText;
                 btn.classList.remove('loading-pdf');
-                element.style.transform = oldTransform;
-                element.style.marginBottom = oldMargin;
+                element.style.transform = oldTransform; // Restaurar escala
             });
         }
 
@@ -613,10 +707,7 @@
             const webhookUrl = document.getElementById('input-webhook').value.trim();
             const btn = document.getElementById('btn-discord');
             if(!webhookUrl) {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> INSIRA O WEBHOOK';
-                btn.classList.replace('bg-[#5865F2]', 'bg-red-600');
-                setTimeout(() => { btn.innerHTML = originalText; btn.classList.replace('bg-red-600', 'bg-[#5865F2]'); }, 3000);
+                showToast("Insira o Webhook do Discord!", "error");
                 return;
             }
 
@@ -624,10 +715,9 @@
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> ENVIANDO...';
             btn.classList.add('loading-pdf');
+            
             const oldTransform = element.style.transform;
-            const oldMargin = element.style.marginBottom;
             element.style.transform = 'scale(1)';
-            element.style.marginBottom = '0';
 
             let nomeEmpresa = document.getElementById('input-fantasia').value.trim() || "EMPRESA";
             const filename = `CNPJ_${nomeEmpresa.replace(/\s+/g, '_').toUpperCase()}.pdf`;
@@ -638,7 +728,7 @@
             try {
                 const pdfBlob = await html2pdf().set({
                     margin: [0,0,0,0], filename: filename, image: { type: 'jpeg', quality: 1 },
-                    html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    html2canvas: { scale: 2.5, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 }).from(element).output('blob');
 
                 const formData = new FormData();
@@ -652,10 +742,12 @@
                 if (response.ok) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> ENVIADO COM SUCESSO';
                     btn.classList.replace('bg-[#5865F2]', 'bg-green-600');
+                    showToast("CNPJ Enviado para o Discord com sucesso!");
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> ERRO AO ENVIAR';
                 btn.classList.replace('bg-[#5865F2]', 'bg-red-600');
+                showToast("Erro ao enviar! Verifique o Webhook.", "error");
             } finally {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
@@ -663,7 +755,6 @@
                     btn.classList.add('bg-[#5865F2]');
                 }, 4000);
                 element.style.transform = oldTransform;
-                element.style.marginBottom = oldMargin;
             }
         }
 
@@ -683,7 +774,7 @@
             document.getElementById('doc-porte-profissao').innerText = document.getElementById('input-porte-profissao').value || '-';
 
             let salarioInput = document.getElementById('input-porte-salario').value;
-            let salarioNum = parseFloat(salarioInput.replace(/[^0-9,.]/g, '').replace(',', '.')) || 0;
+            let salarioNum = parseFloat(salarioInput) || 0;
             document.getElementById('doc-porte-salario').innerText = formatBRL(salarioNum);
             
             if(salarioNum > 0) document.getElementById('doc-porte-ir').innerText = `Apresentada / Estimativa: ${formatBRL(salarioNum * 12)}`;
@@ -703,10 +794,7 @@
             const webhookUrl = document.getElementById('input-webhook-porte').value.trim();
             const btn = document.getElementById('btn-discord-porte');
             if(!webhookUrl) {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> INSIRA O WEBHOOK';
-                btn.classList.replace('bg-[#5865F2]', 'bg-red-600');
-                setTimeout(() => { btn.innerHTML = originalText; btn.classList.replace('bg-red-600', 'bg-[#5865F2]'); }, 3000);
+                showToast("Insira o Webhook do Discord!", "error");
                 return;
             }
 
@@ -716,9 +804,7 @@
             btn.classList.add('loading-pdf');
 
             const oldTransform = element.style.transform;
-            const oldMargin = element.style.marginBottom;
             element.style.transform = 'scale(1)';
-            element.style.marginBottom = '0';
 
             const cliNome = document.getElementById('input-porte-nome').value.trim() || "CIDADÃO";
             const cliPass = document.getElementById('input-porte-passaporte').value.trim() || "NÃO INFORMADO";
@@ -741,10 +827,12 @@
                 if (response.ok) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> ENVIADO COM SUCESSO';
                     btn.classList.replace('bg-[#5865F2]', 'bg-green-600');
+                    showToast("Porte Enviado para o Discord com sucesso!");
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> ERRO AO ENVIAR';
                 btn.classList.replace('bg-[#5865F2]', 'bg-red-600');
+                showToast("Erro ao enviar! Verifique o Webhook.", "error");
             } finally {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
@@ -752,7 +840,6 @@
                     btn.classList.add('bg-[#5865F2]');
                 }, 4000);
                 element.style.transform = oldTransform;
-                element.style.marginBottom = oldMargin;
             }
         }
 
@@ -806,9 +893,9 @@
             { numero: 49, crime: "Art. 49: Dinheiro Sujo Leve", description: "Apreensão de dinheiro sujo até R$ 150.000.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
             { numero: 50, crime: "Art. 50: Dinheiro Sujo Médio", description: "Apreensão de dinheiro sujo até R$ 500.000.", multa: 150000, sentenca: 20, direito_a_fianca: true, valor_fianca: 300000 },
             { numero: 51, crime: "Art. 51: Dinheiro Sujo Grave", description: "Apreensão de dinheiro sujo acima de R$ 500.001.", multa: 300000, sentenca: 30, direito_a_fianca: true, valor_fianca: 600000 },
-            { numero: 52, crime: "Art. 52: Apologia ao Crime", description: "Promover, divulgar ou justificar atividades criminosas. ATENÇÃO: Vestir roupa de facção ou dizer ser membro NÃO É apologia, e sim Formação de Quadrilha.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
+            { numero: 52, crime: "Art. 52: Apologia ao Crime", description: "Promover, divulgar ou justificar atividades criminosas.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
             { numero: 53, crime: "Art. 53: Falsidade Ideológica", description: "Declaração falsa em documentos públicos ou particulares.", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
-            { numero: 54, crime: "Art. 54: Formação de Quadrilha", description: "Associação de 3 ou mais pessoas para o crime (Inclui declarar-se membro ou vestir roupa de facção).", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
+            { numero: 54, crime: "Art. 54: Formação de Quadrilha", description: "Associação de 3 ou mais pessoas para o crime.", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
             { numero: 55, crime: "Art. 55: Desobediência", description: "Comportamento que desafia a autoridade policial.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
             { numero: 56, crime: "Art. 56: Exercício Ilegal de Profissão", description: "Passar-se por funcionário público ou profissional certificado.", multa: 200000, sentenca: 10, direito_a_fianca: true, valor_fianca: 400000 },
             { numero: 57, crime: "Art. 57: Falsa Comunicação", description: "Fazer falsa comunicação de crime para oficiais da lei.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
@@ -836,12 +923,12 @@
                 if(searchStr.includes(search)) {
                     const isSelected = selectedCrimesForBail.some(c => c.numero === crime.numero);
                     const div = document.createElement('div');
-                    div.className = `crime-item p-3 mb-2 rounded-lg border ${isSelected ? 'selected' : 'border-slate-700 bg-slate-800'} flex justify-between items-center`;
+                    div.className = `crime-item p-3 mb-2 rounded-lg border ${isSelected ? 'selected' : 'border-slate-700 bg-slate-800/80'} flex justify-between items-center`;
                     div.onclick = () => toggleCrime(crime);
                     div.innerHTML = `
-                        <div class="w-5/6"><h4 class="text-white font-bold text-sm">${crime.crime}</h4><p class="text-slate-400 text-xs truncate mt-0.5">${crime.description}</p></div>
-                        <div class="w-1/6 text-right flex flex-col items-end gap-1">
-                            ${crime.direito_a_fianca ? `<span class="bg-green-900/50 text-green-400 text-[0.6rem] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Fiançável</span>` : `<span class="bg-red-900/50 text-red-400 text-[0.6rem] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Inafiançável</span>`}
+                        <div class="w-[75%] lg:w-5/6"><h4 class="text-white font-bold text-[0.8rem] lg:text-sm">${crime.crime}</h4><p class="text-slate-400 text-[0.65rem] lg:text-xs truncate mt-0.5">${crime.description}</p></div>
+                        <div class="w-[25%] lg:w-1/6 text-right flex flex-col items-end gap-1">
+                            ${crime.direito_a_fianca ? `<span class="bg-green-900/50 text-green-400 text-[0.55rem] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Fiançável</span>` : `<span class="bg-red-900/50 text-red-400 text-[0.55rem] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Inafiançável</span>`}
                             ${isSelected ? `<i class="fa-solid fa-circle-check text-[#cba871]"></i>` : `<i class="fa-regular fa-circle text-slate-500"></i>`}
                         </div>`;
                     container.appendChild(div);
@@ -855,6 +942,13 @@
             else selectedCrimesForBail.push(crime);
             renderCrimes(document.getElementById('crimeSearchInput').value);
             updateCalculadoraUI();
+        }
+        
+        function limparCalculadora() {
+            selectedCrimesForBail = [];
+            renderCrimes(document.getElementById('crimeSearchInput').value);
+            updateCalculadoraUI();
+            showToast("Calculadora resetada", "success");
         }
 
         document.getElementById('crimeSearchInput').addEventListener('input', (e) => { renderCrimes(e.target.value); });
@@ -878,7 +972,7 @@
                 valPolicialEl.innerText = "R$ 0";
                 statusBar.className = "absolute top-0 left-0 w-full h-1 bg-slate-600";
                 statusText.innerText = "NENHUM CRIME SELECIONADO";
-                statusText.className = "text-sm font-bold mt-1 text-slate-400";
+                statusText.className = "text-xs lg:text-sm font-bold mt-1 text-slate-400";
                 motivoEl.classList.add('hidden');
                 avisoMDT.classList.add('hidden');
                 emptyEl.classList.remove('hidden');
@@ -895,8 +989,8 @@
                 const li = document.createElement('li');
                 li.className = "flex justify-between items-center text-slate-300 border-b border-slate-700/50 pb-2";
                 li.innerHTML = `
-                    <span><i class="fa-solid fa-gavel text-slate-500 mr-2"></i> ${crime.crime}</span>
-                    <span class="font-mono text-xs ${crime.direito_a_fianca ? 'text-green-400' : 'text-red-400'}">${crime.direito_a_fianca ? formatBRL(crime.valor_fianca) : 'NEGADO'}</span>
+                    <span class="truncate pr-2"><i class="fa-solid fa-gavel text-slate-500 mr-1 lg:mr-2"></i> ${crime.crime}</span>
+                    <span class="font-mono text-[0.65rem] lg:text-xs shrink-0 ${crime.direito_a_fianca ? 'text-green-400' : 'text-red-400'}">${crime.direito_a_fianca ? formatBRL(crime.valor_fianca) : 'NEGADO'}</span>
                 `;
                 listEl.appendChild(li);
 
@@ -905,33 +999,33 @@
             });
 
             if (isUnbailable) {
-                statusBar.className = "absolute top-0 left-0 w-full h-1 bg-red-500";
+                statusBar.className = "absolute top-0 left-0 w-full h-1 bg-red-500 transition-colors";
                 statusText.innerText = "RÉU INAFIANÇÁVEL (PRISÃO DIRETA)";
-                statusText.className = "text-sm font-bold mt-1 text-red-400";
+                statusText.className = "text-xs lg:text-sm font-bold mt-1 text-red-400";
                 valFiancaEl.innerText = "NEGADA";
-                valFiancaEl.className = "text-2xl font-bold mt-1 text-red-500 truncate";
+                valFiancaEl.className = "text-lg lg:text-2xl font-bold mt-1 text-red-500 truncate";
                 valPolicialEl.innerText = "NEGADA";
-                valPolicialEl.className = "text-2xl font-bold mt-1 text-red-500 relative z-10 truncate";
+                valPolicialEl.className = "text-lg lg:text-2xl font-bold mt-1 text-red-500 relative z-10 truncate";
 
                 unbailableCrimes.forEach(c => { const mLi = document.createElement('li'); mLi.innerText = c; listaMotivos.appendChild(mLi); });
                 motivoEl.classList.remove('hidden');
                 avisoMDT.classList.add('hidden'); 
             } else {
-                statusBar.className = "absolute top-0 left-0 w-full h-1 bg-green-500";
+                statusBar.className = "absolute top-0 left-0 w-full h-1 bg-green-500 transition-colors";
                 statusText.innerText = "DIREITO À FIANÇA CONCEDIDO";
-                statusText.className = "text-sm font-bold mt-1 text-green-400";
+                statusText.className = "text-xs lg:text-sm font-bold mt-1 text-green-400";
                 valFiancaEl.innerText = formatBRL(totalFianca);
-                valFiancaEl.className = "text-2xl font-bold mt-1 text-white truncate";
+                valFiancaEl.className = "text-lg lg:text-2xl font-bold mt-1 text-white truncate";
                 
                 valPolicialEl.innerText = formatBRL(totalFianca * 0.5);
-                valPolicialEl.className = "text-2xl font-bold mt-1 text-[#cba871] relative z-10 truncate";
+                valPolicialEl.className = "text-lg lg:text-2xl font-bold mt-1 text-[#cba871] relative z-10 truncate";
 
                 motivoEl.classList.add('hidden');
                 avisoMDT.classList.remove('hidden');
             }
         }
 
-        // ==================== INICIALIZAÇÃO ====================
+        // ==================== INICIALIZAÇÃO E EVENTOS ====================
         function aceitarCookies() {
             localStorage.setItem('rp_juridico_cookies_accepted', 'true');
             document.getElementById('cookie-banner').classList.add('translate-y-full');
@@ -955,23 +1049,32 @@
             }
 
             const hoje = new Date();
-            const dataStr = `Los Santos, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+            const dataStr = `Brasil, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
             document.getElementById('input-rep-data').value = dataStr;
             document.getElementById('doc-carimbo-data').innerText = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
 
             gerarCNPJ();
-            ajustarEscala('preview-area', 'documento-pdf');
+            ajustarEscalaDinamicamente('preview-area', 'documento-pdf', 'scale-wrapper');
             
             updatePorteDoc();
-            ajustarEscala('preview-area-porte', 'documento-pdf-porte');
+            ajustarEscalaDinamicamente('preview-area-porte', 'documento-pdf-porte', 'scale-wrapper-porte');
             
             renderCrimes();
             updateCalculadoraUI();
         };
         
+        // Atualiza a escala ao redimensionar a tela
+        let resizeTimer;
         window.onresize = () => {
-            ajustarEscala('preview-area', 'documento-pdf');
-            ajustarEscala('preview-area-porte', 'documento-pdf-porte');
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if(!document.getElementById('view-cnpj').classList.contains('hidden')) {
+                    ajustarEscalaDinamicamente('preview-area', 'documento-pdf', 'scale-wrapper');
+                }
+                if(!document.getElementById('view-porte').classList.contains('hidden')) {
+                    ajustarEscalaDinamicamente('preview-area-porte', 'documento-pdf-porte', 'scale-wrapper-porte');
+                }
+            }, 100); // debounce para performance
         };
     </script>
 </body>
