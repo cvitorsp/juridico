@@ -456,10 +456,10 @@
     </div>
 
     <!-- ==================== ABA 3: CALCULADORA PENAL ==================== -->
-    <div id="view-calc" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden bg-slate-900 p-4 lg:p-8 gap-4 lg:gap-8">
+    <div id="view-calc" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto bg-slate-900 p-4 lg:p-8 gap-4 lg:gap-8">
         
         <!-- COLUNA 1: CRIMES -->
-        <div class="w-full lg:w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden shrink-0 lg:h-full">
+        <div class="w-full lg:w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden shrink-0 lg:h-[calc(100vh-6rem)] sticky top-0">
             <div class="p-5 border-b border-slate-700 bg-slate-800/80">
                 <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-book-journal-whills text-[#cba871]"></i> Código Penal</h2>
                 <div class="relative">
@@ -471,7 +471,7 @@
         </div>
 
         <!-- COLUNA 2: RESULTADOS E FORMULÁRIO -->
-        <div class="w-full lg:w-1/2 flex flex-col gap-6 lg:overflow-y-auto custom-scrollbar pb-8 lg:pb-0 pr-0 lg:pr-2 shrink-0">
+        <div class="w-full lg:w-1/2 flex flex-col gap-6 pb-8 lg:pb-0 pr-0 lg:pr-2 shrink-0">
             
             <!-- ALERTA DE ERRO (0 MESES) -->
             <div id="alerta-0-meses" class="hidden bg-red-900/40 border border-red-500/50 rounded-xl p-4 shadow-lg flex items-center gap-4 animate-pulse shrink-0">
@@ -591,10 +591,14 @@
                 </div>
 
                 <!-- Totais -->
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-inner flex flex-col justify-center">
                         <span class="text-slate-400 text-[0.65rem] font-bold uppercase tracking-wider">Multa Total</span>
                         <div class="text-2xl font-bold text-red-400 mt-1 truncate" id="calc-valor-multa">R$ 0</div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-inner flex flex-col justify-center">
+                        <span class="text-slate-400 text-[0.65rem] font-bold uppercase tracking-wider">Fiança Estimada</span>
+                        <div class="text-2xl font-bold text-green-400 mt-1 truncate" id="calc-valor-fianca">R$ 0</div>
                     </div>
                     <div class="bg-slate-900 p-4 rounded-xl border border-[#cba871]/50 relative overflow-hidden shadow-inner flex flex-col justify-center">
                         <span class="text-[#cba871] text-[0.65rem] font-bold uppercase tracking-wider relative z-10 flex justify-between">Pena Final <span id="calc-pena-original" class="line-through text-slate-500 text-[0.6rem]">0 meses</span></span>
@@ -605,7 +609,7 @@
 
             <!-- Botões -->
             <div class="flex flex-col gap-3 shrink-0">
-                <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-500 shadow-md hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-500 shadow-md hover:shadow-lg active:scale-95">
                     <i class="fa-solid fa-copy"></i> COPIAR RESUMO PARA ÁREA DE TRANSFERÊNCIA
                 </button>
                 <button onclick="enviarDiscordCalc()" id="btn-discord-calc" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-[0.95rem] py-4 rounded-xl shadow-[0_4px_15px_rgba(88,101,242,0.4)] hover:shadow-[0_6px_20px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
@@ -974,6 +978,7 @@
 
         function updateCalculadoraUI() {
             const valMultaEl = document.getElementById('calc-valor-multa');
+            const valFiancaEl = document.getElementById('calc-valor-fianca');
             const valPenaEl = document.getElementById('calc-valor-pena');
             const valPenaOriginal = document.getElementById('calc-pena-original');
             const listEl = document.getElementById('selected-crimes-list');
@@ -1015,14 +1020,18 @@
 
             if (selectedCrimesForCalc.length === 0) {
                 valMultaEl.innerText = "R$ 0";
+                valFiancaEl.innerText = "R$ 0";
+                valFiancaEl.className = "text-2xl font-bold text-green-400 mt-1 truncate";
                 valPenaEl.innerText = "0 Meses";
                 valPenaOriginal.innerText = "0 meses";
                 emptyEl.classList.remove('hidden');
                 alerta0Meses.classList.add('hidden');
                 badgeStatus.innerText = "AGUARDANDO CRIMES";
                 badgeStatus.className = "bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider";
+                
                 btnCopy.disabled = true;
                 btnDiscord.disabled = true;
+                
                 previewFianca.innerHTML = "";
                 avisoFianca.classList.add('hidden');
                 redFianca.disabled = false;
@@ -1060,12 +1069,14 @@
                 redFianca.disabled = true;
                 redFianca.checked = false;
                 labelFiancaBox.classList.add('opacity-50', 'cursor-not-allowed');
-                previewFianca.innerHTML = `<span class="text-red-500 font-bold uppercase tracking-wide"><i class="fa-solid fa-ban"></i> INAFIANÇÁVEL</span>`;
+                valFiancaEl.innerText = "INAFIANÇÁVEL";
+                valFiancaEl.className = "text-2xl font-bold text-red-500 mt-1 truncate";
                 avisoFianca.classList.add('hidden');
             } else {
                 redFianca.disabled = false;
                 labelFiancaBox.classList.remove('opacity-50', 'cursor-not-allowed');
-                previewFianca.innerHTML = `Fiança Estimada: <span class="text-green-400 font-bold ml-1">${formatBRL(totalFianca)}</span>`;
+                valFiancaEl.innerText = formatBRL(totalFianca);
+                valFiancaEl.className = "text-2xl font-bold text-green-400 mt-1 truncate";
                 if (redFianca.checked) {
                     avisoFianca.classList.remove('hidden');
                 } else {
@@ -1088,13 +1099,13 @@
             btnCopy.disabled = false;
             btnDiscord.disabled = false;
 
-            // Cálculos de Redução
+            // Cálculos de Redução com tratamento float-point seguro
             let reducaoPercentual = 0;
             if (checkAdvogado) reducaoPercentual += 0.30;
             if (document.getElementById('red-primario').checked) reducaoPercentual += 0.20;
             if (document.getElementById('red-confesso').checked) reducaoPercentual += 0.20;
             
-            let mesesFinais = Math.ceil(totalMeses * (1 - reducaoPercentual));
+            let mesesFinais = Math.ceil(Number((totalMeses * (1 - reducaoPercentual)).toFixed(2)));
             
             if (redFianca.checked && !isInafiancavel) {
                 mesesFinais = 0;
@@ -1205,7 +1216,6 @@
         });
 
         document.addEventListener('paste', (e) => {
-            // Apenas intercepta se estiver na aba da calculadora
             if(document.getElementById('view-calc').classList.contains('hidden')) return;
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
             for (let item of items) {
@@ -1247,23 +1257,45 @@
             if(document.getElementById('red-fianca').checked) reducoesAtivas.push("Fiança Paga (-100%)");
 
             let totalMulta = formatBRL(selectedCrimesForCalc.reduce((acc, c) => acc + c.multa, 0));
+            let fiancaStr = document.getElementById('calc-valor-fianca').innerText;
             let finalMeses = document.getElementById('calc-valor-pena').innerText;
 
-            return `RESUMO PENAL\n\nInfrator: ${infrator}\nOficiais: ${policiais}\n\nAdvogado Constituído: ${document.getElementById('red-advogado').checked ? advStr : 'Não'}\nAcompanhantes: ${acompanhantes}\n\nCrimes:\n${txtCrimes}\n\nReduções: ${reducoesAtivas.length ? reducoesAtivas.join(" | ") : "Nenhuma"}\nMulta: ${totalMulta}\nPena Final: ${finalMeses}\n\nDescrição:\n${descricao}`;
+            return `RESUMO PENAL\n\nInfrator: ${infrator}\nOficiais: ${policiais}\n\nAdvogado Constituído: ${document.getElementById('red-advogado').checked ? advStr : 'Não'}\nAcompanhantes: ${acompanhantes}\n\nCrimes:\n${txtCrimes}\n\nReduções: ${reducoesAtivas.length ? reducoesAtivas.join(" | ") : "Nenhuma"}\nMulta: ${totalMulta}\nFiança: ${fiancaStr}\nPena Final: ${finalMeses}\n\nDescrição:\n${descricao}`;
         }
 
         function copiarResumoCalc() {
             const texto = gerarResumoTexto();
-            navigator.clipboard.writeText(texto).then(() => {
-                const btn = document.getElementById('btn-copiar-calc');
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIADO!';
-                btn.classList.replace('bg-slate-700', 'bg-green-600');
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.classList.replace('bg-green-600', 'bg-slate-700');
-                }, 2000);
-            });
+            
+            // Fallback para Iframe (bypass document.execCommand permissions policy blocks)
+            const textArea = document.createElement("textarea");
+            textArea.value = texto;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    const btn = document.getElementById('btn-copiar-calc');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIADO PARA ÁREA DE TRANSFERÊNCIA!';
+                    btn.classList.replace('bg-slate-700', 'bg-green-600');
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.classList.replace('bg-green-600', 'bg-slate-700');
+                    }, 3000);
+                } else {
+                    alert("Falha ao copiar. O navegador bloqueou a ação.");
+                }
+            } catch (err) {
+                console.error('Erro ao copiar o texto', err);
+                alert("Erro ao copiar o texto. Tente copiar manualmente após visualizar o relatório.");
+            }
+
+            document.body.removeChild(textArea);
         }
 
         async function enviarDiscordCalc() {
@@ -1292,7 +1324,16 @@
             let reducoesAtivas = [];
             if(document.getElementById('red-primario').checked) reducoesAtivas.push("Réu Primário (-20%)");
             if(document.getElementById('red-confesso').checked) reducoesAtivas.push("Réu Confesso (-20%)");
-            if(document.getElementById('red-fianca').checked) reducoesAtivas.push("Fiança Paga (-100%)");
+            
+            let fiancaStr = document.getElementById('calc-valor-fianca').innerText;
+            if(document.getElementById('red-fianca').checked && fiancaStr !== "INAFIANÇÁVEL") {
+                reducoesAtivas.push("Fiança Paga (-100%)");
+                fiancaStr = `PAGA (${fiancaStr})`;
+            } else if (fiancaStr === "INAFIANÇÁVEL") {
+                fiancaStr = "NÃO APLICÁVEL (Inafiançável)";
+            } else {
+                fiancaStr = `ESTIMADA (${fiancaStr})`;
+            }
 
             let multa = document.getElementById('calc-valor-multa').innerText;
             let penaFinal = document.getElementById('calc-valor-pena').innerText;
@@ -1306,8 +1347,8 @@
                     { name: "👮 Equipe Policial", value: policiaisStr, inline: false },
                     { name: "⚖️ Representação Legal", value: `**Advogado:** ${advStr}\n**Estagiários/Acompanhantes:** ${acompStr}`, inline: false },
                     { name: "🚨 Infrações Constatadas", value: crimesStr || "Nenhum crime listado.", inline: false },
-                    { name: "📉 Benefícios e Atenuantes", value: reducoesAtivas.length ? reducoesAtivas.join(" • ") : "Sem atenuantes.", inline: false },
-                    { name: "💰 Multa Aplicada", value: `\`${multa}\``, inline: true },
+                    { name: "📉 Benefícios e Atenuantes", value: reducoesAtivas.length ? reducoesAtivas.join(" • ") : "Sem atenuantes extras.", inline: false },
+                    { name: "💰 Valores", value: `Multa: \`${multa}\`\nFiança: \`${fiancaStr}\``, inline: true },
                     { name: "⏱️ Pena de Reclusão", value: `\`${penaFinal}\``, inline: true }
                 ],
                 footer: { text: `Tribunal de Justiça - Sistema MDT`, icon_url: "https://i.imgur.com/DPg5b1B.png" },
