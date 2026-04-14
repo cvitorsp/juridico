@@ -24,17 +24,18 @@
     <style>
         :root {
             --primary: #cba871;
+            --primary-hover: #b3925c;
             --bg-dark: #0f172a;
             --panel-dark: #1e293b;
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: "Assistant", sans-serif;
             background-color: var(--bg-dark);
             color: #e2e8f0;
             margin: 0;
-            height: 100vh;
-            overflow: hidden;
         }
 
         .assinatura-font {
@@ -43,9 +44,16 @@
             font-style: normal;
         }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-dark); }
-        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        /* Scrollbar padrão e custom-scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(203, 168, 113, 0.5); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+        
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         .a4-container {
             width: 210mm;
@@ -53,10 +61,11 @@
             overflow: hidden; 
             background: white;
             color: black;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             margin: 0 auto;
             position: relative;
             transform-origin: top center;
+            transition: transform 0.3s ease-out;
         }
 
         .doc-border { border: 2px solid #000; }
@@ -72,138 +81,149 @@
         .tj-table tr:last-child td { border-bottom: none; }
         .tj-table td.tj-label { font-weight: 700; width: 40%; color: #1f2937; }
 
-        .glass-panel { background: rgba(30, 41, 59, 0.8); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.1); }
+        .glass-panel { 
+            background: rgba(30, 41, 59, 0.85); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
+            border-right: 1px solid rgba(255,255,255,0.05); 
+        }
+        
         .loading-pdf { pointer-events: none; opacity: 0.7; }
 
         .crime-item { transition: all 0.2s ease; cursor: pointer; }
-        .crime-item:hover { background-color: rgba(203, 168, 113, 0.1); border-color: var(--primary); }
-        .crime-item.selected { background-color: rgba(203, 168, 113, 0.2); border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+        .crime-item:hover { background-color: rgba(203, 168, 113, 0.15); border-color: var(--primary); transform: translateX(4px); }
+        .crime-item.selected { background-color: rgba(203, 168, 113, 0.25); border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+        
         .tab-btn { border-bottom: 2px solid transparent; transition: all 0.3s ease; }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); }
         .tab-btn.active { border-bottom-color: var(--primary); color: var(--primary); background: rgba(203, 168, 113, 0.1); }
         
-        .atenuante-item { transition: all 0.2s; cursor: pointer; }
-        .atenuante-item.selected { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; }
+        .dropzone { border: 2px dashed #475569; transition: all 0.3s ease; }
+        .dropzone.dragover { border-color: var(--primary); background-color: rgba(203, 168, 113, 0.1); }
+        
+        input, select, textarea { transition: all 0.3s ease; }
     </style>
 </head>
-<body class="flex flex-col h-screen">
+<body class="flex flex-col h-screen overflow-hidden">
 
     <div id="loading-screen" class="fixed inset-0 bg-[#0f172a] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000">
-        <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Logo RP" class="h-40 mb-8 animate-pulse drop-shadow-lg">
+        <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Logo RP" class="h-40 mb-8 animate-pulse drop-shadow-2xl">
         <div class="flex items-center gap-4">
             <i class="fa-solid fa-circle-notch fa-spin text-[#cba871] text-3xl"></i>
             <h2 class="text-[#cba871] font-bold text-2xl tracking-widest uppercase">Carregando Sistema...</h2>
         </div>
     </div>
     
-    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-[#cba871]/30 p-4 z-50 flex justify-between items-center transform translate-y-full transition-transform duration-500">
+    <div id="cookie-banner" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-[#cba871]/30 p-4 z-50 flex flex-col md:flex-row justify-between items-center transform translate-y-full transition-transform duration-500 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] gap-4 md:gap-0">
         <div class="flex items-center gap-3">
-            <i class="fa-solid fa-cookie-bite text-[#cba871] text-2xl"></i>
+            <i class="fa-solid fa-cookie-bite text-[#cba871] text-3xl"></i>
             <p class="text-sm text-slate-300">Este sistema utiliza cookies para salvar suas preferências.<br>Ao continuar, você concorda com nossas políticas.</p>
         </div>
-        <button onclick="aceitarCookies()" class="bg-[#cba871] text-slate-900 px-6 py-2 rounded-lg font-bold text-sm hover:bg-[#b3925c] transition shadow-lg ml-4">Ciente e Aceito</button>
+        <button onclick="aceitarCookies()" class="bg-[#cba871] text-slate-900 px-8 py-3 rounded-lg font-bold text-sm hover:bg-[#b3925c] transition-all hover:shadow-lg hover:-translate-y-0.5 md:ml-4 w-full md:w-auto">Ciente e Aceito</button>
     </div>
 
-    <header class="bg-slate-900 border-b border-slate-700 h-16 flex items-center justify-between px-6 shrink-0 z-10 shadow-md">
-        <div class="flex items-center gap-4">
-            <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-10 object-contain">
-            <div class="h-8 w-px bg-slate-600"></div>
-            <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-10 object-contain">
+    <header class="bg-slate-900 border-b border-slate-700 h-auto lg:h-16 flex flex-col lg:flex-row items-center justify-between px-0 lg:px-6 shrink-0 z-10 shadow-lg">
+        <div class="flex items-center gap-4 w-full lg:w-auto justify-center lg:justify-start py-3 lg:py-0 border-b border-slate-700 lg:border-none">
+            <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-8 lg:h-10 object-contain">
+            <div class="h-6 lg:h-8 w-px bg-slate-600"></div>
+            <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-8 lg:h-10 object-contain">
         </div>
 
-        <nav class="flex h-full">
-            <button onclick="switchTab('cnpj')" id="tab-cnpj" class="tab-btn active h-full px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide">
+        <nav class="flex h-14 lg:h-full w-full lg:w-auto overflow-x-auto no-scrollbar justify-start lg:justify-center border-b border-slate-700 lg:border-none">
+            <button onclick="switchTab('cnpj')" id="tab-cnpj" class="tab-btn active h-full px-6 flex items-center justify-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide shrink-0">
                 <i class="fa-solid fa-file-contract"></i> Emissão CNPJ
             </button>
-            <button onclick="switchTab('porte')" id="tab-porte" class="tab-btn h-full px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide border-l border-slate-700">
+            <button onclick="switchTab('porte')" id="tab-porte" class="tab-btn h-full px-6 flex items-center justify-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide border-l border-slate-700 shrink-0">
                 <i class="fa-solid fa-id-card-clip"></i> Solicitação Porte
             </button>
-            <button onclick="switchTab('calc')" id="tab-calc" class="tab-btn h-full px-6 flex items-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide border-l border-slate-700">
+            <button onclick="switchTab('calc')" id="tab-calc" class="tab-btn h-full px-6 flex items-center justify-center gap-2 font-bold text-slate-300 hover:text-white uppercase text-sm tracking-wide border-l border-slate-700 shrink-0">
                 <i class="fa-solid fa-calculator"></i> Calculadora Penal
             </button>
         </nav>
 
-        <div class="flex items-center gap-3">
-            <div class="text-right hidden md:block">
-                <h1 class="text-white font-bold text-lg tracking-wide">SISTEMA JURÍDICO INTEGRADO</h1>
+        <div class="hidden lg:flex items-center gap-3">
+            <div class="text-right">
+                <h1 class="text-white font-bold text-lg tracking-wide drop-shadow-md">SISTEMA JURÍDICO INTEGRADO</h1>
             </div>
-            <i class="fa-solid fa-scale-balanced text-[#cba871] text-2xl ml-2"></i>
+            <i class="fa-solid fa-scale-balanced text-[#cba871] text-2xl ml-2 drop-shadow-md"></i>
         </div>
     </header>
 
     <!-- ==================== ABA 1: CNPJ ==================== -->
-    <div id="view-cnpj" class="flex flex-1 overflow-hidden">
-        <aside class="w-1/3 min-w-[400px] max-w-[500px] glass-panel overflow-y-auto p-6 flex flex-col gap-6 relative z-10">
-            <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
+    <div id="view-cnpj" class="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
+        <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[500px] glass-panel overflow-y-visible lg:overflow-y-auto p-5 lg:p-6 flex flex-col gap-6 relative z-10 shrink-0 custom-scrollbar">
+            
+            <div class="bg-slate-800/60 p-5 rounded-xl border border-[#cba871]/30 shadow-sm hover:border-[#cba871]/50 transition-colors">
                 <h2 class="text-[#cba871] font-bold text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-file-signature"></i> Dados da Empresa</h2>
                 <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">NÚMERO DO CNPJ</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NÚMERO DO CNPJ</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-cnpj" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white font-mono focus:border-[#cba871] focus:outline-none transition" readonly>
-                        <button onclick="gerarCNPJ()" class="bg-[#cba871] text-slate-900 px-3 py-2 rounded font-bold"><i class="fa-solid fa-rotate"></i></button>
+                        <input type="text" id="input-cnpj" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white font-mono focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none transition-all" readonly>
+                        <button onclick="gerarCNPJ()" class="bg-[#cba871] text-slate-900 px-4 py-2.5 rounded-lg font-bold hover:bg-[#b3925c] hover:shadow-md transition-all active:scale-95"><i class="fa-solid fa-rotate"></i></button>
                     </div>
                 </div>
                 <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">RAZÃO SOCIAL</label>
-                    <input type="text" id="input-razao" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] uppercase">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">RAZÃO SOCIAL</label>
+                    <input type="text" id="input-razao" oninput="updateDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all">
                 </div>
                 <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME FANTASIA</label>
-                    <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] uppercase">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME FANTASIA</label>
+                    <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all">
                 </div>
                 <div class="mb-2">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">ENDEREÇO</label>
-                    <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] uppercase">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">ENDEREÇO</label>
+                    <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all">
                 </div>
             </div>
 
-            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
-                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase"></i> Atividade e Natureza</h2>
-                <select id="input-cnae" onchange="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871]">
+            <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-600/50 shadow-sm hover:border-slate-500 transition-colors">
+                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase text-slate-400"></i> Atividade e Natureza</h2>
+                <select id="input-cnae" onchange="updateDoc()" class="w-full mb-4 bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all">
                     <option value="">Selecione a atividade...</option>
                     <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições.">2542-0/00 - Indústria Bélica</option>
                     <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos.">4520-0/01 - Mecânica</option>
                     <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares.">9329-8/01 - Boate</option>
                     <option value="8610-1/01 - Atividades de atendimento hospitalar.">8610-1/01 - Hospital</option>
                 </select>
-                <select id="input-natureza" onchange="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871]">
+                <select id="input-natureza" onchange="updateDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all">
                     <option value="">Selecione a natureza...</option>
                     <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
                     <option value="213-5 - Empresário Individual">213-5 - EI</option>
                 </select>
             </div>
 
-            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
-                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-user-tie"></i> Representante Legal</h2>
-                <div class="flex gap-4 mb-4">
-                    <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="radio" name="tipo_rep" value="Representante" checked onchange="updateDoc()" class="accent-[#cba871]"> Representante</label>
-                    <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#cba871]"> Preposto</label>
+            <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-600/50 shadow-sm hover:border-slate-500 transition-colors">
+                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-user-tie text-slate-400"></i> Representante Legal</h2>
+                <div class="flex gap-6 mb-5 bg-slate-900/50 p-3 rounded-lg">
+                    <label class="flex items-center gap-2 cursor-pointer text-sm font-semibold hover:text-[#cba871] transition-colors"><input type="radio" name="tipo_rep" value="Representante" checked onchange="updateDoc()" class="accent-[#cba871] w-4 h-4"> Representante</label>
+                    <label class="flex items-center gap-2 cursor-pointer text-sm font-semibold hover:text-[#cba871] transition-colors"><input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#cba871] w-4 h-4"> Preposto</label>
                 </div>
-                <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white uppercase" placeholder="NOME COMPLETO">
-                <div class="grid grid-cols-2 gap-4">
-                    <input type="text" id="input-rep-cpf" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white" placeholder="PASSAPORTE">
-                    <input type="text" id="input-rep-data" oninput="updateDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white">
+                <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white uppercase focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="NOME COMPLETO">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="input-rep-cpf" oninput="updateDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="PASSAPORTE">
+                    <input type="text" id="input-rep-data" oninput="updateDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all">
                 </div>
             </div>
 
-            <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
+            <div class="bg-slate-800/60 p-5 rounded-xl border border-[#cba871]/30 shadow-sm hover:border-[#cba871]/50 transition-colors">
                 <h2 class="text-[#cba871] font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-gavel"></i> Advogado Responsável</h2>
-                <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white uppercase" placeholder="NOME DO ADVOGADO">
+                <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full mb-4 bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white uppercase focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="NOME DO ADVOGADO">
                 
-                <label class="block text-xs font-semibold text-slate-400 mb-1">Nº DA OAB</label>
-                <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full mb-4 bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white uppercase" placeholder="Ex: FMA6Y4JE">
+                <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">Nº DA OAB</label>
+                <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full mb-5 bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white uppercase focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="Ex: FMA6Y4JE">
                 
-                <label class="block text-xs font-semibold text-indigo-400 mb-1"><i class="fa-brands fa-discord"></i> WEBHOOK (DISCORD)</label>
-                <input type="password" id="input-webhook" value="https://discord.com/api/webhooks/1492550407308837057/JInr_ekobOHNb9MFZRIDaKCWxmUhmjlvdvqgLfzBsMFZMYJkN5TJJ_AlJOL76GDIwPJQ" class="w-full bg-slate-900 border border-indigo-500/50 rounded px-3 py-2 text-white text-xs">
+                <label class="block text-xs font-semibold text-indigo-400 mb-1 tracking-wider flex items-center gap-1.5"><i class="fa-brands fa-discord"></i> WEBHOOK (DISCORD)</label>
+                <input type="password" id="input-webhook" value="https://discord.com/api/webhooks/1492550407308837057/JInr_ekobOHNb9MFZRIDaKCWxmUhmjlvdvqgLfzBsMFZMYJkN5TJJ_AlJOL76GDIwPJQ" class="w-full bg-slate-900/80 border border-indigo-500/50 rounded-lg px-4 py-2.5 text-white text-xs focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none hover:border-indigo-400/80 transition-all">
             </div>
 
-            <div class="flex flex-col gap-3 mb-8">
-                <button onclick="downloadPDF('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 text-sm border border-slate-500"><i class="fa-solid fa-download"></i> BAIXAR (PDF)</button>
-                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg py-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex justify-center gap-3"><i class="fa-brands fa-discord text-xl"></i> ENVIAR PARA O DISCORD</button>
+            <div class="flex flex-col gap-4 mb-8 lg:mb-4">
+                <button onclick="downloadPDF('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-500 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95"><i class="fa-solid fa-download"></i> BAIXAR (PDF)</button>
+                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg py-4 rounded-xl shadow-[0_4px_15px_rgba(88,101,242,0.4)] hover:shadow-[0_6px_20px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex justify-center gap-3 active:scale-95"><i class="fa-brands fa-discord text-xl"></i> ENVIAR PARA O DISCORD</button>
             </div>
         </aside>
 
-        <main class="w-2/3 bg-gray-300 overflow-y-auto p-8 flex justify-center items-start" id="preview-area">
-            <div id="documento-pdf" class="a4-container p-10 flex flex-col">
+        <main class="w-full lg:flex-1 bg-gray-300 overflow-y-visible lg:overflow-y-auto p-4 lg:p-8 flex justify-center items-start min-h-[600px] shadow-inner custom-scrollbar" id="preview-area">
+            <div id="documento-pdf" class="a4-container p-10 flex flex-col relative z-0">
                 <div class="flex items-center justify-between mb-4 border-b-2 border-black pb-4">
                     <div class="w-1/4"><img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" class="h-16 grayscale opacity-90"></div>
                     <div class="w-2/4 text-center">
@@ -272,33 +292,33 @@
     </div>
 
     <!-- ==================== ABA 2: PORTE DE ARMA ==================== -->
-    <div id="view-porte" class="hidden flex flex-1 overflow-hidden">
-        <aside class="w-1/3 min-w-[400px] max-w-[500px] glass-panel overflow-y-auto p-6 flex flex-col gap-6 relative z-10">
+    <div id="view-porte" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
+        <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[500px] glass-panel overflow-y-visible lg:overflow-y-auto p-5 lg:p-6 flex flex-col gap-6 relative z-10 shrink-0 custom-scrollbar">
             
-            <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
+            <div class="bg-slate-800/60 p-5 rounded-xl border border-[#cba871]/30 shadow-sm hover:border-[#cba871]/50 transition-colors">
                 <h2 class="text-[#cba871] font-bold text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-user"></i> Dados Pessoais</h2>
                 <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME COMPLETO</label>
-                    <input type="text" id="input-porte-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none uppercase">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME COMPLETO</label>
+                    <input type="text" id="input-porte-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">PASSAPORTE (CPF)</label>
-                        <input type="text" id="input-porte-passaporte" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">PASSAPORTE (CPF)</label>
+                        <input type="text" id="input-porte-passaporte" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">DATA DE NASCIMENTO</label>
-                        <input type="text" id="input-porte-nasc" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="DD/MM/AAAA">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">DATA DE NASCIMENTO</label>
+                        <input type="text" id="input-porte-nasc" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="DD/MM/AAAA">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">TELEFONE</label>
-                        <input type="text" id="input-porte-tel" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="XXX-XXX">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">TELEFONE</label>
+                        <input type="text" id="input-porte-tel" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="XXX-XXX">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">ESTADO CIVIL</label>
-                        <select id="input-porte-civil" onchange="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none uppercase">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">ESTADO CIVIL</label>
+                        <select id="input-porte-civil" onchange="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all">
                             <option value="Solteiro(a)">Solteiro(a)</option>
                             <option value="Casado(a)">Casado(a)</option>
                             <option value="Divorciado(a)">Divorciado(a)</option>
@@ -308,65 +328,65 @@
                 </div>
             </div>
 
-            <div class="bg-slate-800/50 p-4 rounded-lg border border-slate-600/50">
-                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Informações Complementares</h2>
+            <div class="bg-slate-800/60 p-5 rounded-xl border border-slate-600/50 shadow-sm hover:border-slate-500 transition-colors">
+                <h2 class="text-white font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check text-slate-400"></i> Informações Complementares</h2>
                 <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">PROFISSÃO ATUAL</label>
-                    <input type="text" id="input-porte-profissao" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none uppercase" placeholder="Ex: Líder Mecânica">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">PROFISSÃO ATUAL</label>
+                    <input type="text" id="input-porte-profissao" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all" placeholder="Ex: Líder Mecânica">
                 </div>
                 <div class="grid grid-cols-3 gap-4 mb-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nº FILHOS</label>
-                        <input type="number" min="0" id="input-porte-filhos" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" value="0">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">Nº FILHOS</label>
+                        <input type="number" min="0" id="input-porte-filhos" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" value="0">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">CASAS</label>
-                        <input type="number" min="0" id="input-porte-casas" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" value="0">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">CASAS</label>
+                        <input type="number" min="0" id="input-porte-casas" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" value="0">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">CARROS</label>
-                        <input type="number" min="0" id="input-porte-carros" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" value="0">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">CARROS</label>
+                        <input type="number" min="0" id="input-porte-carros" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" value="0">
                     </div>
                 </div>
                 <div class="mb-2">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">RENDA MENSAL (R$)</label>
-                    <input type="number" min="0" id="input-porte-salario" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: 10000">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">RENDA MENSAL (R$)</label>
+                    <input type="number" min="0" id="input-porte-salario" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="Ex: 10000">
                 </div>
             </div>
 
-            <div class="bg-slate-800/50 p-4 rounded-lg border border-[#cba871]/30">
+            <div class="bg-slate-800/60 p-5 rounded-xl border border-[#cba871]/30 shadow-sm hover:border-[#cba871]/50 transition-colors">
                 <h2 class="text-[#cba871] font-bold text-lg mb-4 flex items-center gap-2"><i class="fa-solid fa-signature"></i> Assinatura (Autoridade)</h2>
                 <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-400 mb-1">NOME DA AUTORIDADE EMISSORA</label>
-                    <input type="text" id="input-porte-adv-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: Vitor Lazerri">
+                    <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME DA AUTORIDADE EMISSORA</label>
+                    <input type="text" id="input-porte-adv-nome" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="Ex: Vitor Lazerri">
                 </div>
-                <div class="grid grid-cols-2 gap-4 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">CARGO</label>
-                        <input type="text" id="input-porte-adv-cargo" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: Advogado Sênior">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">CARGO</label>
+                        <input type="text" id="input-porte-adv-cargo" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="Ex: Advogado Sênior">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Nº DA OAB</label>
-                        <input type="text" id="input-porte-adv-oab" oninput="updatePorteDoc()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white focus:border-[#cba871] focus:outline-none" placeholder="Ex: FMA6Y4JE">
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">Nº DA OAB</label>
+                        <input type="text" id="input-porte-adv-oab" oninput="updatePorteDoc()" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2.5 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all" placeholder="Ex: FMA6Y4JE">
                     </div>
                 </div>
                 
-                <label class="block text-xs font-semibold text-indigo-400 mb-1 mt-4"><i class="fa-brands fa-discord"></i> WEBHOOK (DISCORD)</label>
-                <input type="password" id="input-webhook-porte" value="https://discord.com/api/webhooks/1492636062592274442/c3fsqPnSm4VACNr351knOcBLGl8a9uxtmD3gFLNDHCkNY0G0CJWTFXOHX88aZX5s7Pzj" class="w-full bg-slate-900 border border-indigo-500/50 rounded px-3 py-2 text-white focus:border-indigo-400 focus:outline-none transition text-xs">
+                <label class="block text-xs font-semibold text-indigo-400 mb-1 mt-5 tracking-wider flex items-center gap-1.5"><i class="fa-brands fa-discord"></i> WEBHOOK (DISCORD)</label>
+                <input type="password" id="input-webhook-porte" value="https://discord.com/api/webhooks/1492636062592274442/c3fsqPnSm4VACNr351knOcBLGl8a9uxtmD3gFLNDHCkNY0G0CJWTFXOHX88aZX5s7Pzj" class="w-full bg-slate-900/80 border border-indigo-500/50 rounded-lg px-4 py-2.5 text-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 focus:outline-none hover:border-indigo-400/80 transition text-xs">
             </div>
 
-            <div class="flex flex-col gap-3 mb-8">
-                <button onclick="downloadPDF('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-all flex items-center justify-center gap-2 text-sm border border-slate-500">
+            <div class="flex flex-col gap-4 mb-8 lg:mb-4">
+                <button onclick="downloadPDF('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-500 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
                     <i class="fa-solid fa-download"></i> BAIXAR ENCAMINHAMENTO (PDF)
                 </button>
-                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg py-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-3">
+                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-lg py-4 rounded-xl shadow-[0_4px_15px_rgba(88,101,242,0.4)] hover:shadow-[0_6px_20px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 active:scale-95">
                     <i class="fa-brands fa-discord text-xl"></i> ENVIAR PARA O DISCORD
                 </button>
             </div>
         </aside>
 
-        <main class="w-2/3 bg-gray-300 overflow-y-auto p-8 flex justify-center items-start" id="preview-area-porte">
-            <div id="documento-pdf-porte" class="a4-container p-10 flex flex-col bg-white text-black justify-between">
+        <main class="w-full lg:flex-1 bg-gray-300 overflow-y-visible lg:overflow-y-auto p-4 lg:p-8 flex justify-center items-start min-h-[600px] shadow-inner custom-scrollbar" id="preview-area-porte">
+            <div id="documento-pdf-porte" class="a4-container p-10 flex flex-col bg-white text-black justify-between relative z-0">
                 
                 <div>
                     <!-- CABEÇALHO TRIBUNAL DE JUSTIÇA -->
@@ -435,70 +455,155 @@
         </main>
     </div>
 
-    <!-- ==================== ABA 3: CALCULADORA (RESTAURADA 100%) ==================== -->
-    <div id="view-calc" class="hidden flex-1 overflow-hidden bg-slate-900 p-8 flex gap-8">
+    <!-- ==================== ABA 3: CALCULADORA ==================== -->
+    <div id="view-calc" class="hidden flex-col lg:flex-row flex-1 overflow-hidden bg-slate-900 p-4 lg:p-8 gap-4 lg:gap-8">
         
         <!-- COLUNA 1: CRIMES -->
-        <div class="w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden">
+        <div class="w-full lg:w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden h-[50vh] lg:h-full shrink-0 lg:shrink">
             <div class="p-5 border-b border-slate-700 bg-slate-800/80">
                 <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-book-journal-whills text-[#cba871]"></i> Código Penal</h2>
                 <div class="relative">
                     <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-400"></i>
-                    <input type="text" id="crimeSearchInput" placeholder="Buscar artigo ou descrição..." class="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-sm text-white focus:border-[#cba871] focus:outline-none transition">
+                    <input type="text" id="crimeSearchInput" placeholder="Buscar artigo ou descrição..." class="w-full bg-slate-900 border border-slate-600 rounded-lg pl-10 pr-4 py-3 text-sm text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none transition-all shadow-inner">
                 </div>
             </div>
-            <div class="flex-1 overflow-y-auto p-3" id="crimes-container"></div>
+            <div class="flex-1 overflow-y-auto p-3 custom-scrollbar" id="crimes-container"></div>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS -->
-        <div class="w-1/2 flex flex-col gap-6 overflow-y-auto pr-2">
-            <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-xl">
-                <h3 class="text-[#cba871] font-bold text-lg mb-4 border-b border-slate-700 pb-2">CRIMES SELECIONADOS</h3>
-                <ul id="selected-crimes-list" class="space-y-2 mb-4 empty:hidden text-sm"></ul>
-                <div id="empty-crimes" class="text-slate-500 text-sm italic text-center py-4">Nenhum crime selecionado.</div>
+        <!-- COLUNA 2: RESULTADOS E FORMULÁRIO -->
+        <div class="w-full lg:w-1/2 flex flex-col gap-6 overflow-y-auto custom-scrollbar pb-8 lg:pb-0 pr-2 h-[50vh] lg:h-full">
+            
+            <!-- ALERTA DE ERRO (0 MESES) -->
+            <div id="alerta-0-meses" class="hidden bg-red-900/40 border border-red-500/50 rounded-xl p-4 shadow-lg flex items-center gap-4 animate-pulse shrink-0">
+                <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl"></i>
+                <div>
+                    <h4 class="text-red-500 font-bold text-sm uppercase tracking-wide">Ação Bloqueada</h4>
+                    <p class="text-slate-300 text-xs mt-1">Prisões computadas apenas com crimes de 0 meses (agravantes) não devem prosseguir sozinhas. Selecione um crime principal.</p>
+                </div>
             </div>
 
-            <div id="resultado-fianca" class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-xl relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1" id="status-bar"></div>
-                <div class="flex justify-between items-start mb-6">
+            <!-- DADOS DA PRISÃO -->
+            <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-xl flex flex-col gap-5 shrink-0">
+                <h3 class="text-[#cba871] font-bold text-lg border-b border-slate-700 pb-2 tracking-wide"><i class="fa-solid fa-address-card"></i> Dados da Prisão</h3>
+                
+                <!-- MDT Drag and Drop -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2 tracking-wider">IMAGEM DO MDT (COLE COM CTRL+V, ARRASTE OU CLIQUE)</label>
+                    <div id="mdt-dropzone" class="dropzone w-full h-24 rounded-lg bg-slate-900/80 flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+                        <input type="file" id="mdt-file-input" class="hidden" accept="image/*">
+                        <div id="mdt-placeholder" class="text-slate-500 flex flex-col items-center group-hover:text-slate-300 transition-colors">
+                            <i class="fa-solid fa-image text-2xl mb-1"></i>
+                            <span class="text-xs font-semibold">Anexar Imagem</span>
+                        </div>
+                        <img id="mdt-preview" class="hidden absolute inset-0 w-full h-full object-cover opacity-80" alt="Preview MDT">
+                        <button id="mdt-remove" class="hidden absolute top-2 right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700 transition"><i class="fa-solid fa-times"></i></button>
+                    </div>
+                </div>
+
+                <!-- Dados Infrator e Oficiais -->
+                <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <h3 class="text-white font-bold text-xl">Análise de Fiança</h3>
-                        <p id="status-text" class="text-sm font-bold mt-1">-</p>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME DO INFRATOR</label>
+                        <input type="text" id="calc-infrator-nome" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all" placeholder="NOME DO PRESO">
                     </div>
-                    <i class="fa-solid fa-scale-unbalanced text-3xl opacity-20 text-white" id="status-icon"></i>
-                </div>
-
-                <div id="motivo-inafiancavel" class="hidden bg-red-900/30 border border-red-500/50 rounded-lg p-3 mb-6">
-                    <p class="text-red-400 text-xs font-bold mb-1 uppercase"><i class="fa-solid fa-ban"></i> Negação (Prisão Direta):</p>
-                    <ul id="lista-motivos" class="text-white text-sm list-disc pl-5"></ul>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                        <span class="text-slate-400 text-xs font-bold uppercase tracking-wider">Fiança Total</span>
-                        <div class="text-2xl font-bold text-white mt-1 truncate" id="valor-fianca">R$ 0</div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">POLICIAIS ENVOLVIDOS</label>
+                        <div class="flex gap-2 mb-2">
+                            <input type="text" id="calc-policial-nome" class="w-2/3 bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none uppercase" placeholder="NOME">
+                            <input type="text" id="calc-policial-id" class="w-1/3 bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none" placeholder="ID/PASSAPORTE">
+                            <button onclick="adicionarPolicial()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg transition-colors"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <div id="lista-policiais" class="flex flex-wrap gap-2 empty:hidden mt-2"></div>
                     </div>
-                    <div class="bg-slate-900 p-4 rounded-lg border border-[#cba871]/50 relative overflow-hidden">
-                        <div class="absolute -right-2 -bottom-2 opacity-10"><i class="fa-solid fa-hand-holding-dollar text-6xl text-[#cba871]"></i></div>
-                        <span class="text-[#cba871] text-xs font-bold uppercase tracking-wider">Taxa Policial (50%)</span>
-                        <div class="text-2xl font-bold text-[#cba871] mt-1 relative z-10 truncate" id="valor-policial">R$ 0</div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">DESCRIÇÃO DO OCORRIDO</label>
+                        <textarea id="calc-descricao" rows="2" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2 text-white text-sm focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none hover:border-slate-500 transition-all resize-none" placeholder="Breve relato..."></textarea>
                     </div>
                 </div>
 
-                <div id="aviso-mdt" class="mt-6 bg-[#cba871]/10 border border-[#cba871] rounded-lg p-4 hidden">
-                    <div class="flex items-start gap-3">
-                        <i class="fa-solid fa-circle-info text-[#cba871] text-xl mt-0.5"></i>
+                <!-- Advogado e Acompanhantes -->
+                <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/50 mt-2">
+                    <h4 class="text-[#cba871] font-bold text-sm mb-4 tracking-wide flex items-center gap-2"><i class="fa-solid fa-user-tie"></i> Defesa Legal</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <h4 class="text-[#cba871] font-bold text-sm uppercase tracking-wide">Atenção Advogado</h4>
-                            <p class="text-slate-300 text-xs mt-1 leading-relaxed text-justify">
-                                Por favor, informe ao seu cliente que, <strong>devido a um erro do MDT nas fianças</strong>, quando o policial registrar a pena, ele será encaminhado para a prisão. Peça ao policial para <strong>sempre colocar a redução em 100% no sistema</strong>. 
-                                <br><br>
-                                Até o sistema reconhecer a fiança paga, pode haver uma demora. Caso ele fique preso por mais de 5 minutos, deverá <strong>abrir um ticket de polícia no email da cidade (Discord)</strong>.
-                            </p>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME DO ADVOGADO</label>
+                            <input type="text" id="calc-advogado-nome" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase" placeholder="Nome">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">PASSAPORTE / OAB</label>
+                            <input type="text" id="calc-advogado-id" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none transition-all disabled:opacity-30 disabled:cursor-not-allowed" placeholder="ID">
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">ACOMPANHANTES / ESTAGIÁRIOS (Opcional)</label>
+                        <div class="flex gap-2 mb-2">
+                            <input type="text" id="calc-acomp-nome" class="w-2/3 bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none uppercase disabled:opacity-30 disabled:cursor-not-allowed" placeholder="NOME">
+                            <input type="text" id="calc-acomp-id" class="w-1/3 bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none disabled:opacity-30 disabled:cursor-not-allowed" placeholder="PASSAPORTE">
+                            <button id="btn-add-acomp" onclick="adicionarAcompanhante()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                        <div id="lista-acompanhantes" class="flex flex-wrap gap-2 empty:hidden mt-2"></div>
+                    </div>
                 </div>
             </div>
+
+            <!-- BALANÇO PENAL -->
+            <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 shadow-xl transition-all duration-300 shrink-0">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-2">
+                    <h3 class="text-[#cba871] font-bold text-lg tracking-wide"><i class="fa-solid fa-scale-unbalanced"></i> Balanço Penal</h3>
+                    <span id="badge-status-pena" class="bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider">AGUARDANDO CRIMES</span>
+                </div>
+
+                <!-- Crimes Selecionados -->
+                <ul id="selected-crimes-list" class="space-y-2 mb-5 empty:hidden text-sm max-h-60 overflow-y-auto pr-2 custom-scrollbar"></ul>
+                <div id="empty-crimes" class="text-slate-500 text-sm italic text-center py-4 bg-slate-900/50 rounded-lg border border-slate-700 border-dashed mb-5">Nenhum crime selecionado.</div>
+
+                <!-- Atenuantes e Reduções -->
+                <div class="bg-slate-900/80 rounded-lg border border-slate-700 p-4 mb-5">
+                    <label class="block text-xs font-semibold text-[#cba871] mb-3 tracking-wider uppercase"><i class="fa-solid fa-tags"></i> Reduções Aplicáveis (Apenas na Pena)</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" id="red-advogado" checked onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Advogado Constituído</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" id="red-primario" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Réu Primário (-20%)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" id="red-confesso" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Réu Confesso (-20%)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer group">
+                            <input type="checkbox" id="red-fianca" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Fiança Paga (-100%)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Totais -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-inner flex flex-col justify-center">
+                        <span class="text-slate-400 text-[0.65rem] font-bold uppercase tracking-wider">Multa Total</span>
+                        <div class="text-2xl font-bold text-red-400 mt-1 truncate" id="calc-valor-multa">R$ 0</div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-[#cba871]/50 relative overflow-hidden shadow-inner flex flex-col justify-center">
+                        <span class="text-[#cba871] text-[0.65rem] font-bold uppercase tracking-wider relative z-10 flex justify-between">Pena Final <span id="calc-pena-original" class="line-through text-slate-500 text-[0.6rem]">0 meses</span></span>
+                        <div class="text-3xl font-bold text-[#cba871] mt-1 relative z-10 truncate" id="calc-valor-pena">0 Meses</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="flex flex-col gap-3 shrink-0">
+                <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm border border-slate-500 shadow-md hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                    <i class="fa-solid fa-copy"></i> COPIAR RESUMO PARA ÁREA DE TRANSFERÊNCIA
+                </button>
+                <button onclick="enviarDiscordCalc()" id="btn-discord-calc" class="w-full bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-[0.95rem] py-4 rounded-xl shadow-[0_4px_15px_rgba(88,101,242,0.4)] hover:shadow-[0_6px_20px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                    <i class="fa-brands fa-discord text-xl"></i> ENVIAR RELATÓRIO PARA O DISCORD
+                </button>
+            </div>
+
         </div>
     </div>
 
@@ -506,14 +611,18 @@
         // ==================== LÓGICA DE ABAS ====================
         function switchTab(tab) {
             document.getElementById('view-cnpj').classList.add('hidden');
+            document.getElementById('view-cnpj').classList.remove('flex');
             document.getElementById('view-calc').classList.add('hidden');
+            document.getElementById('view-calc').classList.remove('flex');
             document.getElementById('view-porte').classList.add('hidden');
+            document.getElementById('view-porte').classList.remove('flex');
             
             document.getElementById('tab-cnpj').classList.remove('active');
             document.getElementById('tab-calc').classList.remove('active');
             document.getElementById('tab-porte').classList.remove('active');
 
             document.getElementById(`view-${tab}`).classList.remove('hidden');
+            document.getElementById(`view-${tab}`).classList.add('flex');
             document.getElementById(`tab-${tab}`).classList.add('active');
 
             if(tab === 'cnpj') ajustarEscala('preview-area', 'documento-pdf');
@@ -532,7 +641,7 @@
             const wrapper = document.getElementById(wrapperId);
             const doc = document.getElementById(docId);
             if (!wrapper || !doc || wrapper.clientWidth === 0) return;
-            const availableWidth = wrapper.clientWidth - 64; 
+            const availableWidth = wrapper.clientWidth - 32; /* Ajustado padding mobile */
             const docWidth = 794; 
             if (availableWidth < docWidth) {
                 const scale = availableWidth / docWidth;
@@ -643,7 +752,7 @@
 
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify({
-                    username: "Jurídico", avatar_url: "https://i.imgur.com/DPg5b1B.png",
+                    username: "Poder Judiciário", avatar_url: "https://i.imgur.com/DPg5b1B.png",
                     content: `🏛️ **NOVO REGISTRO EMPRESARIAL EFETIVADO**\n\nO advogado **${advNome}** (OAB: **${advId}**) efetivou a entrada do CNPJ **${cnpjNum}**.\nEmpresa registrada: **${nomeEmpresa}**\n\nConfira os dados completos no documento anexado abaixo.`
                 }));
                 formData.append('file', pdfBlob, filename);
@@ -732,7 +841,7 @@
 
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify({
-                    username: "Jurídico", avatar_url: "https://i.imgur.com/DPg5b1B.png",
+                    username: "Poder Judiciário", avatar_url: "https://i.imgur.com/DPg5b1B.png",
                     content: `🏛️ **RESULTADO DE AVALIAÇÃO - PORTE DE ARMA**\n\n**Nome do Cliente:** ${cliNome}\n**Passaporte:** ${cliPass}\n**Processos e antecedentes:** NÃO POSSUI\n**Resultado Jurídico:** ✅ Aprovado\n\n**Advogado que acompanhou:** ${advNome}\n**OAB Advogado:** ${advId}\n\n📄 *Cópia do documento anexada abaixo.*`
                 }));
                 formData.append('file', imgBlob, filename);
@@ -758,91 +867,86 @@
 
         // ==================== LÓGICA CALCULADORA PENAL ====================
         const codigoPenal = [
-            { numero: 1, crime: "Art. 01: Abuso de Autoridade", description: "Agente público usar de seu cargo para constranger, ameaçar ou agredir.", multa: 300000, sentenca: 50, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 2, crime: "Art. 02: Corrupção Passiva e/ou Ativa", description: "Solicitar ou receber vantagem indevida em troca de favores.", multa: 300000, sentenca: 50, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 3, crime: "Art. 03: Desacato", description: "Atos ou palavras que gerem vexame a funcionário público em serviço.", multa: 300000, sentenca: 30, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 4, crime: "Art. 04: Impedir Exercício Profissional", description: "Impedir o trabalho de membros do Judiciário, Médicos ou Bombeiros.", multa: 150000, sentenca: 20, direito_a_fianca: true, valor_fianca: 300000 },
-            { numero: 5, crime: "Art. 05: Prevaricação", description: "Retardar ou deixar de praticar ato de ofício por interesse pessoal.", multa: 300000, sentenca: 50, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 6, crime: "Art. 06: Prisão Disciplinar", description: "Recusa a obedecer ordens de um oficial hierarquicamente superior.", multa: 100000, sentenca: 30, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 7, crime: "Art. 07: Tráfico de Influência", description: "Aproveitar posição para obter favores para si ou terceiros.", multa: 150000, sentenca: 30, direito_a_fianca: true, valor_fianca: 300000 },
-            { numero: 8, crime: "Art. 08: Uso irregular de Função Pública", description: "Usar veículos ou fardamento público para facilitar crimes.", multa: 300000, sentenca: 30, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 9, crime: "Art. 09: Tentativa de Homicídio", description: "Tentar causar a morte de outra pessoa sem sucesso.", multa: 200000, sentenca: 30, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 10, crime: "Art. 10: Homicídio Culposo", description: "Causar a morte de alguém por imperícia, imprudência ou negligência.", multa: 300000, sentenca: 30, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 11, crime: "Art. 11: Homicídio Doloso", description: "Causar intencionalmente a morte de outra pessoa.", multa: 300000, sentenca: 40, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 12, crime: "Art. 12: Homicídio Qualificado", description: "Ação premeditada e agravada para causar a morte.", multa: 400000, sentenca: 50, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 13, crime: "Art. 13: Latrocínio", description: "Roubo qualificado que resulta na morte da vítima.", multa: 400000, sentenca: 60, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 14, crime: "Art. 14: Assédio Moral", description: "Comportamentos abusivos que causam constrangimento ou prejuízo.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 15, crime: "Art. 15: Calúnia", description: "Falsas e difamatórias declarações verbais.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 16, crime: "Art. 16: Difamação", description: "Divulgação de informações falsas que prejudicam a reputação.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 17, crime: "Art. 17: Injúria", description: "Ofensa moral direta, atacando a dignidade.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 18, crime: "Art. 18: Importunação Sexual", description: "Prática de cunho sexual sem consentimento.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 19, crime: "Art. 19: Perjúrio", description: "Declaração falsa sob juramento.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 20, crime: "Art. 20: Abandono de Incapaz", description: "Abandonar pessoa incapaz de se defender.", multa: 200000, sentenca: 100, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 21, crime: "Art. 21: Adultério", description: "Envolvimento extramatrimonial.", multa: 200000, sentenca: 50, direito_a_fianca: true, valor_fianca: 2000000 },
-            { numero: 22, crime: "Art. 22: Bigamia", description: "Casamento estando legalmente casado com outra pessoa.", multa: 200000, sentenca: 50, direito_a_fianca: true, valor_fianca: 2000000 },
-            { numero: 23, crime: "Art. 23: Crime Sexual Intrafamiliar", description: "Condutas sexuais abusivas entre membros da mesma família.", multa: 200000, sentenca: 50, direito_a_fianca: true, valor_fianca: 2000000 },
-            { numero: 24, crime: "Art. 24: Ameaça", description: "Ameaçar alguém de causar mal injusto e grave.", multa: 100000, sentenca: 20, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 25, crime: "Art. 25: Extorsão", description: "Constranger alguém com intuito de obter vantagem econômica.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 26, crime: "Art. 26: Lesão Corporal", description: "Causar danos a outra pessoa através de força física.", multa: 100000, sentenca: 20, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 27, crime: "Art. 27: Sequestro", description: "Apreender e deter uma pessoa contra a sua vontade.", multa: 200000, sentenca: 30, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 28, crime: "Art. 28: Tortura", description: "Imposição de dor física ou psicológica com crueldade.", multa: 400000, sentenca: 50, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 29, crime: "Art. 29: Vandalismo", description: "Causar danos a propriedades de terceiros.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 30, crime: "Art. 30: Dano de Propriedade do Governo", description: "Causar danos à propriedade governamental.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 31, crime: "Art. 31: Estelionato", description: "Enganar vítima para obter vantagem (Golpes).", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 32, crime: "Art. 32: Invasão de Propriedade", description: "Entrar clandestinamente em propriedade alheia.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 33, crime: "Art. 33: Furto", description: "Subtrair coisa alheia móvel, sem usar grave ameaça.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 34, crime: "Art. 34: Roubo", description: "Subtrair coisa alheia móvel através do uso de força.", multa: 150000, sentenca: 20, direito_a_fianca: true, valor_fianca: 300000 },
-            { numero: 35, crime: "Art. 35: Posse de Produtos Ilegais", description: "Possuir entre 1 e 5 produtos ilícitos/ilegais.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 36, crime: "Art. 36: Tráfico de Produtos Ilegais", description: "Possuir 6 ou mais produtos ilícitos/ilegais.", multa: 100000, sentenca: 30, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 39, crime: "Art. 39: Porte de Arma Leve", description: "Portar 1 ou 2 armas leves (fajutas/pistolas).", multa: 100000, sentenca: 20, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 40, crime: "Art. 40: Tráfico de Armas Leve", description: "Portar 3 ou mais armas leves.", multa: 300000, sentenca: 40, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 41, crime: "Art. 41: Porte de Arma Pesada", description: "Portar 1 ou 2 armas pesadas (fuzis, submetralhadoras).", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
-            { numero: 42, crime: "Art. 42: Tráfico de Armas Pesada", description: "Portar 3 ou mais armas pesadas.", multa: 400000, sentenca: 50, direito_a_fianca: false, valor_fianca: 0 },
-            { numero: 43, crime: "Art. 43: Porte de Arma Branca", description: "Portar ferramenta utilizada como arma corpo a corpo.", multa: 100000, sentenca: 0, direito_a_fianca: true, valor_fianca: 0 },
-            { numero: 44, crime: "Art. 44: Porte de Munição (-100)", description: "Possuir de 1 a 100 unidades de munição.", multa: 100000, sentenca: 20, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 45, crime: "Art. 45: Tráfico de Munição (+100)", description: "Possuir 101 ou mais unidades de munição.", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
-            { numero: 47, crime: "Art. 47: Posse de Drogas (-100)", description: "Possuir entre 6 até 100 unidades de entorpecentes.", multa: 100000, sentenca: 20, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 48, crime: "Art. 48: Tráfico de Drogas (+100)", description: "Possuir 101 ou mais unidades de entorpecentes.", multa: 150000, sentenca: 30, direito_a_fianca: true, valor_fianca: 300000 },
-            { numero: 49, crime: "Art. 49: Dinheiro Sujo Leve", description: "Apreensão de dinheiro sujo até R$ 150.000.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 50, crime: "Art. 50: Dinheiro Sujo Médio", description: "Apreensão de dinheiro sujo até R$ 500.000.", multa: 150000, sentenca: 20, direito_a_fianca: true, valor_fianca: 300000 },
-            { numero: 51, crime: "Art. 51: Dinheiro Sujo Grave", description: "Apreensão de dinheiro sujo acima de R$ 500.001.", multa: 300000, sentenca: 30, direito_a_fianca: true, valor_fianca: 600000 },
-            { numero: 52, crime: "Art. 52: Apologia ao Crime", description: "Promover, divulgar ou justificar atividades criminosas. ATENÇÃO: Vestir roupa de facção ou dizer ser membro NÃO É apologia, e sim Formação de Quadrilha.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 53, crime: "Art. 53: Falsidade Ideológica", description: "Declaração falsa em documentos públicos ou particulares.", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
-            { numero: 54, crime: "Art. 54: Formação de Quadrilha", description: "Associação de 3 ou mais pessoas para o crime (Inclui declarar-se membro ou vestir roupa de facção).", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
-            { numero: 55, crime: "Art. 55: Desobediência", description: "Comportamento que desafia a autoridade policial.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 56, crime: "Art. 56: Exercício Ilegal de Profissão", description: "Passar-se por funcionário público ou profissional certificado.", multa: 200000, sentenca: 10, direito_a_fianca: true, valor_fianca: 400000 },
-            { numero: 57, crime: "Art. 57: Falsa Comunicação", description: "Fazer falsa comunicação de crime para oficiais da lei.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 58, crime: "Art. 58: Obstrução de Justiça", description: "Atrapalhar propositalmente o andamento de investigações.", multa: 50000, sentenca: 20, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 59, crime: "Art. 59: Ocultação de Provas", description: "Ocultar ou destruir provas de um crime.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 60, crime: "Art. 60: Omissão de Socorro", description: "Deixar de prestar assistência a quem necessita.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 61, crime: "Art. 61: Perturbação da Ordem", description: "Comportamento disruptivo em via pública.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 62, crime: "Art. 62: QRR Ilegal", description: "Comunicação externa (rádio/celular) após receber voz de prisão.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 63, crime: "Art. 63: Tentativa de Fuga", description: "Desobedecer ordem de parada da autoridade policial e fugir.", multa: 100000, sentenca: 20, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 64, crime: "Art. 64: Tentativa de Suborno", description: "Oferecer valor para tentar comprar a autoridade policial.", multa: 200000, sentenca: 30, direito_a_fianca: true, valor_fianca: 400000 },
-            { numero: 67, crime: "Art. 67: Corridas Ilegais", description: "Participar de corridas clandestinas (rachas).", multa: 100000, sentenca: 20, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 73, crime: "Art. 73: Ocultação Facial", description: "Usar máscaras para impedir identificação.", multa: 50000, sentenca: 10, direito_a_fianca: true, valor_fianca: 100000 },
-            { numero: 76, crime: "Art. 76: Porte de Colete Balístico", description: "Portar de 1 até 3 coletes balísticos.", multa: 100000, sentenca: 10, direito_a_fianca: true, valor_fianca: 200000 },
-            { numero: 77, crime: "Art. 77: Tráfico de Colete Balístico", description: "Portar 4 ou mais coletes balísticos.", multa: 200000, sentenca: 20, direito_a_fianca: true, valor_fianca: 400000 }
+            { id: 1, crime: "Ameaça", multa: 25000, meses: 20, description: "O ato de ameaçar alguém de causar-lhe mal injusto e grave." },
+            { id: 2, crime: "Apologia ao Crime", multa: 30000, meses: 30, description: "Promoção, defesa ou justificativa pública de crimes ou criminosos." },
+            { id: 3, crime: "Aviãozinho (6 a 100)", multa: 15000, meses: 20, description: "Porte de 6 a 100 unidades de itens ilícitos/drogas atuando como entregador." },
+            { id: 4, crime: "Calúnia, Injuria ou Difamação", multa: 10000, meses: 10, description: "Atribuir falsamente crime, ofender a dignidade ou ferir a reputação de outrem." },
+            { id: 5, crime: "Corrida Ilegal", multa: 50000, meses: 10, description: "Participar de corridas automobilísticas não autorizadas em vias públicas." },
+            { id: 6, crime: "Cúmplice", multa: 15000, meses: 0, description: "Ajudar, facilitar ou encobrir a prática de um crime." },
+            { id: 7, crime: "Dano ao patrimonio Publico", multa: 20000, meses: 15, description: "Destruir, inutilizar ou deteriorar bens e estruturas do Estado." },
+            { id: 8, crime: "Desacato 1", multa: 50000, meses: 20, description: "Faltar com o respeito ou ofender funcionário público no exercício da função (Nível Leve)." },
+            { id: 9, crime: "Desacato 2", multa: 50000, meses: 20, description: "Faltar com o respeito ou ofender funcionário público (Nível Médio)." },
+            { id: 10, crime: "Desacato 3", multa: 50000, meses: 20, description: "Faltar com o respeito, ofender ou agredir verbalmente funcionário público (Nível Grave)." },
+            { id: 11, crime: "Desobediencia 1", multa: 15000, meses: 0, description: "Desobedecer ordem legal de funcionário público (Nível Leve)." },
+            { id: 12, crime: "Desobediencia 2", multa: 15000, meses: 0, description: "Desobedecer ordem legal de funcionário público (Nível Médio)." },
+            { id: 13, crime: "Desobediencia 3", multa: 15000, meses: 10, description: "Desobedecer ordem legal de funcionário público (Nível Grave)." },
+            { id: 14, crime: "Dinheiro Sujo", multa: 100000, meses: 20, description: "Posse de dinheiro não declarado ou proveniente de atividades ilícitas." },
+            { id: 15, crime: "Falsa Comunicação de Crime", multa: 15000, meses: 10, description: "Provocar a ação da autoridade comunicando crime que não ocorreu." },
+            { id: 16, crime: "Falsidade Ideologica", multa: 40000, meses: 30, description: "Omitir ou inserir declaração falsa em documento para prejudicar direito ou alterar a verdade." },
+            { id: 17, crime: "Formação de Quadrilha", multa: 50000, meses: 20, description: "Associação de 3 ou mais pessoas para o fim de cometer crimes." },
+            { id: 18, crime: "Furto", multa: 15000, meses: 10, description: "Subtrair coisa alheia móvel para si ou para outrem sem uso de violência." },
+            { id: 19, crime: "Homicidio Culposo (sem intenção)", multa: 15000, meses: 20, description: "Matar alguém sem a intenção, por imprudência, negligência ou imperícia." },
+            { id: 20, crime: "Homicidio Doloso (Com intenção)", multa: 25000, meses: 40, description: "Matar alguém com a intenção clara e deliberada de tirar-lhe a vida." },
+            { id: 21, crime: "Lesão Corporal", multa: 15000, meses: 10, description: "Ofender a integridade corporal ou a saúde física de outrem." },
+            { id: 22, crime: "Porte de Arma em público", multa: 25000, meses: 10, description: "Exibir arma de fogo em vias públicas de forma ostensiva e intimidadora." },
+            { id: 23, crime: "Porte de Arma Branca", multa: 50000, meses: 0, description: "Portar facas, canivetes, machados ou similares fora de contexto de trabalho." },
+            { id: 24, crime: "Porte de Arma Leve", multa: 20000, meses: 20, description: "Portar armas de fogo de pequeno porte/calibre (pistolas, revólveres)." },
+            { id: 25, crime: "Porte de Arma Pesada", multa: 25000, meses: 25, description: "Portar armamento de grosso calibre ou de uso restrito (fuzis, submetralhadoras)." },
+            { id: 26, crime: "Porte de Capsulas", multa: 15000, meses: 10, description: "Posse de cápsulas deflagradas ou componentes para a fabricação de munição." },
+            { id: 27, crime: "Porte de Colete Balistico", multa: 10000, meses: 20, description: "Posse ou uso de colete à prova de balas sem a devida autorização legal." },
+            { id: 28, crime: "Porte de componentes narcoticos", multa: 10000, meses: 10, description: "Posse de insumos, sementes ou reagentes químicos para fabricação de entorpecentes." },
+            { id: 29, crime: "Porte de Drogas (1 a 5)", multa: 15000, meses: 0, description: "Posse de pequena quantidade de entorpecentes (1 a 5 unidades) para consumo próprio." },
+            { id: 30, crime: "Porte de Itens Munições -100", multa: 15000, meses: 20, description: "Posse de até 100 unidades de munições de qualquer calibre." },
+            { id: 31, crime: "Receptação de veiculo", multa: 20000, meses: 10, description: "Adquirir, receber, transportar ou ocultar veículo que sabe ser produto de crime." },
+            { id: 32, crime: "Resistencia a prisao", multa: 15000, meses: 10, description: "Opor-se à execução de ato legal ou abordagem mediante violência ou ameaça." },
+            { id: 33, crime: "Roubo", multa: 25000, meses: 10, description: "Subtrair coisa alheia móvel mediante grave ameaça ou violência à pessoa." },
+            { id: 34, crime: "Roubo de Caixa eletronico", multa: 30000, meses: 15, description: "Arrombamento, explosão ou violação de caixas eletrônicos para subtração de valores." },
+            { id: 35, crime: "Roubo de veiculo", multa: 20000, meses: 15, description: "Subtrair veículo alheio mediante grave ameaça ou violência contra o condutor." },
+            { id: 36, crime: "Sequestro", multa: 100000, meses: 30, description: "Privar alguém de sua liberdade mediante cárcere privado ou restrição forçada." },
+            { id: 37, crime: "Trafico de Armas +3", multa: 200000, meses: 30, description: "Posse, transporte ou comercialização de 3 ou mais armas de fogo." },
+            { id: 38, crime: "Trafico de Drogas +100", multa: 50000, meses: 25, description: "A partir de 101 unidades de drogas (cocaína, maconha, heroína, etc) configurando tráfico." },
+            { id: 39, crime: "Trafico de Munições+100", multa: 25000, meses: 25, description: "Comercialização, posse ou transporte de mais de 100 unidades de munição." },
+            { id: 40, crime: "Trafico de Itens Ilegais", multa: 30000, meses: 20, description: "Comercialização em larga escala de itens contrabandeados ou de circulação restrita." },
+            { id: 41, crime: "tentativa de fuga", multa: 50000, meses: 15, description: "Empreender fuga utilizando veículo ou a pé para evitar abordagem ou prisão policial." },
+            { id: 42, crime: "Tentativa de Roubo/Furto", multa: 25000, meses: 10, description: "Tentar subtrair bem alheio, não se consumando o ato por motivos alheios à vontade do agente." },
+            { id: 43, crime: "Tentativa de Homicidio", multa: 10000, meses: 25, description: "Tentar matar alguém, não ocorrendo a morte por circunstâncias alheias à vontade do agente." },
+            { id: 44, crime: "Tentaitva de Suborno", multa: 40000, meses: 25, description: "Oferecer ou prometer vantagem indevida a funcionário público para omitir ato de ofício." },
+            { id: 45, crime: "Randola Recrutamento", multa: 0, meses: 100, description: "Aliciar, coagir ou recrutar ativamente cidadãos para integrar organizações criminosas." }
         ];
 
-        let selectedCrimesForBail = [];
+        let selectedCrimesForCalc = [];
+        let oficiaisEnvolvidos = [];
+        let acompanhantesEnvolvidos = [];
+        let mdtImageFile = null;
 
         function renderCrimes(filter = "") {
             const container = document.getElementById('crimes-container');
             container.innerHTML = '';
             const search = filter.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+            
             codigoPenal.forEach(crime => {
-                const searchStr = (crime.crime + " " + crime.description).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                const searchStr = crime.crime.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
                 if(searchStr.includes(search)) {
-                    const isSelected = selectedCrimesForBail.some(c => c.numero === crime.numero);
+                    const isSelected = selectedCrimesForCalc.some(c => c.id === crime.id);
                     const div = document.createElement('div');
-                    div.className = `crime-item p-3 mb-2 rounded-lg border ${isSelected ? 'selected' : 'border-slate-700 bg-slate-800'} flex justify-between items-center`;
+                    div.className = `crime-item p-4 mb-3 rounded-xl border ${isSelected ? 'selected' : 'border-slate-700/80 bg-slate-800/80'} flex justify-between items-center shadow-sm`;
                     div.onclick = () => toggleCrime(crime);
+                    
+                    const mesesBadge = crime.meses === 0 
+                        ? `<span class="bg-red-900/50 text-red-400 text-[0.65rem] px-2 py-0.5 rounded font-bold uppercase tracking-wider">AGRAVANTE</span>`
+                        : `<span class="text-slate-400 text-[0.7rem]"><i class="fa-regular fa-clock"></i> ${crime.meses}m</span>`;
+
                     div.innerHTML = `
-                        <div class="w-5/6"><h4 class="text-white font-bold text-sm">${crime.crime}</h4><p class="text-slate-400 text-xs truncate mt-0.5">${crime.description}</p></div>
-                        <div class="w-1/6 text-right flex flex-col items-end gap-1">
-                            ${crime.direito_a_fianca ? `<span class="bg-green-900/50 text-green-400 text-[0.6rem] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Fiançável</span>` : `<span class="bg-red-900/50 text-red-400 text-[0.6rem] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Inafiançável</span>`}
-                            ${isSelected ? `<i class="fa-solid fa-circle-check text-[#cba871]"></i>` : `<i class="fa-regular fa-circle text-slate-500"></i>`}
+                        <div class="w-4/5 pr-2 flex flex-col gap-1.5">
+                            <h4 class="text-white font-bold text-sm tracking-wide leading-tight">${crime.crime}</h4>
+                            <p class="text-slate-400 text-[0.7rem] leading-snug">${crime.description}</p>
+                            <div class="flex items-center gap-3 mt-1">
+                                <span class="text-red-400 font-mono text-[0.75rem] font-bold">${formatBRL(crime.multa)}</span>
+                                ${mesesBadge}
+                            </div>
+                        </div>
+                        <div class="w-1/5 text-right flex items-center justify-end">
+                            ${isSelected ? `<i class="fa-solid fa-circle-check text-2xl text-[#cba871]"></i>` : `<i class="fa-regular fa-circle text-2xl text-slate-500"></i>`}
                         </div>`;
                     container.appendChild(div);
                 }
@@ -850,9 +954,9 @@
         }
 
         function toggleCrime(crime) {
-            const idx = selectedCrimesForBail.findIndex(c => c.numero === crime.numero);
-            if(idx > -1) selectedCrimesForBail.splice(idx, 1);
-            else selectedCrimesForBail.push(crime);
+            const idx = selectedCrimesForCalc.findIndex(c => c.id === crime.id);
+            if(idx > -1) selectedCrimesForCalc.splice(idx, 1);
+            else selectedCrimesForCalc.push(crime);
             renderCrimes(document.getElementById('crimeSearchInput').value);
             updateCalculadoraUI();
         }
@@ -860,74 +964,347 @@
         document.getElementById('crimeSearchInput').addEventListener('input', (e) => { renderCrimes(e.target.value); });
 
         function updateCalculadoraUI() {
-            const valFiancaEl = document.getElementById('valor-fianca');
-            const valPolicialEl = document.getElementById('valor-policial');
-            const statusBar = document.getElementById('status-bar');
-            const statusText = document.getElementById('status-text');
-            const motivoEl = document.getElementById('motivo-inafiancavel');
-            const listaMotivos = document.getElementById('lista-motivos');
-            const avisoMDT = document.getElementById('aviso-mdt');
+            const valMultaEl = document.getElementById('calc-valor-multa');
+            const valPenaEl = document.getElementById('calc-valor-pena');
+            const valPenaOriginal = document.getElementById('calc-pena-original');
             const listEl = document.getElementById('selected-crimes-list');
             const emptyEl = document.getElementById('empty-crimes');
+            const alerta0Meses = document.getElementById('alerta-0-meses');
+            const badgeStatus = document.getElementById('badge-status-pena');
+            
+            const btnCopy = document.getElementById('btn-copiar-calc');
+            const btnDiscord = document.getElementById('btn-discord-calc');
+            
+            // Lógica habilitar/desabilitar Advogados e Acompanhantes
+            const checkAdvogado = document.getElementById('red-advogado').checked;
+            const inputAdvNome = document.getElementById('calc-advogado-nome');
+            const inputAdvId = document.getElementById('calc-advogado-id');
+            const inputAcompNome = document.getElementById('calc-acomp-nome');
+            const inputAcompId = document.getElementById('calc-acomp-id');
+            const btnAddAcomp = document.getElementById('btn-add-acomp');
 
-            listaMotivos.innerHTML = '';
+            inputAdvNome.disabled = !checkAdvogado;
+            inputAdvId.disabled = !checkAdvogado;
+            inputAcompNome.disabled = !checkAdvogado;
+            inputAcompId.disabled = !checkAdvogado;
+            btnAddAcomp.disabled = !checkAdvogado;
+
+            if (!checkAdvogado) {
+                inputAdvNome.value = "";
+                inputAdvId.value = "";
+                acompanhantesEnvolvidos = [];
+                renderAcompanhantes();
+            }
+
             listEl.innerHTML = '';
 
-            if (selectedCrimesForBail.length === 0) {
-                valFiancaEl.innerText = "R$ 0";
-                valPolicialEl.innerText = "R$ 0";
-                statusBar.className = "absolute top-0 left-0 w-full h-1 bg-slate-600";
-                statusText.innerText = "NENHUM CRIME SELECIONADO";
-                statusText.className = "text-sm font-bold mt-1 text-slate-400";
-                motivoEl.classList.add('hidden');
-                avisoMDT.classList.add('hidden');
+            if (selectedCrimesForCalc.length === 0) {
+                valMultaEl.innerText = "R$ 0";
+                valPenaEl.innerText = "0 Meses";
+                valPenaOriginal.innerText = "0 meses";
                 emptyEl.classList.remove('hidden');
+                alerta0Meses.classList.add('hidden');
+                badgeStatus.innerText = "AGUARDANDO CRIMES";
+                badgeStatus.className = "bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider";
+                btnCopy.disabled = true;
+                btnDiscord.disabled = true;
                 return;
             }
 
             emptyEl.classList.add('hidden');
 
-            let isUnbailable = false;
-            let unbailableCrimes = [];
-            let totalFianca = 0;
+            let totalMulta = 0;
+            let totalMeses = 0;
 
-            selectedCrimesForBail.forEach(crime => {
+            selectedCrimesForCalc.forEach(crime => {
                 const li = document.createElement('li');
-                li.className = "flex justify-between items-center text-slate-300 border-b border-slate-700/50 pb-2";
+                li.className = "flex justify-between items-center text-slate-300 border-b border-slate-700/50 pb-2 pt-1";
                 li.innerHTML = `
-                    <span><i class="fa-solid fa-gavel text-slate-500 mr-2"></i> ${crime.crime}</span>
-                    <span class="font-mono text-xs ${crime.direito_a_fianca ? 'text-green-400' : 'text-red-400'}">${crime.direito_a_fianca ? formatBRL(crime.valor_fianca) : 'NEGADO'}</span>
+                    <span class="w-3/5 truncate"><i class="fa-solid fa-gavel text-slate-500 mr-2"></i> ${crime.crime}</span>
+                    <span class="w-2/5 text-right font-mono text-xs text-slate-400">${formatBRL(crime.multa)} | ${crime.meses}m</span>
                 `;
                 listEl.appendChild(li);
 
-                if (!crime.direito_a_fianca) { isUnbailable = true; unbailableCrimes.push(crime.crime); } 
-                else { totalFianca += crime.valor_fianca; }
+                totalMulta += crime.multa;
+                totalMeses += crime.meses;
             });
 
-            if (isUnbailable) {
-                statusBar.className = "absolute top-0 left-0 w-full h-1 bg-red-500";
-                statusText.innerText = "RÉU INAFIANÇÁVEL (PRISÃO DIRETA)";
-                statusText.className = "text-sm font-bold mt-1 text-red-400";
-                valFiancaEl.innerText = "NEGADA";
-                valFiancaEl.className = "text-2xl font-bold mt-1 text-red-500 truncate";
-                valPolicialEl.innerText = "NEGADA";
-                valPolicialEl.className = "text-2xl font-bold mt-1 text-red-500 relative z-10 truncate";
+            valMultaEl.innerText = formatBRL(totalMulta);
+            valPenaOriginal.innerText = `${totalMeses} meses`;
 
-                unbailableCrimes.forEach(c => { const mLi = document.createElement('li'); mLi.innerText = c; listaMotivos.appendChild(mLi); });
-                motivoEl.classList.remove('hidden');
-                avisoMDT.classList.add('hidden'); 
+            // Lógica de 0 Meses (Agravantes Isolados)
+            if (totalMeses === 0) {
+                valPenaEl.innerText = "BLOQUEADO";
+                alerta0Meses.classList.remove('hidden');
+                badgeStatus.innerText = "SÓ AGRAVANTES!";
+                badgeStatus.className = "bg-red-600 text-white text-xs px-2 py-1 rounded font-bold uppercase tracking-wider";
+                btnCopy.disabled = true;
+                btnDiscord.disabled = true;
+                return;
+            }
+
+            alerta0Meses.classList.add('hidden');
+            btnCopy.disabled = false;
+            btnDiscord.disabled = false;
+
+            // Cálculos de Redução
+            let reducaoPercentual = 0;
+            const checkPrimario = document.getElementById('red-primario').checked;
+            const checkConfesso = document.getElementById('red-confesso').checked;
+            const checkFianca = document.getElementById('red-fianca').checked;
+
+            if (checkPrimario) reducaoPercentual += 0.20;
+            if (checkConfesso) reducaoPercentual += 0.20;
+            
+            let mesesFinais = Math.ceil(totalMeses * (1 - reducaoPercentual));
+            
+            if (checkFianca) {
+                mesesFinais = 0;
+                badgeStatus.innerText = "LIBERADO SOB FIANÇA";
+                badgeStatus.className = "bg-[#cba871] text-slate-900 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider";
             } else {
-                statusBar.className = "absolute top-0 left-0 w-full h-1 bg-green-500";
-                statusText.innerText = "DIREITO À FIANÇA CONCEDIDO";
-                statusText.className = "text-sm font-bold mt-1 text-green-400";
-                valFiancaEl.innerText = formatBRL(totalFianca);
-                valFiancaEl.className = "text-2xl font-bold mt-1 text-white truncate";
-                
-                valPolicialEl.innerText = formatBRL(totalFianca * 0.5);
-                valPolicialEl.className = "text-2xl font-bold mt-1 text-[#cba871] relative z-10 truncate";
+                badgeStatus.innerText = "PRISÃO APLICADA";
+                badgeStatus.className = "bg-red-600 text-white text-xs px-2 py-1 rounded font-bold uppercase tracking-wider";
+            }
 
-                motivoEl.classList.add('hidden');
-                avisoMDT.classList.remove('hidden');
+            valPenaEl.innerText = `${mesesFinais} Meses`;
+        }
+
+        // ================== LÓGICA OFICIAIS E ACOMPANHANTES ==================
+        function adicionarPolicial() {
+            const nomeInput = document.getElementById('calc-policial-nome');
+            const idInput = document.getElementById('calc-policial-id');
+            const nome = nomeInput.value.trim().toUpperCase();
+            const id = idInput.value.trim().toUpperCase();
+
+            if(!nome || !id) return;
+            oficiaisEnvolvidos.push({ nome, id });
+            nomeInput.value = '';
+            idInput.value = '';
+            renderPoliciais();
+        }
+
+        function removerPolicial(index) {
+            oficiaisEnvolvidos.splice(index, 1);
+            renderPoliciais();
+        }
+
+        function renderPoliciais() {
+            const container = document.getElementById('lista-policiais');
+            container.innerHTML = '';
+            oficiaisEnvolvidos.forEach((oficial, i) => {
+                const badge = document.createElement('div');
+                badge.className = "flex items-center gap-2 bg-indigo-900/40 border border-indigo-500/30 text-indigo-200 px-3 py-1 rounded-full text-xs font-semibold tracking-wide";
+                badge.innerHTML = `
+                    <i class="fa-solid fa-shield-halved"></i> ${oficial.nome} (${oficial.id})
+                    <button onclick="removerPolicial(${i})" class="ml-1 text-red-400 hover:text-red-300"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        function adicionarAcompanhante() {
+            const nomeInput = document.getElementById('calc-acomp-nome');
+            const idInput = document.getElementById('calc-acomp-id');
+            const nome = nomeInput.value.trim().toUpperCase();
+            const id = idInput.value.trim().toUpperCase();
+
+            if(!nome || !id) return;
+            acompanhantesEnvolvidos.push({ nome, id });
+            nomeInput.value = '';
+            idInput.value = '';
+            renderAcompanhantes();
+        }
+
+        function removerAcompanhante(index) {
+            acompanhantesEnvolvidos.splice(index, 1);
+            renderAcompanhantes();
+        }
+
+        function renderAcompanhantes() {
+            const container = document.getElementById('lista-acompanhantes');
+            container.innerHTML = '';
+            acompanhantesEnvolvidos.forEach((acomp, i) => {
+                const badge = document.createElement('div');
+                badge.className = "flex items-center gap-2 bg-slate-700/60 border border-slate-500/50 text-slate-200 px-3 py-1 rounded-full text-xs font-semibold tracking-wide";
+                badge.innerHTML = `
+                    <i class="fa-solid fa-user-graduate"></i> ${acomp.nome} (${acomp.id})
+                    <button onclick="removerAcompanhante(${i})" class="ml-1 text-red-400 hover:text-red-300"><i class="fa-solid fa-xmark"></i></button>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        // ================== LÓGICA MDT UPLOAD ==================
+        const dropzone = document.getElementById('mdt-dropzone');
+        const fileInput = document.getElementById('mdt-file-input');
+        const imgPreview = document.getElementById('mdt-preview');
+        const placeholder = document.getElementById('mdt-placeholder');
+        const btnRemoveImg = document.getElementById('mdt-remove');
+
+        function processarImagem(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            mdtImageFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imgPreview.src = e.target.result;
+                imgPreview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                btnRemoveImg.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        dropzone.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => processarImagem(e.target.files[0]));
+        
+        dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            if(e.dataTransfer.files.length) processarImagem(e.dataTransfer.files[0]);
+        });
+
+        document.addEventListener('paste', (e) => {
+            // Apenas intercepta se estiver na aba da calculadora
+            if(document.getElementById('view-calc').classList.contains('hidden')) return;
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    processarImagem(item.getAsFile());
+                    break;
+                }
+            }
+        });
+
+        btnRemoveImg.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mdtImageFile = null;
+            imgPreview.src = '';
+            imgPreview.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+            btnRemoveImg.classList.add('hidden');
+            fileInput.value = '';
+        });
+
+        // ================== AÇÕES CALCULADORA ==================
+        function gerarResumoTexto() {
+            let infrator = document.getElementById('calc-infrator-nome').value.trim().toUpperCase() || "NÃO INFORMADO";
+            let descricao = document.getElementById('calc-descricao').value.trim() || "Nenhuma";
+            let policiais = oficiaisEnvolvidos.map(o => `${o.nome} (${o.id})`).join(", ") || "Nenhum informado";
+            
+            let txtCrimes = selectedCrimesForCalc.map(c => `- ${c.crime}`).join("\n");
+            
+            let advogadoNome = document.getElementById('calc-advogado-nome').value.trim().toUpperCase();
+            let advogadoId = document.getElementById('calc-advogado-id').value.trim().toUpperCase();
+            let advStr = (advogadoNome || advogadoId) ? `${advogadoNome} (ID/OAB: ${advogadoId})` : "Não informado";
+            
+            let acompanhantes = acompanhantesEnvolvidos.map(a => `${a.nome} (${a.id})`).join(", ") || "Nenhum";
+            
+            let reducoesAtivas = [];
+            if(document.getElementById('red-advogado').checked) reducoesAtivas.push(`Advogado Constituído: sim`);
+            if(document.getElementById('red-primario').checked) reducoesAtivas.push("Réu Primário (-20%)");
+            if(document.getElementById('red-confesso').checked) reducoesAtivas.push("Réu Confesso (-20%)");
+            if(document.getElementById('red-fianca').checked) reducoesAtivas.push("Fiança Paga (-100%)");
+
+            let totalMulta = formatBRL(selectedCrimesForCalc.reduce((acc, c) => acc + c.multa, 0));
+            let finalMeses = document.getElementById('calc-valor-pena').innerText;
+
+            return `RESUMO PENAL\n\nInfrator: ${infrator}\nOficiais: ${policiais}\n\nAdvogado Constituído: ${document.getElementById('red-advogado').checked ? advStr : 'Não'}\nAcompanhantes: ${acompanhantes}\n\nCrimes:\n${txtCrimes}\n\nReduções: ${reducoesAtivas.length ? reducoesAtivas.join(" | ") : "Nenhuma"}\nMulta: ${totalMulta}\nPena Final: ${finalMeses}\n\nDescrição:\n${descricao}`;
+        }
+
+        function copiarResumoCalc() {
+            const texto = gerarResumoTexto();
+            navigator.clipboard.writeText(texto).then(() => {
+                const btn = document.getElementById('btn-copiar-calc');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIADO!';
+                btn.classList.replace('bg-slate-700', 'bg-green-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.replace('bg-green-600', 'bg-slate-700');
+                }, 2000);
+            });
+        }
+
+        async function enviarDiscordCalc() {
+            const btn = document.getElementById('btn-discord-calc');
+            const webhookUrl = "https://discord.com/api/webhooks/1493576226017906830/aS1MOmJQ4AuglxOhYMlhGR0a-0KS-OIMdWW5QMBbdPlSxZLyenJeWk59dk1ltCxrqg-o";
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> ENVIANDO RELATÓRIO...';
+            btn.disabled = true;
+
+            let infrator = document.getElementById('calc-infrator-nome').value.trim().toUpperCase() || "NÃO INFORMADO";
+            let descricao = document.getElementById('calc-descricao').value.trim() || "Nenhuma descrição fornecida.";
+            let policiaisStr = oficiaisEnvolvidos.map(o => `${o.nome} (${o.id})`).join(", ") || "Nenhum oficial anexado.";
+            let crimesStr = selectedCrimesForCalc.map(c => `• ${c.crime}`).join("\n");
+            
+            let advogadoNome = document.getElementById('calc-advogado-nome').value.trim().toUpperCase();
+            let advogadoId = document.getElementById('calc-advogado-id').value.trim().toUpperCase();
+            
+            let advStr = "Defensoria Pública / Não Constituído";
+            if (document.getElementById('red-advogado').checked) {
+                advStr = (advogadoNome || advogadoId) ? `${advogadoNome} (OAB/ID: ${advogadoId})` : "Constituído (Nome não preenchido)";
+            }
+
+            let acompStr = acompanhantesEnvolvidos.map(a => `${a.nome} (${a.id})`).join(", ") || "Nenhum";
+            
+            let reducoesAtivas = [];
+            if(document.getElementById('red-primario').checked) reducoesAtivas.push("Réu Primário (-20%)");
+            if(document.getElementById('red-confesso').checked) reducoesAtivas.push("Réu Confesso (-20%)");
+            if(document.getElementById('red-fianca').checked) reducoesAtivas.push("Fiança Paga (-100%)");
+
+            let multa = document.getElementById('calc-valor-multa').innerText;
+            let penaFinal = document.getElementById('calc-valor-pena').innerText;
+
+            // Layout Embed Clean & Profissional
+            const embed = {
+                title: "📄 Relatório de Apreensão e Penalidade",
+                color: 13346929,
+                description: `**Infrator:** ${infrator}\n\n**Ocorrência:**\n\`\`\`${descricao}\`\`\``,
+                fields: [
+                    { name: "👮 Equipe Policial", value: policiaisStr, inline: false },
+                    { name: "⚖️ Representação Legal", value: `**Advogado:** ${advStr}\n**Estagiários/Acompanhantes:** ${acompStr}`, inline: false },
+                    { name: "🚨 Infrações Constatadas", value: crimesStr || "Nenhum crime listado.", inline: false },
+                    { name: "📉 Benefícios e Atenuantes", value: reducoesAtivas.length ? reducoesAtivas.join(" • ") : "Sem atenuantes.", inline: false },
+                    { name: "💰 Multa Aplicada", value: `\`${multa}\``, inline: true },
+                    { name: "⏱️ Pena de Reclusão", value: `\`${penaFinal}\``, inline: true }
+                ],
+                footer: { text: `Tribunal de Justiça - Sistema MDT`, icon_url: "https://i.imgur.com/DPg5b1B.png" },
+                timestamp: new Date().toISOString()
+            };
+
+            const formData = new FormData();
+            
+            if(mdtImageFile) {
+                embed.image = { url: "attachment://mdt_image.jpg" };
+                formData.append('file', mdtImageFile, "mdt_image.jpg");
+            }
+
+            formData.append('payload_json', JSON.stringify({
+                username: "Poder Judiciário",
+                avatar_url: "https://i.imgur.com/DPg5b1B.png",
+                embeds: [embed]
+            }));
+
+            try {
+                const response = await fetch(webhookUrl, { method: 'POST', body: formData });
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> RELATÓRIO ENVIADO';
+                    btn.classList.replace('bg-[#5865F2]', 'bg-green-600');
+                } else throw new Error();
+            } catch (error) {
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> ERRO AO ENVIAR';
+                btn.classList.replace('bg-[#5865F2]', 'bg-red-600');
+            } finally {
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-600', 'bg-red-600');
+                    btn.classList.add('bg-[#5865F2]');
+                    btn.disabled = false;
+                }, 4000);
             }
         }
 
@@ -955,7 +1332,7 @@
             }
 
             const hoje = new Date();
-            const dataStr = `Los Santos, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+            const dataStr = `Brasil, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
             document.getElementById('input-rep-data').value = dataStr;
             document.getElementById('doc-carimbo-data').innerText = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
 
