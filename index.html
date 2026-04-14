@@ -426,7 +426,7 @@
                         <tr><td class="tj-label">Declaração de Imposto:</td><td id="doc-porte-ir">Não apresentada</td></tr>
                     </table>
 
-                    <!-- TABELA 3: ANTECEDENTES (AGORA FECHADA CORRETAMENTE) -->
+                    <!-- TABELA 3: ANTECEDENTES -->
                     <h3 class="font-bold uppercase text-[0.85rem] mb-1">Antecedentes Criminais</h3>
                     <table class="tj-table">
                         <tr><td class="tj-label">Passagens:</td><td>não possui</td></tr>
@@ -444,7 +444,7 @@
                         </div>
                     </div>
 
-                    <!-- RODAPÉ COM LOGOS (DIMINUÍDOS E ALINHADOS) -->
+                    <!-- RODAPÉ COM LOGOS -->
                     <div class="mt-8 flex items-end justify-center gap-12 pb-2">
                         <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-10 opacity-90 grayscale">
                         <img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" alt="OAB" class="h-10 opacity-90 grayscale">
@@ -455,11 +455,11 @@
         </main>
     </div>
 
-    <!-- ==================== ABA 3: CALCULADORA ==================== -->
-    <div id="view-calc" class="hidden flex-col lg:flex-row flex-1 overflow-hidden bg-slate-900 p-4 lg:p-8 gap-4 lg:gap-8">
+    <!-- ==================== ABA 3: CALCULADORA PENAL ==================== -->
+    <div id="view-calc" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden bg-slate-900 p-4 lg:p-8 gap-4 lg:gap-8">
         
         <!-- COLUNA 1: CRIMES -->
-        <div class="w-full lg:w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden h-[50vh] lg:h-full shrink-0 lg:shrink">
+        <div class="w-full lg:w-1/2 flex flex-col bg-slate-800 rounded-xl border border-slate-700 shadow-xl overflow-hidden shrink-0 lg:h-full">
             <div class="p-5 border-b border-slate-700 bg-slate-800/80">
                 <h2 class="text-xl font-bold text-white mb-4"><i class="fa-solid fa-book-journal-whills text-[#cba871]"></i> Código Penal</h2>
                 <div class="relative">
@@ -471,14 +471,14 @@
         </div>
 
         <!-- COLUNA 2: RESULTADOS E FORMULÁRIO -->
-        <div class="w-full lg:w-1/2 flex flex-col gap-6 overflow-y-auto custom-scrollbar pb-8 lg:pb-0 pr-2 h-[50vh] lg:h-full">
+        <div class="w-full lg:w-1/2 flex flex-col gap-6 lg:overflow-y-auto custom-scrollbar pb-8 lg:pb-0 pr-0 lg:pr-2 shrink-0">
             
             <!-- ALERTA DE ERRO (0 MESES) -->
             <div id="alerta-0-meses" class="hidden bg-red-900/40 border border-red-500/50 rounded-xl p-4 shadow-lg flex items-center gap-4 animate-pulse shrink-0">
                 <i class="fa-solid fa-triangle-exclamation text-red-500 text-3xl"></i>
                 <div>
                     <h4 class="text-red-500 font-bold text-sm uppercase tracking-wide">Ação Bloqueada</h4>
-                    <p class="text-slate-300 text-xs mt-1">Prisões computadas apenas com crimes de 0 meses (agravantes) não devem prosseguir sozinhas. Selecione um crime principal.</p>
+                    <p class="text-slate-300 text-xs mt-1">Prisões computadas apenas com agravantes (0 meses) não podem prosseguir sozinhas. Selecione o crime principal primeiro.</p>
                 </div>
             </div>
 
@@ -528,11 +528,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME DO ADVOGADO</label>
-                            <input type="text" id="calc-advogado-nome" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase" placeholder="Nome">
+                            <input type="text" id="calc-advogado-nome" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none transition-all disabled:opacity-30 disabled:cursor-not-allowed uppercase" placeholder="NOME DO ADVOGADO">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">PASSAPORTE / OAB</label>
-                            <input type="text" id="calc-advogado-id" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none transition-all disabled:opacity-30 disabled:cursor-not-allowed" placeholder="ID">
+                            <input type="text" id="calc-advogado-id" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm focus:border-[#cba871] focus:outline-none transition-all disabled:opacity-30 disabled:cursor-not-allowed" placeholder="PASSAPORTE / ID">
                         </div>
                     </div>
                     <div>
@@ -555,16 +555,16 @@
                 </div>
 
                 <!-- Crimes Selecionados -->
-                <ul id="selected-crimes-list" class="space-y-2 mb-5 empty:hidden text-sm max-h-60 overflow-y-auto pr-2 custom-scrollbar"></ul>
+                <ul id="selected-crimes-list" class="space-y-2 mb-5 empty:hidden text-sm max-h-none overflow-visible pr-2"></ul>
                 <div id="empty-crimes" class="text-slate-500 text-sm italic text-center py-4 bg-slate-900/50 rounded-lg border border-slate-700 border-dashed mb-5">Nenhum crime selecionado.</div>
 
                 <!-- Atenuantes e Reduções -->
                 <div class="bg-slate-900/80 rounded-lg border border-slate-700 p-4 mb-5">
-                    <label class="block text-xs font-semibold text-[#cba871] mb-3 tracking-wider uppercase"><i class="fa-solid fa-tags"></i> Reduções Aplicáveis (Apenas na Pena)</label>
-                    <div class="grid grid-cols-2 gap-3">
+                    <label class="block text-xs font-semibold text-[#cba871] mb-3 tracking-wider uppercase"><i class="fa-solid fa-tags"></i> Benefícios Aplicáveis</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
                         <label class="flex items-center gap-2 cursor-pointer group">
                             <input type="checkbox" id="red-advogado" checked onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
-                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Advogado Constituído</span>
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Advogado Constituído (-30%)</span>
                         </label>
                         <label class="flex items-center gap-2 cursor-pointer group">
                             <input type="checkbox" id="red-primario" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
@@ -574,10 +574,19 @@
                             <input type="checkbox" id="red-confesso" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
                             <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Réu Confesso (-20%)</span>
                         </label>
-                        <label class="flex items-center gap-2 cursor-pointer group">
-                            <input type="checkbox" id="red-fianca" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600">
-                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Fiança Paga (-100%)</span>
+                    </div>
+
+                    <div class="border-t border-slate-700 pt-3">
+                        <label class="flex items-center justify-between cursor-pointer group w-full" id="label-fianca">
+                            <div class="flex items-center gap-2">
+                                <input type="checkbox" id="red-fianca" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#cba871] rounded bg-slate-700 border-slate-600 transition-all">
+                                <span class="text-sm font-bold text-slate-300 group-hover:text-white transition-colors" id="txt-fianca">Pagar Fiança (-100%)</span>
+                            </div>
+                            <div id="preview-fianca" class="text-xs text-slate-400 font-mono"></div>
                         </label>
+                        <div id="aviso-fianca" class="hidden mt-3 bg-yellow-900/20 border border-yellow-600/40 rounded-lg p-3 text-yellow-500/90 text-xs">
+                            <i class="fa-solid fa-circle-info"></i> <strong>Atenção Advogado:</strong> O cliente deve aguardar de 1 a 5 minutos por erro do MDT. Caso não saia no tempo, abra um ticket policial imediatamente.
+                        </div>
                     </div>
                 </div>
 
@@ -867,51 +876,51 @@
 
         // ==================== LÓGICA CALCULADORA PENAL ====================
         const codigoPenal = [
-            { id: 1, crime: "Ameaça", multa: 25000, meses: 20, description: "O ato de ameaçar alguém de causar-lhe mal injusto e grave." },
-            { id: 2, crime: "Apologia ao Crime", multa: 30000, meses: 30, description: "Promoção, defesa ou justificativa pública de crimes ou criminosos." },
-            { id: 3, crime: "Aviãozinho (6 a 100)", multa: 15000, meses: 20, description: "Porte de 6 a 100 unidades de itens ilícitos/drogas atuando como entregador." },
-            { id: 4, crime: "Calúnia, Injuria ou Difamação", multa: 10000, meses: 10, description: "Atribuir falsamente crime, ofender a dignidade ou ferir a reputação de outrem." },
-            { id: 5, crime: "Corrida Ilegal", multa: 50000, meses: 10, description: "Participar de corridas automobilísticas não autorizadas em vias públicas." },
-            { id: 6, crime: "Cúmplice", multa: 15000, meses: 0, description: "Ajudar, facilitar ou encobrir a prática de um crime." },
-            { id: 7, crime: "Dano ao patrimonio Publico", multa: 20000, meses: 15, description: "Destruir, inutilizar ou deteriorar bens e estruturas do Estado." },
-            { id: 8, crime: "Desacato 1", multa: 50000, meses: 20, description: "Faltar com o respeito ou ofender funcionário público no exercício da função (Nível Leve)." },
-            { id: 9, crime: "Desacato 2", multa: 50000, meses: 20, description: "Faltar com o respeito ou ofender funcionário público (Nível Médio)." },
-            { id: 10, crime: "Desacato 3", multa: 50000, meses: 20, description: "Faltar com o respeito, ofender ou agredir verbalmente funcionário público (Nível Grave)." },
-            { id: 11, crime: "Desobediencia 1", multa: 15000, meses: 0, description: "Desobedecer ordem legal de funcionário público (Nível Leve)." },
-            { id: 12, crime: "Desobediencia 2", multa: 15000, meses: 0, description: "Desobedecer ordem legal de funcionário público (Nível Médio)." },
-            { id: 13, crime: "Desobediencia 3", multa: 15000, meses: 10, description: "Desobedecer ordem legal de funcionário público (Nível Grave)." },
-            { id: 14, crime: "Dinheiro Sujo", multa: 100000, meses: 20, description: "Posse de dinheiro não declarado ou proveniente de atividades ilícitas." },
-            { id: 15, crime: "Falsa Comunicação de Crime", multa: 15000, meses: 10, description: "Provocar a ação da autoridade comunicando crime que não ocorreu." },
-            { id: 16, crime: "Falsidade Ideologica", multa: 40000, meses: 30, description: "Omitir ou inserir declaração falsa em documento para prejudicar direito ou alterar a verdade." },
-            { id: 17, crime: "Formação de Quadrilha", multa: 50000, meses: 20, description: "Associação de 3 ou mais pessoas para o fim de cometer crimes." },
-            { id: 18, crime: "Furto", multa: 15000, meses: 10, description: "Subtrair coisa alheia móvel para si ou para outrem sem uso de violência." },
-            { id: 19, crime: "Homicidio Culposo (sem intenção)", multa: 15000, meses: 20, description: "Matar alguém sem a intenção, por imprudência, negligência ou imperícia." },
-            { id: 20, crime: "Homicidio Doloso (Com intenção)", multa: 25000, meses: 40, description: "Matar alguém com a intenção clara e deliberada de tirar-lhe a vida." },
-            { id: 21, crime: "Lesão Corporal", multa: 15000, meses: 10, description: "Ofender a integridade corporal ou a saúde física de outrem." },
-            { id: 22, crime: "Porte de Arma em público", multa: 25000, meses: 10, description: "Exibir arma de fogo em vias públicas de forma ostensiva e intimidadora." },
-            { id: 23, crime: "Porte de Arma Branca", multa: 50000, meses: 0, description: "Portar facas, canivetes, machados ou similares fora de contexto de trabalho." },
-            { id: 24, crime: "Porte de Arma Leve", multa: 20000, meses: 20, description: "Portar armas de fogo de pequeno porte/calibre (pistolas, revólveres)." },
-            { id: 25, crime: "Porte de Arma Pesada", multa: 25000, meses: 25, description: "Portar armamento de grosso calibre ou de uso restrito (fuzis, submetralhadoras)." },
-            { id: 26, crime: "Porte de Capsulas", multa: 15000, meses: 10, description: "Posse de cápsulas deflagradas ou componentes para a fabricação de munição." },
-            { id: 27, crime: "Porte de Colete Balistico", multa: 10000, meses: 20, description: "Posse ou uso de colete à prova de balas sem a devida autorização legal." },
-            { id: 28, crime: "Porte de componentes narcoticos", multa: 10000, meses: 10, description: "Posse de insumos, sementes ou reagentes químicos para fabricação de entorpecentes." },
-            { id: 29, crime: "Porte de Drogas (1 a 5)", multa: 15000, meses: 0, description: "Posse de pequena quantidade de entorpecentes (1 a 5 unidades) para consumo próprio." },
-            { id: 30, crime: "Porte de Itens Munições -100", multa: 15000, meses: 20, description: "Posse de até 100 unidades de munições de qualquer calibre." },
-            { id: 31, crime: "Receptação de veiculo", multa: 20000, meses: 10, description: "Adquirir, receber, transportar ou ocultar veículo que sabe ser produto de crime." },
-            { id: 32, crime: "Resistencia a prisao", multa: 15000, meses: 10, description: "Opor-se à execução de ato legal ou abordagem mediante violência ou ameaça." },
-            { id: 33, crime: "Roubo", multa: 25000, meses: 10, description: "Subtrair coisa alheia móvel mediante grave ameaça ou violência à pessoa." },
-            { id: 34, crime: "Roubo de Caixa eletronico", multa: 30000, meses: 15, description: "Arrombamento, explosão ou violação de caixas eletrônicos para subtração de valores." },
-            { id: 35, crime: "Roubo de veiculo", multa: 20000, meses: 15, description: "Subtrair veículo alheio mediante grave ameaça ou violência contra o condutor." },
-            { id: 36, crime: "Sequestro", multa: 100000, meses: 30, description: "Privar alguém de sua liberdade mediante cárcere privado ou restrição forçada." },
-            { id: 37, crime: "Trafico de Armas +3", multa: 200000, meses: 30, description: "Posse, transporte ou comercialização de 3 ou mais armas de fogo." },
-            { id: 38, crime: "Trafico de Drogas +100", multa: 50000, meses: 25, description: "A partir de 101 unidades de drogas (cocaína, maconha, heroína, etc) configurando tráfico." },
-            { id: 39, crime: "Trafico de Munições+100", multa: 25000, meses: 25, description: "Comercialização, posse ou transporte de mais de 100 unidades de munição." },
-            { id: 40, crime: "Trafico de Itens Ilegais", multa: 30000, meses: 20, description: "Comercialização em larga escala de itens contrabandeados ou de circulação restrita." },
-            { id: 41, crime: "tentativa de fuga", multa: 50000, meses: 15, description: "Empreender fuga utilizando veículo ou a pé para evitar abordagem ou prisão policial." },
-            { id: 42, crime: "Tentativa de Roubo/Furto", multa: 25000, meses: 10, description: "Tentar subtrair bem alheio, não se consumando o ato por motivos alheios à vontade do agente." },
-            { id: 43, crime: "Tentativa de Homicidio", multa: 10000, meses: 25, description: "Tentar matar alguém, não ocorrendo a morte por circunstâncias alheias à vontade do agente." },
-            { id: 44, crime: "Tentaitva de Suborno", multa: 40000, meses: 25, description: "Oferecer ou prometer vantagem indevida a funcionário público para omitir ato de ofício." },
-            { id: 45, crime: "Randola Recrutamento", multa: 0, meses: 100, description: "Aliciar, coagir ou recrutar ativamente cidadãos para integrar organizações criminosas." }
+            { id: 1, crime: "Ameaça", multa: 25000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "AMEAÇAR ALGUÉM, POR PALAVRA, ESCRITO OU GESTO, OU QUALQUER OUTRO MEIO SIMBÓLICO, DE CAUSAR-LHE MAL INJUSTO E GRAVE." },
+            { id: 2, crime: "Apologia ao Crime", multa: 30000, meses: 30, valor_fianca: 200000, direito_a_fianca: true, description: "APOLOGIA AO CRIME REFERE-SE À DEFESA, PROMOÇÃO OU JUSTIFICAÇÃO DE ATIVIDADES CRIMINOSAS POR MEIO DE EXPRESSÕES VERBAIS, ESCRITAS OU OUTRAS FORMAS DE COMUNICAÇÃO." },
+            { id: 3, crime: "Aviãozinho (6 a 100)", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "PORTE DE 6 A 100 UNIDADES DE ITENS ILÍCITOS/DROGAS ATUANDO COMO ENTREGADOR." },
+            { id: 4, crime: "Calúnia, Injuria ou Difamação", multa: 10000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "CALÚNIA É A AÇÃO DE PROFERIR FALSAS E DIFAMATÓRIAS DECLARAÇÕES VERBAIS CONTRA ALGUÉM, COM O OBJETIVO DE PREJUDICAR A SUA REPUTAÇÃO." },
+            { id: 5, crime: "Corrida Ilegal", multa: 50000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "PARTICIPAR DE CORRIDAS ILEGAIS (NÃO REGULAMENTADAS)." },
+            { id: 6, crime: "Cúmplice", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "AJUDAR, FACILITAR OU ENCOBRIR A PRÁTICA DE UM CRIME." },
+            { id: 7, crime: "Dano ao patrimonio Publico", multa: 20000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "INTENCIONALMENTE CAUSAR DANOS À QUALQUER PROPRIEDADE DO GOVERNO." },
+            { id: 8, crime: "Desacato 1", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "O DESACATO CONSISTE EM ATO PRATICADO OU PALAVRAS PROFERIDAS QUE GEREM VEXAME, HUMILHAÇÃO AO FUNCIONÁRIO PÚBLICO." },
+            { id: 9, crime: "Desacato 2", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "O DESACATO CONSISTE EM ATO PRATICADO OU PALAVRAS PROFERIDAS QUE GEREM VEXAME, HUMILHAÇÃO AO FUNCIONÁRIO PÚBLICO." },
+            { id: 10, crime: "Desacato 3", multa: 50000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "O DESACATO CONSISTE EM ATO PRATICADO OU PALAVRAS PROFERIDAS QUE GEREM VEXAME, HUMILHAÇÃO AO FUNCIONÁRIO PÚBLICO." },
+            { id: 11, crime: "Desobediencia 1", multa: 15000, meses: 0, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA PERANTE UM OFICIAL PÚBLICO, NA FORMA DE COMPORTAMENTO QUE SE OPÕE OU DESAFIA A AUTORIDADE." },
+            { id: 12, crime: "Desobediencia 2", multa: 15000, meses: 0, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA PERANTE UM OFICIAL PÚBLICO, NA FORMA DE COMPORTAMENTO QUE SE OPÕE OU DESAFIA A AUTORIDADE." },
+            { id: 13, crime: "Desobediencia 3", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA PERANTE UM OFICIAL PÚBLICO, NA FORMA DE COMPORTAMENTO QUE SE OPÕE OU DESAFIA A AUTORIDADE." },
+            { id: 14, crime: "Dinheiro Sujo", multa: 100000, meses: 20, valor_fianca: 300000, direito_a_fianca: true, description: "APREENSÕES DE DINHEIRO SUJO ILEGAL." },
+            { id: 15, crime: "Falsa Comunicação de Crime", multa: 15000, meses: 10, valor_fianca: 100000, direito_a_fianca: true, description: "INTENCIONALMENTE FAZENDO UMA DECLARAÇÃO FALSA PARA UM FUNCIONÁRIO DA LEI EM SERVIÇO OU 190 MENSAGEM DE ENVIO." },
+            { id: 16, crime: "Falsidade Ideologica", multa: 40000, meses: 30, valor_fianca: 400000, direito_a_fianca: true, description: "OMITIR A VERDADE OU INSERIR UMA DECLARAÇÃO FALSA EM DOCUMENTOS PÚBLICOS OU PARTICULARES COM O OBJETIVO DE PREJUDICAR UM DIREITO." },
+            { id: 17, crime: "Formação de Quadrilha", multa: 50000, meses: 20, valor_fianca: 400000, direito_a_fianca: true, description: "CONSISTE NA ASSOCIAÇÃO DE 3 OU MAIS PESSOAS QUE SE DEDICAM A COMETER UM OU MAIS DELITOS." },
+            { id: 18, crime: "Furto", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "SUBTRAIR, PARA SI OU PARA OUTREM, COISA ALHEIA MÓVEL, SEM GRAVE AMEAÇA." },
+            { id: 19, crime: "Homicidio Culposo (sem intenção)", multa: 15000, meses: 20, valor_fianca: 0, direito_a_fianca: false, description: "QUANDO UMA PESSOA TOMA ALGUMA AÇÃO, E POR IMPERÍCIA, IMPRUDÊNCIA OU NEGLIGÊNCIA, CAUSA A MORTE DE OUTRA PESSOA." },
+            { id: 20, crime: "Homicidio Doloso (Com intenção)", multa: 25000, meses: 40, valor_fianca: 0, direito_a_fianca: false, description: "QUANDO UMA PESSOA, TOMA UMA AÇÃO DELIBERADA E MALICIOSA, NO CALOR DO MOMENTO E AGE INTENCIONALMENTE, CAUSANDO A MORTE DE OUTRA PESSOA." },
+            { id: 21, crime: "Lesão Corporal", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "CAUSAR DANOS SIGNIFICATIVOS A OUTRA PESSOA ATRAVÉS DO TOQUE INTENCIONAL OFENSIVO OU PREJUDICIAL." },
+            { id: 22, crime: "Porte de Arma em público", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "EXIBIR ARMA DE FOGO EM VIAS PÚBLICAS DE FORMA OSTENSIVA E INTIMIDADORA." },
+            { id: 23, crime: "Porte de Arma Branca", multa: 50000, meses: 0, valor_fianca: 0, direito_a_fianca: true, description: "PORTAR DE QUALQUER FERRAMENTA DE QUE POSSA SER UTILIZADA COMO ARMA CORPO A CORPO DE MANEIRA IMPRUDENTE." },
+            { id: 24, crime: "Porte de Arma Leve", multa: 20000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "PORTAR 1 OU 2 FAJUTAS E/OU FIVE SEVEN. (IGUAIS OU DIFERENTES MODELOS)" },
+            { id: 25, crime: "Porte de Arma Pesada", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "PORTAR 1 OU 2 SENDO: MP5, TEC-9, AK-47, AK-MK2, G3, UZI E/OU SHOTGUN." },
+            { id: 26, crime: "Porte de Capsulas", multa: 15000, meses: 10, valor_fianca: 0, direito_a_fianca: true, description: "POSSE DE COMPONENTES DE FABRICAÇÃO DE MUNIÇÃO, SENDO: CÁPSULAS E/OU PÓLVORA." },
+            { id: 27, crime: "Porte de Colete Balistico", multa: 10000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "PORTAR DE 1 ATÉ 3 COLETES À PROVA DE BALAS." },
+            { id: 28, crime: "Porte de componentes narcoticos", multa: 10000, meses: 10, valor_fianca: 0, direito_a_fianca: true, description: "POSSE DE MATÉRIA-PRIMA USADA PARA FABRICAÇÃO DE NARCÓTICOS." },
+            { id: 29, crime: "Porte de Drogas (1 a 5)", multa: 15000, meses: 0, valor_fianca: 100000, direito_a_fianca: true, description: "POSSE DE PEQUENA QUANTIDADE DE ENTORPECENTES (1 A 5 UNIDADES) PARA CONSUMO PRÓPRIO." },
+            { id: 30, crime: "Porte de Itens Munições -100", multa: 15000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "ENQUADRA-SE COMO PORTE DE MUNIÇÃO A QUANTIDADE DE 1 A 100 UNIDADES." },
+            { id: 31, crime: "Receptação de veiculo", multa: 20000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "ADQUIRIR, RECEBER, TRANSPORTAR OU OCULTAR VEÍCULO QUE SABE SER PRODUTO DE CRIME." },
+            { id: 32, crime: "Resistencia a prisao", multa: 15000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "OPOR-SE À EXECUÇÃO DE ATO LEGAL OU ABORDAGEM MEDIANTE VIOLÊNCIA OU AMEAÇA." },
+            { id: 33, crime: "Roubo", multa: 25000, meses: 10, valor_fianca: 300000, direito_a_fianca: true, description: "SUBTRAIR, PARA SI OU PARA OUTREM, COISA ALHEIA MÓVEL, ATRAVÉS DO USO DE FORÇA." },
+            { id: 34, crime: "Roubo de Caixa eletronico", multa: 30000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "ARROMBAMENTO, EXPLOSÃO OU VIOLAÇÃO DE CAIXAS ELETRÔNICOS PARA SUBTRAÇÃO DE VALORES." },
+            { id: 35, crime: "Roubo de veiculo", multa: 20000, meses: 15, valor_fianca: 300000, direito_a_fianca: true, description: "SUBTRAIR VEÍCULO ALHEIO MEDIANTE GRAVE AMEAÇA OU VIOLÊNCIA CONTRA O CONDUTOR." },
+            { id: 36, crime: "Sequestro", multa: 100000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "APREENDER E LEVAR ILEGALMENTE UMA PESSOA PELA FORÇA OU FRAUDE, OU APREENDER E DETER UMA PESSOA CONTRA A SUA VONTADE." },
+            { id: 37, crime: "Trafico de Armas +3", multa: 200000, meses: 30, valor_fianca: 0, direito_a_fianca: false, description: "PORTAR 3 OU MAIS ARMAS DE FOGO." },
+            { id: 38, crime: "Trafico de Drogas +100", multa: 50000, meses: 25, valor_fianca: 300000, direito_a_fianca: true, description: "POSSUIR 101 OU MAIS UNIDADES DE DROGAS." },
+            { id: 39, crime: "Trafico de Munições+100", multa: 25000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "ENQUADRA-SE COMO TRÁFICO DE MUNIÇÕES PORTAR 101 OU MAIS MUNIÇÕES INDEPENDENTE DO TIPO." },
+            { id: 40, crime: "Trafico de Itens Ilegais", multa: 30000, meses: 20, valor_fianca: 200000, direito_a_fianca: true, description: "POSSUIR 6 OU MAIS PRODUTOS ILEGAIS (LOCKPICK, CAPUZ, ALGEMAS, NITRO, C4, ETC)." },
+            { id: 41, crime: "tentativa de fuga", multa: 50000, meses: 15, valor_fianca: 200000, direito_a_fianca: true, description: "DESOBEDIÊNCIA A ORDEM DE PARADA PELA AUTORIDADE POLICIAL." },
+            { id: 42, crime: "Tentativa de Roubo/Furto", multa: 25000, meses: 10, valor_fianca: 200000, direito_a_fianca: true, description: "TENTAR SUBTRAIR BEM ALHEIO, NÃO SE CONSUMANDO O ATO POR MOTIVOS ALHEIOS À VONTADE DO AGENTE." },
+            { id: 43, crime: "Tentativa de Homicidio", multa: 10000, meses: 25, valor_fianca: 0, direito_a_fianca: false, description: "QUANDO UMA PESSOA TOMA ALGUMA AÇÃO, DELIBERADA E MALICIOSAMENTE, COM A INTENÇÃO DE CAUSAR A MORTE DE OUTRA PESSOA E NÃO TEM SUCESSO." },
+            { id: 44, crime: "Tentaitva de Suborno", multa: 40000, meses: 25, valor_fianca: 400000, direito_a_fianca: true, description: "SUBORNO ATO OU EFEITO DE SUBORNAR; COMPRA, DINHEIRO OU VALOR QUE SE SUBORNA OU SE TENTA SUBORNAR." },
+            { id: 45, crime: "Randola Recrutamento", multa: 0, meses: 100, valor_fianca: 0, direito_a_fianca: false, description: "ALICIAR, COAGIR OU RECRUTAR ATIVAMENTE CIDADÃOS PARA INTEGRAR ORGANIZAÇÕES CRIMINOSAS." }
         ];
 
         let selectedCrimesForCalc = [];
@@ -939,7 +948,7 @@
                     div.innerHTML = `
                         <div class="w-4/5 pr-2 flex flex-col gap-1.5">
                             <h4 class="text-white font-bold text-sm tracking-wide leading-tight">${crime.crime}</h4>
-                            <p class="text-slate-400 text-[0.7rem] leading-snug">${crime.description}</p>
+                            <p class="text-slate-400 text-[0.65rem] leading-snug">${crime.description}</p>
                             <div class="flex items-center gap-3 mt-1">
                                 <span class="text-red-400 font-mono text-[0.75rem] font-bold">${formatBRL(crime.multa)}</span>
                                 ${mesesBadge}
@@ -975,6 +984,12 @@
             const btnCopy = document.getElementById('btn-copiar-calc');
             const btnDiscord = document.getElementById('btn-discord-calc');
             
+            // Fiança Dinâmica
+            const redFianca = document.getElementById('red-fianca');
+            const labelFiancaBox = document.getElementById('label-fianca');
+            const previewFianca = document.getElementById('preview-fianca');
+            const avisoFianca = document.getElementById('aviso-fianca');
+            
             // Lógica habilitar/desabilitar Advogados e Acompanhantes
             const checkAdvogado = document.getElementById('red-advogado').checked;
             const inputAdvNome = document.getElementById('calc-advogado-nome');
@@ -1008,6 +1023,10 @@
                 badgeStatus.className = "bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider";
                 btnCopy.disabled = true;
                 btnDiscord.disabled = true;
+                previewFianca.innerHTML = "";
+                avisoFianca.classList.add('hidden');
+                redFianca.disabled = false;
+                labelFiancaBox.classList.remove('opacity-50', 'cursor-not-allowed');
                 return;
             }
 
@@ -1015,6 +1034,8 @@
 
             let totalMulta = 0;
             let totalMeses = 0;
+            let totalFianca = 0;
+            let isInafiancavel = false;
 
             selectedCrimesForCalc.forEach(crime => {
                 const li = document.createElement('li');
@@ -1027,10 +1048,30 @@
 
                 totalMulta += crime.multa;
                 totalMeses += crime.meses;
+                totalFianca += crime.valor_fianca;
+                if (!crime.direito_a_fianca) isInafiancavel = true;
             });
 
             valMultaEl.innerText = formatBRL(totalMulta);
             valPenaOriginal.innerText = `${totalMeses} meses`;
+
+            // Lógica de Fiança UI
+            if (isInafiancavel) {
+                redFianca.disabled = true;
+                redFianca.checked = false;
+                labelFiancaBox.classList.add('opacity-50', 'cursor-not-allowed');
+                previewFianca.innerHTML = `<span class="text-red-500 font-bold uppercase tracking-wide"><i class="fa-solid fa-ban"></i> INAFIANÇÁVEL</span>`;
+                avisoFianca.classList.add('hidden');
+            } else {
+                redFianca.disabled = false;
+                labelFiancaBox.classList.remove('opacity-50', 'cursor-not-allowed');
+                previewFianca.innerHTML = `Fiança Estimada: <span class="text-green-400 font-bold ml-1">${formatBRL(totalFianca)}</span>`;
+                if (redFianca.checked) {
+                    avisoFianca.classList.remove('hidden');
+                } else {
+                    avisoFianca.classList.add('hidden');
+                }
+            }
 
             // Lógica de 0 Meses (Agravantes Isolados)
             if (totalMeses === 0) {
@@ -1049,16 +1090,13 @@
 
             // Cálculos de Redução
             let reducaoPercentual = 0;
-            const checkPrimario = document.getElementById('red-primario').checked;
-            const checkConfesso = document.getElementById('red-confesso').checked;
-            const checkFianca = document.getElementById('red-fianca').checked;
-
-            if (checkPrimario) reducaoPercentual += 0.20;
-            if (checkConfesso) reducaoPercentual += 0.20;
+            if (checkAdvogado) reducaoPercentual += 0.30;
+            if (document.getElementById('red-primario').checked) reducaoPercentual += 0.20;
+            if (document.getElementById('red-confesso').checked) reducaoPercentual += 0.20;
             
             let mesesFinais = Math.ceil(totalMeses * (1 - reducaoPercentual));
             
-            if (checkFianca) {
+            if (redFianca.checked && !isInafiancavel) {
                 mesesFinais = 0;
                 badgeStatus.innerText = "LIBERADO SOB FIANÇA";
                 badgeStatus.className = "bg-[#cba871] text-slate-900 text-xs px-2 py-1 rounded font-bold uppercase tracking-wider";
@@ -1332,7 +1370,7 @@
             }
 
             const hoje = new Date();
-            const dataStr = `Brasil, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+            const dataStr = `Los Santos, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
             document.getElementById('input-rep-data').value = dataStr;
             document.getElementById('doc-carimbo-data').innerText = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
 
