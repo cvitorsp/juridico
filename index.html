@@ -156,25 +156,63 @@
         .dropzone:hover { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.4); }
         .dropzone.dragover { border-color: var(--primary); background-color: rgba(212, 175, 55, 0.05); }
 
-        /* Animações */
+        /* Animações e Loading System */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .animate-fade-up { animation: fadeUp 0.5s ease forwards; }
+
+        @keyframes scan {
+            0% { top: -10%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 110%; opacity: 0; }
+        }
+        .animate-scan {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 15px 3px rgba(212, 175, 55, 0.6);
+            animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
     </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden selection:bg-[#d4af37] selection:text-black">
 
-    <!-- Loading Screen Premium -->
-    <div id="loading-screen" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center transition-opacity duration-700">
-        <div class="relative">
-            <div class="absolute inset-0 bg-[#d4af37] blur-[100px] opacity-20 rounded-full animate-pulse"></div>
-            <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Logo RP" class="h-32 mb-8 relative z-10 drop-shadow-2xl">
+    <!-- Loading Screen Premium & Imersiva -->
+    <div id="loading-screen" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000">
+        
+        <!-- Fundo Animado do Loading -->
+        <div class="absolute inset-0 overflow-hidden flex justify-center items-center pointer-events-none">
+            <div class="absolute w-[600px] h-[600px] border border-[#d4af37]/10 rounded-full animate-[spin_12s_linear_infinite] border-dashed"></div>
+            <div class="absolute w-[450px] h-[450px] border border-[#d4af37]/20 rounded-full animate-[spin_8s_linear_infinite_reverse]"></div>
+            <div class="absolute w-[300px] h-[300px] bg-[#d4af37]/5 rounded-full blur-[80px] animate-pulse"></div>
         </div>
-        <div class="flex items-center gap-4">
-            <i class="fa-solid fa-circle-notch fa-spin text-[#d4af37] text-2xl"></i>
-            <h2 class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-white font-bold text-xl tracking-[0.2em] uppercase">Iniciando Sistema</h2>
+
+        <!-- Elemento Central -->
+        <div class="relative z-10 flex flex-col items-center">
+            
+            <div class="relative w-36 h-36 flex items-center justify-center mb-6 overflow-hidden rounded-full border border-white/5 bg-black/40 backdrop-blur-md shadow-[0_0_50px_rgba(212,175,55,0.1)]">
+                <div class="absolute inset-0 bg-[#d4af37] blur-[40px] opacity-20 animate-pulse"></div>
+                <i class="fa-solid fa-scale-balanced text-6xl text-gradient relative z-10 drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]"></i>
+                <div class="animate-scan"></div>
+            </div>
+
+            <h2 class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] via-white to-[#d4af37] font-extrabold text-2xl tracking-[0.3em] uppercase mb-2 drop-shadow-lg text-center">
+                Tribunal de Justiça
+            </h2>
+            <div class="h-[2px] w-24 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent mb-8"></div>
+
+            <div class="flex flex-col items-center gap-3 w-72">
+                <div class="w-full bg-white/5 rounded-full h-1.5 overflow-hidden backdrop-blur-sm border border-white/10 relative">
+                    <div id="loading-progress" class="absolute top-0 left-0 bg-gradient-to-r from-[#b5952f] to-[#f3e5ab] h-full rounded-full w-0 transition-all duration-300 ease-out shadow-[0_0_15px_#d4af37]"></div>
+                </div>
+                <p id="loading-text" class="text-[#d4af37]/80 text-[0.65rem] font-bold tracking-[0.2em] uppercase animate-pulse">Iniciando protocolo seguro...</p>
+            </div>
+
         </div>
     </div>
     
@@ -1585,7 +1623,7 @@
             }
         }
 
-        // ==================== INICIALIZAÇÃO ====================
+        // ==================== INICIALIZAÇÃO / LOADING ANIMATION ====================
         function aceitarCookies() {
             localStorage.setItem('rp_juridico_cookies_accepted', 'true');
             document.getElementById('cookie-banner').classList.add('translate-y-[150%]');
@@ -1594,18 +1632,46 @@
         window.onload = () => {
             const loader = document.getElementById('loading-screen');
             const banner = document.getElementById('cookie-banner');
+            const loadingText = document.getElementById('loading-text');
+            const progressBar = document.getElementById('loading-progress');
+
+            // Passos da animação da barra de progresso e textos do Tribunal de Justiça
+            const bootSteps = [
+                { text: "Autenticando credenciais OAB...", progress: 30, time: 400 },
+                { text: "Acessando Tribunal de Justiça...", progress: 60, time: 1200 },
+                { text: "Sincronizando banco de dados...", progress: 85, time: 2000 },
+                { text: "Protocolo Liberado", progress: 100, time: 2600 }
+            ];
+
             if (!localStorage.getItem('rp_juridico_visited')) {
+                // Primeira visita: Loading completo de 3 segundos
+                bootSteps.forEach(step => {
+                    setTimeout(() => {
+                        if(loadingText) loadingText.innerText = step.text;
+                        if(progressBar) progressBar.style.width = step.progress + '%';
+                    }, step.time);
+                });
+
                 setTimeout(() => {
                     loader.style.opacity = '0';
                     setTimeout(() => {
                         loader.style.display = 'none';
                         localStorage.setItem('rp_juridico_visited', 'true');
                         if (!localStorage.getItem('rp_juridico_cookies_accepted')) setTimeout(() => banner.classList.remove('translate-y-[150%]'), 1000);
-                    }, 700); 
-                }, 2000);
+                    }, 1000); 
+                }, 3200); 
             } else {
-                loader.style.display = 'none';
-                if (!localStorage.getItem('rp_juridico_cookies_accepted')) setTimeout(() => banner.classList.remove('translate-y-[150%]'), 1000);
+                // Visitas subsequentes: Fast Boot (1 segundo)
+                if(progressBar) progressBar.style.width = '100%';
+                if(loadingText) loadingText.innerText = "Sessão Restaurada";
+                
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        if (!localStorage.getItem('rp_juridico_cookies_accepted')) setTimeout(() => banner.classList.remove('translate-y-[150%]'), 1000);
+                    }, 1000);
+                }, 800);
             }
 
             const hoje = new Date();
