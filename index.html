@@ -502,9 +502,15 @@
 
                 <!-- Dados Infrator e Oficiais -->
                 <div class="grid grid-cols-1 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME DO INFRATOR</label>
-                        <input type="text" id="calc-infrator-nome" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all" placeholder="NOME DO PRESO">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">NOME DO INFRATOR</label>
+                            <input type="text" id="calc-infrator-nome" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all" placeholder="NOME DO PRESO">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">PASSAPORTE (ID)</label>
+                            <input type="text" id="calc-infrator-passaporte" class="w-full bg-slate-900/80 border border-slate-600 rounded-lg px-4 py-2 text-white focus:border-[#cba871] focus:ring-2 focus:ring-[#cba871]/20 focus:outline-none uppercase hover:border-slate-500 transition-all" placeholder="ID DO PRESO">
+                        </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-1 tracking-wider">POLICIAIS ENVOLVIDOS</label>
@@ -621,6 +627,26 @@
     </div>
 
     <script>
+        // CONFIGURAÇÕES GLOBAIS - SEU APPS SCRIPT
+        const CONFIG = {
+            SHEET_URL: "https://script.google.com/macros/s/AKfycbwdPwwk4TF_MiyJ642Jk-4nUOqSohfWHlduhUhhbggUAgPmR3uHmDWPQdEJilmqqr6Vsw/exec"
+        };
+
+        // ==================== LÓGICA DE PLANILHA ====================
+        async function salvarNaPlanilha(dados) {
+            try {
+                await fetch(CONFIG.SHEET_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+                console.log("Dados enviados para a planilha:", dados.tipo);
+            } catch (err) {
+                console.error("Erro ao salvar na planilha:", err);
+            }
+        }
+
         // ==================== LÓGICA DE ABAS ====================
         function switchTab(tab) {
             document.getElementById('view-cnpj').classList.add('hidden');
@@ -757,6 +783,22 @@
             const advId = document.getElementById('input-adv-id').value.trim() || "NÃO INFORMADA";
             const cnpjNum = document.getElementById('input-cnpj').value;
 
+            // ADICIONADO: Enviar TODOS os dados para a Planilha
+            salvarNaPlanilha({
+                tipo: "CNPJ",
+                cnpj: cnpjNum,
+                razao: document.getElementById('input-razao').value,
+                fantasia: nomeEmpresa,
+                endereco: document.getElementById('input-endereco').value,
+                cnae: document.getElementById('input-cnae').value,
+                natureza: document.getElementById('input-natureza').value,
+                tipo_rep: document.querySelector('input[name="tipo_rep"]:checked').value,
+                rep_nome: document.getElementById('input-rep-nome').value,
+                rep_cpf: document.getElementById('input-rep-cpf').value,
+                advogado: advNome,
+                adv_oab: advId
+            });
+
             try {
                 const pdfBlob = await html2pdf().set({
                     margin: [0,0,0,0], filename: filename, image: { type: 'jpeg', quality: 1 },
@@ -847,6 +889,23 @@
             const advNome = document.getElementById('input-porte-adv-nome').value.trim() || "NOME DO ADVOGADO";
             const advId = document.getElementById('input-porte-adv-oab').value.trim() || "NÃO INFORMADA";
             const filename = `PORTE_${cliNome.replace(/\s+/g, '_').toUpperCase()}.jpg`;
+
+            // ADICIONADO: Salvar TODOS os dados na Planilha
+            salvarNaPlanilha({
+                tipo: "PORTE",
+                nome: cliNome,
+                passaporte: cliPass,
+                data_nasc: document.getElementById('input-porte-nasc').value,
+                telefone: document.getElementById('input-porte-tel').value,
+                estado_civil: document.getElementById('input-porte-civil').value,
+                profissao: document.getElementById('input-porte-profissao').value || "Não informada",
+                filhos: document.getElementById('input-porte-filhos').value,
+                casas: document.getElementById('input-porte-casas').value,
+                carros: document.getElementById('input-porte-carros').value,
+                salario: document.getElementById('doc-porte-salario').innerText,
+                autoridade: advNome,
+                oab: advId
+            });
 
             try {
                 const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false });
@@ -1239,6 +1298,7 @@
         // ================== AÇÕES CALCULADORA ==================
         function gerarResumoTexto() {
             let infrator = document.getElementById('calc-infrator-nome').value.trim().toUpperCase() || "NÃO INFORMADO";
+            let infratorPassaporte = document.getElementById('calc-infrator-passaporte').value.trim().toUpperCase() || "NÃO INFORMADO";
             let descricao = document.getElementById('calc-descricao').value.trim() || "Nenhuma";
             let policiais = oficiaisEnvolvidos.map(o => `${o.nome} (${o.id})`).join(", ") || "Nenhum informado";
             
@@ -1260,7 +1320,7 @@
             let fiancaStr = document.getElementById('calc-valor-fianca').innerText;
             let finalMeses = document.getElementById('calc-valor-pena').innerText;
 
-            return `RESUMO PENAL\n\nInfrator: ${infrator}\nOficiais: ${policiais}\n\nAdvogado Constituído: ${document.getElementById('red-advogado').checked ? advStr : 'Não'}\nAcompanhantes: ${acompanhantes}\n\nCrimes:\n${txtCrimes}\n\nReduções: ${reducoesAtivas.length ? reducoesAtivas.join(" | ") : "Nenhuma"}\nMulta: ${totalMulta}\nFiança: ${fiancaStr}\nPena Final: ${finalMeses}\n\nDescrição:\n${descricao}`;
+            return `RESUMO PENAL\n\nInfrator: ${infrator} (Passaporte: ${infratorPassaporte})\nOficiais: ${policiais}\n\nAdvogado Constituído: ${document.getElementById('red-advogado').checked ? advStr : 'Não'}\nAcompanhantes: ${acompanhantes}\n\nCrimes:\n${txtCrimes}\n\nReduções: ${reducoesAtivas.length ? reducoesAtivas.join(" | ") : "Nenhuma"}\nMulta: ${totalMulta}\nFiança: ${fiancaStr}\nPena Final: ${finalMeses}\n\nDescrição:\n${descricao}`;
         }
 
         function copiarResumoCalc() {
@@ -1306,7 +1366,11 @@
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> ENVIANDO RELATÓRIO...';
             btn.disabled = true;
 
+            // ADICIONADO: Criador do ID de Prisão único
+            const idPrisao = "#PR-" + Math.random().toString(36).substr(2, 5).toUpperCase();
+
             let infrator = document.getElementById('calc-infrator-nome').value.trim().toUpperCase() || "NÃO INFORMADO";
+            let infratorPassaporte = document.getElementById('calc-infrator-passaporte').value.trim().toUpperCase() || "NÃO INFORMADO";
             let descricao = document.getElementById('calc-descricao').value.trim() || "Nenhuma descrição fornecida.";
             let policiaisStr = oficiaisEnvolvidos.map(o => `${o.nome} (${o.id})`).join(", ") || "Nenhum oficial anexado.";
             let crimesStr = selectedCrimesForCalc.map(c => `• ${c.crime}`).join("\n");
@@ -1338,11 +1402,29 @@
             let multa = document.getElementById('calc-valor-multa').innerText;
             let penaFinal = document.getElementById('calc-valor-pena').innerText;
 
+            // ADICIONADO: Enviar TODOS os dados para a Planilha
+            salvarNaPlanilha({
+                tipo: "PRISAO",
+                id_prisao: idPrisao,
+                infrator_nome: infrator,
+                infrator_pass: infratorPassaporte,
+                descricao: descricao,
+                policiais: policiaisStr,
+                advogado_nome: advogadoNome || "NÃO CONSTITUÍDO",
+                advogado_oab: advogadoId || "-",
+                acompanhantes: acompStr,
+                crimes: selectedCrimesForCalc.map(c => c.crime).join(" | "), 
+                reducoes: reducoesAtivas.join(" | ") || "NENHUMA",
+                multa: multa,
+                fianca: fiancaStr,
+                pena: penaFinal
+            });
+
             // Layout Embed Clean & Profissional
             const embed = {
-                title: "📄 Relatório de Apreensão e Penalidade",
+                title: `📄 Relatório de Apreensão e Penalidade | ${idPrisao}`, 
                 color: 13346929,
-                description: `**Infrator:** ${infrator}\n\n**Ocorrência:**\n\`\`\`${descricao}\`\`\``,
+                description: `**Infrator:** ${infrator} (Passaporte: ${infratorPassaporte})\n\n**Ocorrência:**\n\`\`\`${descricao}\`\`\``,
                 fields: [
                     { name: "👮 Equipe Policial", value: policiaisStr, inline: false },
                     { name: "⚖️ Representação Legal", value: `**Advogado:** ${advStr}\n**Estagiários/Acompanhantes:** ${acompStr}`, inline: false },
