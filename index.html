@@ -178,9 +178,24 @@
             box-shadow: 0 0 15px 3px rgba(212, 175, 55, 0.6);
             animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
+
+        /* Animações da Notificação (Toast) */
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .toast-enter { animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .toast-exit { animation: fadeOutRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden selection:bg-[#d4af37] selection:text-black">
+
+    <!-- Container de Notificações -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
 
     <!-- Loading Screen Premium & Imersiva -->
     <div id="loading-screen" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000">
@@ -229,7 +244,6 @@
 
     <!-- Header Premium -->
     <header class="glass-panel border-b-0 border-white/5 h-auto lg:h-20 flex flex-col lg:flex-row items-center justify-between px-0 lg:px-8 shrink-0 z-20 relative">
-        <!-- Detalhe brilhante inferior no header -->
         <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
         <div class="flex items-center gap-5 w-full lg:w-auto justify-center lg:justify-start py-4 lg:py-0 border-b border-white/5 lg:border-none">
@@ -276,15 +290,15 @@
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Razão Social</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Razão Social <span class="text-red-500">*</span></label>
                         <input type="text" id="input-razao" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
                     </div>
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Fantasia</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Fantasia <span class="text-red-500">*</span></label>
                         <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
                     </div>
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Endereço Sede</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Endereço Sede <span class="text-red-500">*</span></label>
                         <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
                     </div>
                 </div>
@@ -294,14 +308,14 @@
                 <h2 class="text-white font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase text-slate-400"></i> Natureza da Operação</h2>
                 <div class="space-y-4">
                     <select id="input-cnae" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm appearance-none cursor-pointer">
-                        <option value="">Selecione a Atividade (CNAE)...</option>
+                        <option value="">Selecione a Atividade (CNAE)... *</option>
                         <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições.">2542-0/00 - Indústria Bélica</option>
                         <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos.">4520-0/01 - Mecânica</option>
                         <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares.">9329-8/01 - Boate</option>
                         <option value="8610-1/01 - Atividades de atendimento hospitalar.">8610-1/01 - Hospital</option>
                     </select>
                     <select id="input-natureza" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm appearance-none cursor-pointer">
-                        <option value="">Selecione a Natureza Jurídica...</option>
+                        <option value="">Selecione a Natureza Jurídica... *</option>
                         <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
                         <option value="213-5 - Empresário Individual">213-5 - EI</option>
                     </select>
@@ -315,10 +329,10 @@
                     <label class="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase tracking-wider hover:text-[#d4af37] transition-colors"><input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#d4af37] w-4 h-4"> Preposto</label>
                 </div>
                 <div class="space-y-4">
-                    <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="NOME COMPLETO DO REP.">
+                    <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="NOME COMPLETO DO REP. *">
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="input-rep-cpf" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="PASSAPORTE">
-                        <input type="text" id="input-rep-data" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
+                        <input type="text" id="input-rep-cpf" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="PASSAPORTE (Apenas N°) *">
+                        <input type="text" id="input-rep-data" oninput="maskDate(this); updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="DD/MM/AAAA">
                     </div>
                 </div>
             </div>
@@ -327,11 +341,11 @@
                 <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-gavel"></i> Assinatura Jurídica</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável <span class="text-red-500">*</span></label>
                         <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="NOME DO ADVOGADO">
                     </div>
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB <span class="text-red-500">*</span></label>
                         <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: FMA6Y4JE">
                     </div>
                     <div class="pt-2">
@@ -426,23 +440,23 @@
                 <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Dados do Requerente</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Completo</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Completo <span class="text-red-500">*</span></label>
                         <input type="text" id="input-porte-nome" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (CPF)</label>
-                            <input type="text" id="input-porte-passaporte" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm">
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (CPF) <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-porte-passaporte" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="Apenas N°">
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nascimento</label>
-                            <input type="text" id="input-porte-nasc" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="DD/MM/AAAA">
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nascimento <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-porte-nasc" oninput="maskDate(this); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="DD/MM/AAAA">
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Telefone</label>
-                            <input type="text" id="input-porte-tel" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="XXX-XXX">
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Telefone <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-porte-tel" oninput="maskPhone(this); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="XXX-XXX">
                         </div>
                         <div>
                             <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Estado Civil</label>
@@ -467,20 +481,20 @@
                     <div class="grid grid-cols-3 gap-4">
                         <div>
                             <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Filhos</label>
-                            <input type="number" min="0" id="input-porte-filhos" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
+                            <input type="number" min="0" id="input-porte-filhos" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
                         </div>
                         <div>
                             <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Imóveis</label>
-                            <input type="number" min="0" id="input-porte-casas" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
+                            <input type="number" min="0" id="input-porte-casas" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
                         </div>
                         <div>
                             <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Veículos</label>
-                            <input type="number" min="0" id="input-porte-carros" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
+                            <input type="number" min="0" id="input-porte-carros" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Renda Mensal Declarada (R$)</label>
-                        <input type="number" min="0" id="input-porte-salario" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="Ex: 10000">
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Renda Mensal (R$) <span class="text-red-500">*</span></label>
+                        <input type="number" min="0" id="input-porte-salario" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="Ex: 10000">
                     </div>
                 </div>
             </div>
@@ -489,7 +503,7 @@
                 <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-signature"></i> Homologação</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Autoridade Emissora (Adv.)</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Autoridade Emissora (Adv.) <span class="text-red-500">*</span></label>
                         <input type="text" id="input-porte-adv-nome" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: Vitor Lazerri">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -498,7 +512,7 @@
                             <input type="text" id="input-porte-adv-cargo" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: Advogado Sênior">
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB</label>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB <span class="text-red-500">*</span></label>
                             <input type="text" id="input-porte-adv-oab" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: FMA6Y4JE">
                         </div>
                     </div>
@@ -625,7 +639,7 @@
                     
                     <!-- MDT Drag and Drop -->
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-2 tracking-widest uppercase">Imagem Comprobatória (MDT)</label>
+                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-2 tracking-widest uppercase">Imagem Comprobatória (MDT) <span class="text-red-500">*</span></label>
                         <div id="mdt-dropzone" class="dropzone w-full h-28 rounded-xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
                             <input type="file" id="mdt-file-input" class="hidden" accept="image/*">
                             <div id="mdt-placeholder" class="text-slate-400 flex flex-col items-center group-hover:text-white transition-colors">
@@ -641,19 +655,19 @@
                     <div class="grid grid-cols-1 gap-5">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome do Acusado</label>
+                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome do Acusado <span class="text-red-500">*</span></label>
                                 <input type="text" id="calc-infrator-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: John Doe">
                             </div>
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (ID)</label>
-                                <input type="text" id="calc-infrator-passaporte" class="w-full input-premium rounded-xl px-4 py-3 text-sm font-mono" placeholder="Nº Passaporte">
+                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (ID) <span class="text-red-500">*</span></label>
+                                <input type="text" id="calc-infrator-passaporte" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full input-premium rounded-xl px-4 py-3 text-sm font-mono" placeholder="Apenas N°">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Policiais Envolvidos</label>
+                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Policiais Envolvidos <span class="text-red-500">*</span></label>
                             <div class="flex gap-2 mb-3">
                                 <input type="text" id="calc-policial-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Nome do Oficial">
-                                <input type="text" id="calc-policial-id" class="w-1/3 input-premium rounded-xl px-4 py-3 text-sm font-mono" placeholder="Nº VTR / ID">
+                                <input type="text" id="calc-policial-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-3 text-sm font-mono" placeholder="Nº VTR / ID">
                                 <button onclick="adicionarPolicial()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-5 rounded-xl transition-all hover:shadow-lg"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="lista-policiais" class="flex flex-wrap gap-2 empty:hidden"></div>
@@ -670,11 +684,11 @@
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável</label>
+                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável <span id="adv-req-mark" class="text-red-500">*</span></label>
                                 <input type="text" id="calc-advogado-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome Completo">
                             </div>
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Inscrição OAB</label>
+                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Inscrição OAB <span id="oab-req-mark" class="text-red-500">*</span></label>
                                 <input type="text" id="calc-advogado-id" class="w-full input-premium rounded-xl px-4 py-3 text-sm disabled:opacity-20 disabled:cursor-not-allowed uppercase" placeholder="Código OAB">
                             </div>
                         </div>
@@ -682,7 +696,7 @@
                             <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Assessores / Estagiários Presentes</label>
                             <div class="flex gap-2 mb-3">
                                 <input type="text" id="calc-acomp-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome">
-                                <input type="text" id="calc-acomp-id" class="w-1/3 input-premium rounded-xl px-4 py-3 text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Passaporte">
+                                <input type="text" id="calc-acomp-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-3 text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Passaporte">
                                 <button id="btn-add-acomp" onclick="adicionarAcompanhante()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="lista-acompanhantes" class="flex flex-wrap gap-2 empty:hidden"></div>
@@ -777,6 +791,75 @@
             SHEET_URL: "https://script.google.com/macros/s/AKfycbwdPwwk4TF_MiyJ642Jk-4nUOqSohfWHlduhUhhbggUAgPmR3uHmDWPQdEJilmqqr6Vsw/exec"
         };
 
+        // ==================== SISTEMA DE NOTIFICAÇÃO & AUDIO ====================
+        // Audio Rádio Policial (Erro/Aviso) - Atualizado para MP3 para total compatibilidade
+        const audioError = new Audio('https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/7c858b78fee58506ad81e937979386ff/f8e7d14e5e9d2866ac93287bc9b9fd12/STREAMING-ui-error-negative-mallets-om-fx-1-00-01.mp3');
+        // Audio Sucesso (Sino de Confirmação) - Solicitado pelo usuário
+        const audioSuccess = new Audio('https://cdn.uppbeat.io/audio-files/06ae18f31ba6d2a5dd6b6f941ae28d0a/aee3c0f7fecb0f199e67cd561f596edf/150e1666acd575b27ce8cdd9c538923d/STREAMING-notification-bells-sms-received-jam-fx-medium-1-00-01.mp3');
+
+        function showNotification(message, type = 'error') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let icon = type === 'error' ? '<i class="fa-solid fa-walkie-talkie text-red-400 text-xl"></i>' : '<i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>';
+            let border = type === 'error' ? 'border-red-500/30' : 'border-emerald-500/30';
+            let bg = type === 'error' ? 'bg-red-500/10' : 'bg-emerald-500/10';
+            let title = type === 'error' ? 'Atenção Operacional' : 'Protocolo Concluído';
+
+            toast.className = `flex items-center gap-4 ${bg} ${border} border backdrop-blur-2xl p-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] toast-enter pointer-events-auto`;
+            toast.innerHTML = `
+                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 shrink-0 border border-white/5 shadow-inner">
+                    ${icon}
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-[0.7rem] uppercase tracking-widest">${title}</h4>
+                    <p class="text-slate-300 text-xs mt-0.5">${message}</p>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Tocar som com tratamento correto de Promise (Evita UnhandledRejection)
+            const audioToPlay = type === 'error' ? audioError : audioSuccess;
+            audioToPlay.currentTime = 0;
+            const playPromise = audioToPlay.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log('Auto-play bloqueado ou formato não suportado pelo navegador:', error);
+                });
+            }
+
+            // Remover após 4.5s
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 400);
+            }, 4500);
+        }
+
+
+        // ==================== MÁSCARAS DE INPUT ====================
+        function maskDate(input) {
+            let v = input.value.replace(/\D/g, '').slice(0, 8);
+            if (v.length >= 5) {
+                input.value = `${v.slice(0, 2)}/${v.slice(2, 4)}/${v.slice(4)}`;
+            } else if (v.length >= 3) {
+                input.value = `${v.slice(0, 2)}/${v.slice(2)}`;
+            } else {
+                input.value = v;
+            }
+        }
+
+        function maskPhone(input) {
+            let v = input.value.replace(/\D/g, '').slice(0, 6);
+            if (v.length >= 4) {
+                input.value = `${v.slice(0, 3)}-${v.slice(3)}`;
+            } else {
+                input.value = v;
+            }
+        }
+
         // ==================== LÓGICA DE PLANILHA ====================
         async function salvarNaPlanilha(dados) {
             try {
@@ -861,6 +944,7 @@
                 btn.classList.remove('loading-pdf');
                 element.style.transform = oldTransform;
                 element.style.marginBottom = oldMargin;
+                showNotification("Documento salvo no seu computador.", "success");
             });
         }
 
@@ -903,42 +987,54 @@
         }
 
         async function enviarDiscordCNPJ() {
+            // VALIDAÇÃO
             const webhookUrl = document.getElementById('input-webhook').value.trim();
-            const btn = document.getElementById('btn-discord');
-            if(!webhookUrl) {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> INSIRA O WEBHOOK';
-                btn.classList.replace('bg-[#5865F2]', 'bg-red-500');
-                setTimeout(() => { btn.innerHTML = originalText; btn.classList.replace('bg-red-500', 'bg-[#5865F2]'); }, 3000);
-                return;
-            }
+            if(!webhookUrl) return showNotification('Insira o link do Webhook do Discord.', 'error');
+            
+            const cnpjNum = document.getElementById('input-cnpj').value;
+            const razao = document.getElementById('input-razao').value.trim();
+            const fantasia = document.getElementById('input-fantasia').value.trim();
+            const endereco = document.getElementById('input-endereco').value.trim();
+            const cnae = document.getElementById('input-cnae').value;
+            const natureza = document.getElementById('input-natureza').value;
+            const repNome = document.getElementById('input-rep-nome').value.trim();
+            const repCpf = document.getElementById('input-rep-cpf').value.trim();
+            const advNome = document.getElementById('input-adv-nome').value.trim();
+            const advId = document.getElementById('input-adv-id').value.trim();
 
-            const element = document.getElementById('documento-pdf');
+            if(!razao) return showNotification('A Razão Social é obrigatória.', 'error');
+            if(!fantasia) return showNotification('O Nome Fantasia é obrigatório.', 'error');
+            if(!endereco) return showNotification('O Endereço Sede é obrigatório.', 'error');
+            if(!cnae) return showNotification('Selecione a Atividade (CNAE).', 'error');
+            if(!natureza) return showNotification('Selecione a Natureza Jurídica.', 'error');
+            if(!repNome) return showNotification('Nome do Representante é obrigatório.', 'error');
+            if(!repCpf) return showNotification('Passaporte do Representante é obrigatório.', 'error');
+            if(!advNome || !advId) return showNotification('Dados do Advogado Responsável (Nome e OAB) são obrigatórios.', 'error');
+
+            const btn = document.getElementById('btn-discord');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> Transmitindo...';
             btn.classList.add('loading-pdf');
+            
+            const element = document.getElementById('documento-pdf');
             const oldTransform = element.style.transform;
             const oldMargin = element.style.marginBottom;
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
-            let nomeEmpresa = document.getElementById('input-fantasia').value.trim() || "EMPRESA";
-            const filename = `CNPJ_${nomeEmpresa.replace(/\s+/g, '_').toUpperCase()}.pdf`;
-            const advNome = document.getElementById('input-adv-nome').value.trim() || "NÃO INFORMADO";
-            const advId = document.getElementById('input-adv-id').value.trim() || "NÃO INFORMADA";
-            const cnpjNum = document.getElementById('input-cnpj').value;
+            const filename = `CNPJ_${fantasia.replace(/\s+/g, '_').toUpperCase()}.pdf`;
 
             salvarNaPlanilha({
                 tipo: "CNPJ",
                 cnpj: cnpjNum,
-                razao: document.getElementById('input-razao').value,
-                fantasia: nomeEmpresa,
-                endereco: document.getElementById('input-endereco').value,
-                cnae: document.getElementById('input-cnae').value,
-                natureza: document.getElementById('input-natureza').value,
+                razao: razao,
+                fantasia: fantasia,
+                endereco: endereco,
+                cnae: cnae,
+                natureza: natureza,
                 tipo_rep: document.querySelector('input[name="tipo_rep"]:checked').value,
-                rep_nome: document.getElementById('input-rep-nome').value,
-                rep_cpf: document.getElementById('input-rep-cpf').value,
+                rep_nome: repNome,
+                rep_cpf: repCpf,
                 advogado: advNome,
                 adv_oab: advId
             });
@@ -952,7 +1048,7 @@
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify({
                     username: "Poder Judiciário", avatar_url: "https://i.imgur.com/DPg5b1B.png",
-                    content: `🏛️ **NOVO REGISTRO EMPRESARIAL EFETIVADO**\n\nO advogado **${advNome}** (OAB: **${advId}**) efetivou a entrada do CNPJ **${cnpjNum}**.\nEmpresa registrada: **${nomeEmpresa}**\n\nConfira os dados completos no documento anexado abaixo.`
+                    content: `🏛️ **NOVO REGISTRO EMPRESARIAL EFETIVADO**\n\nO advogado **${advNome}** (OAB: **${advId}**) efetivou a entrada do CNPJ **${cnpjNum}**.\nEmpresa registrada: **${fantasia}**\n\nConfira os dados completos no documento anexado abaixo.`
                 }));
                 formData.append('file', pdfBlob, filename);
 
@@ -960,10 +1056,12 @@
                 if (response.ok) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> Registro Concluído';
                     btn.classList.replace('bg-[#5865F2]', 'bg-emerald-500');
+                    showNotification("Registro CNPJ efetivado com sucesso.", "success");
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Erro de Conexão';
                 btn.classList.replace('bg-[#5865F2]', 'bg-red-500');
+                showNotification("Falha ao comunicar com o servidor (Discord).", "error");
             } finally {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
@@ -1008,43 +1106,49 @@
         }
 
         async function enviarDiscordPorte() {
+            // VALIDAÇÃO
             const webhookUrl = document.getElementById('input-webhook-porte').value.trim();
-            const btn = document.getElementById('btn-discord-porte');
-            if(!webhookUrl) {
-                const originalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> INSIRA O WEBHOOK';
-                btn.classList.replace('bg-[#5865F2]', 'bg-red-500');
-                setTimeout(() => { btn.innerHTML = originalText; btn.classList.replace('bg-red-500', 'bg-[#5865F2]'); }, 3000);
-                return;
-            }
+            if(!webhookUrl) return showNotification('Insira o link do Webhook do Discord.', 'error');
 
-            const element = document.getElementById('documento-pdf-porte');
+            const cliNome = document.getElementById('input-porte-nome').value.trim();
+            const cliPass = document.getElementById('input-porte-passaporte').value.trim();
+            const cliNasc = document.getElementById('input-porte-nasc').value.trim();
+            const cliTel = document.getElementById('input-porte-tel').value.trim();
+            const cliSalario = document.getElementById('input-porte-salario').value.trim();
+            const advNome = document.getElementById('input-porte-adv-nome').value.trim();
+            const advId = document.getElementById('input-porte-adv-oab').value.trim();
+
+            if(!cliNome) return showNotification('O Nome Completo do requerente é obrigatório.', 'error');
+            if(!cliPass) return showNotification('O Passaporte do requerente é obrigatório.', 'error');
+            if(cliNasc.length < 10) return showNotification('Preencha a Data de Nascimento completa.', 'error');
+            if(!cliTel) return showNotification('O Telefone de contato é obrigatório.', 'error');
+            if(!cliSalario) return showNotification('A Renda Mensal Declarada é obrigatória.', 'error');
+            if(!advNome || !advId) return showNotification('Dados da Autoridade Emissora (Nome e OAB) são obrigatórios.', 'error');
+
+            const btn = document.getElementById('btn-discord-porte');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-xl"></i> Transmitindo...';
             btn.classList.add('loading-pdf');
 
+            const element = document.getElementById('documento-pdf-porte');
             const oldTransform = element.style.transform;
             const oldMargin = element.style.marginBottom;
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
-            const cliNome = document.getElementById('input-porte-nome').value.trim() || "CIDADÃO";
-            const cliPass = document.getElementById('input-porte-passaporte').value.trim() || "NÃO INFORMADO";
-            const advNome = document.getElementById('input-porte-adv-nome').value.trim() || "NÃO INFORMADO";
-            const advId = document.getElementById('input-porte-adv-oab').value.trim() || "NÃO INFORMADA";
             const filename = `PORTE_${cliNome.replace(/\s+/g, '_').toUpperCase()}.jpg`;
 
             salvarNaPlanilha({
                 tipo: "PORTE",
                 nome: cliNome,
                 passaporte: cliPass,
-                data_nasc: document.getElementById('input-porte-nasc').value,
-                telefone: document.getElementById('input-porte-tel').value,
+                data_nasc: cliNasc,
+                telefone: cliTel,
                 estado_civil: document.getElementById('input-porte-civil').value,
                 profissao: document.getElementById('input-porte-profissao').value || "Não informada",
-                filhos: document.getElementById('input-porte-filhos').value,
-                casas: document.getElementById('input-porte-casas').value,
-                carros: document.getElementById('input-porte-carros').value,
+                filhos: document.getElementById('input-porte-filhos').value || "0",
+                casas: document.getElementById('input-porte-casas').value || "0",
+                carros: document.getElementById('input-porte-carros').value || "0",
                 salario: document.getElementById('doc-porte-salario').innerText,
                 autoridade: advNome,
                 oab: advId
@@ -1065,10 +1169,12 @@
                 if (response.ok) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> Registro Concluído';
                     btn.classList.replace('bg-[#5865F2]', 'bg-emerald-500');
+                    showNotification("Avaliação Psicológica de Porte registrada.", "success");
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Erro de Conexão';
                 btn.classList.replace('bg-[#5865F2]', 'bg-red-500');
+                showNotification("Falha ao comunicar com o servidor (Discord).", "error");
             } finally {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
@@ -1211,6 +1317,9 @@
             const inputAcompNome = document.getElementById('calc-acomp-nome');
             const inputAcompId = document.getElementById('calc-acomp-id');
             const btnAddAcomp = document.getElementById('btn-add-acomp');
+            
+            const advReqMark = document.getElementById('adv-req-mark');
+            const oabReqMark = document.getElementById('oab-req-mark');
 
             inputAdvNome.disabled = !checkAdvogado;
             inputAdvId.disabled = !checkAdvogado;
@@ -1218,11 +1327,16 @@
             inputAcompId.disabled = !checkAdvogado;
             btnAddAcomp.disabled = !checkAdvogado;
 
-            if (!checkAdvogado) {
+            if (checkAdvogado) {
+                advReqMark.classList.remove('hidden');
+                oabReqMark.classList.remove('hidden');
+            } else {
                 inputAdvNome.value = "";
                 inputAdvId.value = "";
                 acompanhantesEnvolvidos = [];
                 renderAcompanhantes();
+                advReqMark.classList.add('hidden');
+                oabReqMark.classList.add('hidden');
             }
 
             listEl.innerHTML = '';
@@ -1237,9 +1351,6 @@
                 alerta0Meses.classList.add('hidden');
                 badgeStatus.innerText = "Aguardando Lançamento";
                 badgeStatus.className = "bg-white/10 text-white border border-white/10 text-[0.65rem] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm";
-                
-                btnCopy.disabled = true;
-                btnDiscord.disabled = true;
                 
                 previewFianca.innerHTML = "";
                 avisoFianca.classList.add('hidden');
@@ -1299,14 +1410,10 @@
                 alerta0Meses.classList.remove('hidden');
                 badgeStatus.innerText = "SÓ AGRAVANTES!";
                 badgeStatus.className = "bg-red-500/20 text-red-400 border border-red-500/30 text-[0.65rem] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm";
-                btnCopy.disabled = true;
-                btnDiscord.disabled = true;
                 return;
             }
 
             alerta0Meses.classList.add('hidden');
-            btnCopy.disabled = false;
-            btnDiscord.disabled = false;
 
             // Cálculos de Redução com tratamento float-point seguro
             let reducaoPercentual = 0;
@@ -1417,7 +1524,7 @@
         fileInput.addEventListener('change', (e) => processarImagem(e.target.files[0]));
         
         dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
-        dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+        dropzone.addEventListener('dragleave', () => { dropzone.classList.remove('dragover'); });
         dropzone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropzone.classList.remove('dragover');
@@ -1488,30 +1595,37 @@
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
-                    const btn = document.getElementById('btn-copiar-calc');
-                    const originalText = btn.innerHTML;
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado com Sucesso';
-                    btn.classList.replace('bg-white/5', 'bg-emerald-500/20');
-                    btn.classList.replace('border-white/10', 'border-emerald-500/30');
-                    btn.classList.replace('text-white', 'text-emerald-400');
-                    setTimeout(() => {
-                        btn.innerHTML = originalText;
-                        btn.classList.replace('bg-emerald-500/20', 'bg-white/5');
-                        btn.classList.replace('border-emerald-500/30', 'border-white/10');
-                        btn.classList.replace('text-emerald-400', 'text-white');
-                    }, 3000);
+                    showNotification("Texto copiado para a área de transferência.", "success");
                 } else {
-                    alert("Falha ao copiar. O navegador bloqueou a ação.");
+                    showNotification("Navegador bloqueou a cópia automática.", "error");
                 }
             } catch (err) {
-                console.error('Erro ao copiar o texto', err);
-                alert("Erro ao copiar o texto. Tente copiar manualmente após visualizar o relatório.");
+                console.error('Erro ao copiar', err);
+                showNotification("Falha crítica ao tentar copiar.", "error");
             }
 
             document.body.removeChild(textArea);
         }
 
         async function enviarDiscordCalc() {
+            // VALIDAÇÃO RIGOROSA
+            let infrator = document.getElementById('calc-infrator-nome').value.trim().toUpperCase();
+            let infratorPassaporte = document.getElementById('calc-infrator-passaporte').value.trim().toUpperCase();
+            let advogadoNome = document.getElementById('calc-advogado-nome').value.trim().toUpperCase();
+            let advogadoId = document.getElementById('calc-advogado-id').value.trim().toUpperCase();
+
+            if (!mdtImageFile) return showNotification('Anexe a imagem do MDT para continuar.', 'error');
+            if (!infrator) return showNotification('Preencha o Nome do Acusado.', 'error');
+            if (!infratorPassaporte) return showNotification('Preencha o Passaporte do Acusado.', 'error');
+            if (oficiaisEnvolvidos.length === 0) return showNotification('Adicione pelo menos 1 Oficial envolvido.', 'error');
+            
+            if (document.getElementById('red-advogado').checked) {
+                if (!advogadoNome || !advogadoId) return showNotification('Preencha os dados obrigatórios da Defesa Legal (Nome e OAB).', 'error');
+            }
+
+            if (selectedCrimesForCalc.length === 0) return showNotification('Selecione pelo menos um crime do Código Penal.', 'error');
+            if (document.getElementById('calc-valor-pena').innerText === "BLOQUEADO") return showNotification('Remova o bloqueio de agravantes isolados.', 'error');
+
             const btn = document.getElementById('btn-discord-calc');
             const webhookUrl = "https://discord.com/api/webhooks/1493576226017906830/aS1MOmJQ4AuglxOhYMlhGR0a-0KS-OIMdWW5QMBbdPlSxZLyenJeWk59dk1ltCxrqg-o";
 
@@ -1520,19 +1634,13 @@
             btn.disabled = true;
 
             const idPrisao = "#PR-" + Math.random().toString(36).substr(2, 5).toUpperCase();
-
-            let infrator = document.getElementById('calc-infrator-nome').value.trim().toUpperCase() || "NÃO INFORMADO";
-            let infratorPassaporte = document.getElementById('calc-infrator-passaporte').value.trim().toUpperCase() || "NÃO INFORMADO";
             let descricao = document.getElementById('calc-descricao').value.trim() || "Nenhuma descrição fornecida.";
-            let policiaisStr = oficiaisEnvolvidos.map(o => `${o.nome} (${o.id})`).join(", ") || "Nenhum oficial anexado.";
+            let policiaisStr = oficiaisEnvolvidos.map(o => `${o.nome} (${o.id})`).join(", ");
             let crimesStr = selectedCrimesForCalc.map(c => `• ${c.crime}`).join("\n");
-            
-            let advogadoNome = document.getElementById('calc-advogado-nome').value.trim().toUpperCase();
-            let advogadoId = document.getElementById('calc-advogado-id').value.trim().toUpperCase();
             
             let advStr = "Defensoria Pública / Não Constituído";
             if (document.getElementById('red-advogado').checked) {
-                advStr = (advogadoNome || advogadoId) ? `${advogadoNome} (OAB/ID: ${advogadoId})` : "Constituído (Nome não preenchido)";
+                advStr = `${advogadoNome} (OAB/ID: ${advogadoId})`;
             }
 
             let acompStr = acompanhantesEnvolvidos.map(a => `${a.nome} (${a.id})`).join(", ") || "Nenhum";
@@ -1607,12 +1715,14 @@
                     btn.classList.replace('from-[#5865F2]', 'from-emerald-600');
                     btn.classList.replace('to-[#4752c4]', 'to-emerald-500');
                     btn.classList.replace('shadow-[0_0_25px_rgba(88,101,242,0.3)]', 'shadow-[0_0_25px_rgba(16,185,129,0.3)]');
+                    showNotification("Ficha de custódia protocolada com sucesso.", "success");
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Falha de Conexão';
                 btn.classList.replace('from-[#5865F2]', 'from-red-600');
                 btn.classList.replace('to-[#4752c4]', 'to-red-500');
                 btn.classList.replace('shadow-[0_0_25px_rgba(88,101,242,0.3)]', 'shadow-[0_0_25px_rgba(239,68,68,0.3)]');
+                showNotification("Falha na transmissão do relatório (Discord).", "error");
             } finally {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
