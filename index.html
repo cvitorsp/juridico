@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Jurídico Premium | Brasil RP</title>
+    <title>Judiciário | Brasil RP</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -688,7 +688,7 @@
                                 <input type="text" id="calc-advogado-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome Completo">
                             </div>
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Inscrição OAB <span id="oab-req-mark" class="text-red-500">*</span></label>
+                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte <span id="oab-req-mark" class="text-red-500">*</span></label>
                                 <input type="text" id="calc-advogado-id" class="w-full input-premium rounded-xl px-4 py-3 text-sm disabled:opacity-20 disabled:cursor-not-allowed uppercase" placeholder="Código OAB">
                             </div>
                         </div>
@@ -1785,7 +1785,7 @@
             }
 
             const hoje = new Date();
-            const dataStr = `Los Santos, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
+            const dataStr = `Brasil RP, ${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
             document.getElementById('input-rep-data').value = dataStr;
             document.getElementById('doc-carimbo-data').innerText = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
 
