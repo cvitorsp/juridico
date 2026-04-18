@@ -13,8 +13,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Biblioteca PDF/Imagem -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Biblioteca Imagem -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <!-- Ícones -->
@@ -465,8 +464,22 @@
                 </div>
             </div>
 
-            <div class="flex flex-col gap-3 mt-2 mb-8 lg:mb-4">
-                <button onclick="downloadPDF('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md"><i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Salvar Cópia Local (PDF)</button>
+            <!-- NOVO BLOCO: CONTRATO SOCIAL -->
+            <div class="glass-card p-4 lg:p-5 rounded-2xl border-blue-500/30 bg-blue-500/5 mt-4">
+                <h2 class="text-blue-400 font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-file-contract"></i> Emissão de Contrato Social</h2>
+                <div class="space-y-2 mb-4 text-[0.65rem] lg:text-xs text-slate-300 leading-relaxed">
+                    <p><span class="text-blue-400 font-bold">1.</span> Faça uma cópia do <strong>Documento Modelo</strong>.</p>
+                    <p><span class="text-blue-400 font-bold">2.</span> Preencha manualmente, assine e solicite a assinatura do cliente.</p>
+                    <p><span class="text-blue-400 font-bold">3.</span> Encaminhe a um Juiz via sistema <strong>Brajud</strong>.</p>
+                    <p><span class="text-blue-400 font-bold">4.</span> Após deferido, anexe o contrato social final no canal <strong class="text-[#5865F2]">#CNPJ-CONTRATO-SOCIAL</strong>.</p>
+                </div>
+                <a href="https://docs.google.com/document/d/1gvFIF3bnvkExWWtaXQrsnU5e80Cb5FYOwRK6VfQh2uE/edit?usp=sharing" target="_blank" class="w-full bg-blue-600/20 hover:bg-blue-600/40 border border-blue-500/50 text-blue-300 hover:text-white font-bold py-2.5 lg:py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.7rem] lg:text-xs uppercase tracking-wider active:scale-95">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Acessar Modelo de Contrato
+                </a>
+            </div>
+
+            <div class="flex flex-col gap-3 mt-4 mb-8 lg:mb-4">
+                <button onclick="downloadJPG('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md"><i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Salvar Cópia Local (JPG)</button>
                 <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95"><i class="fa-brands fa-discord text-lg lg:text-xl"></i> Efetivar Registro & Discord</button>
             </div>
         </aside>
@@ -633,8 +646,8 @@
             </div>
 
             <div class="flex flex-col gap-3 mt-2 mb-8 lg:mb-4">
-                <button onclick="downloadPDF('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md">
-                    <i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Gerar Documento (PDF)
+                <button onclick="downloadJPG('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md">
+                    <i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Gerar Documento (JPG)
                 </button>
                 <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95">
                     <i class="fa-brands fa-discord text-lg lg:text-xl"></i> Efetivar Registro & Discord
@@ -1218,7 +1231,8 @@
             }
         }
 
-        function downloadPDF(docId, btnId, namePrefix) {
+        // GERAÇÃO DE JPG EM ALTA RESOLUÇÃO (SUBSTITUIU O PDF)
+        async function downloadJPG(docId, btnId, namePrefix) {
             const element = document.getElementById(docId);
             const btn = document.getElementById(btnId);
             const originalText = btn.innerHTML;
@@ -1230,21 +1244,31 @@
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
+            // Aguarda o navegador repintar a tela no tamanho original (1:1) antes do print
+            await new Promise(resolve => setTimeout(resolve, 150));
+
             let nameTarget = namePrefix === 'CNPJ' ? document.getElementById('input-fantasia').value : document.getElementById('input-porte-nome').value;
             let nomeStr = nameTarget.trim() || "DOCUMENTO";
-            const filename = `${namePrefix}_${nomeStr.replace(/\s+/g, '_').toUpperCase()}.pdf`;
+            const filename = `${namePrefix}_${nomeStr.replace(/\s+/g, '_').toUpperCase()}.jpg`;
 
-            html2pdf().set({
-                margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 }, 
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            }).from(element).save().then(() => {
+            try {
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false, windowWidth: 794 });
+                const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = imgData;
+                link.click();
+                
+                showNotification("Imagem salva no seu dispositivo.", "success");
+            } catch(e) {
+                showNotification("Erro ao gerar a imagem.", "error");
+            } finally {
                 btn.innerHTML = originalText;
                 btn.classList.remove('loading-pdf');
                 element.style.transform = oldTransform;
                 element.style.marginBottom = oldMargin;
-                showNotification("Documento salvo no seu dispositivo.", "success");
-            });
+            }
         }
 
         // ==================== LÓGICA DO CNPJ ====================
@@ -1320,7 +1344,10 @@
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
-            const filename = `CNPJ_${fantasia.replace(/\s+/g, '_').toUpperCase()}.pdf`;
+            // Aguarda o navegador repintar a tela no tamanho original (1:1)
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            const filename = `CNPJ_${fantasia.replace(/\s+/g, '_').toUpperCase()}.jpg`;
 
             salvarNaPlanilha({
                 tipo: "CNPJ",
@@ -1338,18 +1365,15 @@
             });
 
             try {
-                const pdfBlob = await html2pdf().set({
-                    margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 }, 
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                }).from(element).output('blob');
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false, windowWidth: 794 });
+                const imgBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.98));
 
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify({
                     username: "Poder Judiciário", avatar_url: "https://i.imgur.com/DPg5b1B.png",
                     content: `🏛️ **NOVO REGISTRO EMPRESARIAL EFETIVADO**\n\nO advogado **${advNome}** (OAB: **${advId}**) efetivou a entrada do CNPJ **${cnpjNum}**.\nEmpresa registrada: **${fantasia}**\n\nConfira os dados completos no documento anexado abaixo.`
                 }));
-                formData.append('file', pdfBlob, filename);
+                formData.append('file', imgBlob, filename);
 
                 const response = await fetch(webhookUrl, { method: 'POST', body: formData });
                 if (response.ok) {
@@ -1434,6 +1458,9 @@
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
+            // Aguarda o navegador repintar a tela no tamanho original (1:1)
+            await new Promise(resolve => setTimeout(resolve, 150));
+
             const filename = `PORTE_${cliNome.replace(/\s+/g, '_').toUpperCase()}.jpg`;
 
             salvarNaPlanilha({
@@ -1454,7 +1481,7 @@
 
             try {
                 const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false, windowWidth: 794 });
-                const imgBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
+                const imgBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.98));
 
                 const formData = new FormData();
                 formData.append('payload_json', JSON.stringify({
