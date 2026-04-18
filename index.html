@@ -923,10 +923,14 @@
                         <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shrink-0">
                             <i class="fa-solid fa-gavel text-blue-400 text-lg"></i>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <h3 class="text-white font-bold uppercase tracking-widest text-[0.8rem] lg:text-sm">Código Penal e Prisões</h3>
                             <p class="text-slate-500 text-[0.65rem] lg:text-xs mt-0.5">Módulo de Diretrizes Oficiais</p>
                         </div>
+                        <!-- Botão Expandir -->
+                        <button onclick="openCursoModal('https://gamma.app/embed/hifcd7nt1esjf0j', 'Código Penal e Prisões')" class="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 rounded-lg text-[0.65rem] uppercase font-bold tracking-widest transition-all hover:shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                            <i class="fa-solid fa-expand"></i> Modo Foco
+                        </button>
                     </div>
                     <div class="w-full aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/50 relative shadow-inner">
                         <iframe src="https://gamma.app/embed/hifcd7nt1esjf0j" loading="lazy" style="width: 100%; height: 100%; position: absolute; top:0; left:0;" allow="fullscreen" title="Código Penal e Prisões" frameborder="0"></iframe>
@@ -939,10 +943,14 @@
                         <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
                             <i class="fa-solid fa-file-shield text-emerald-400 text-lg"></i>
                         </div>
-                        <div>
+                        <div class="flex-1">
                             <h3 class="text-white font-bold uppercase tracking-widest text-[0.8rem] lg:text-sm">Porte & Limpeza de Ficha</h3>
                             <p class="text-slate-500 text-[0.65rem] lg:text-xs mt-0.5">Procedimentos de Reabilitação Criminal</p>
                         </div>
+                        <!-- Botão Expandir -->
+                        <button onclick="openCursoModal('https://gamma.app/embed/ul1zqxubw9dppo4', 'Porte & Limpeza de Ficha')" class="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 rounded-lg text-[0.65rem] uppercase font-bold tracking-widest transition-all hover:shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                            <i class="fa-solid fa-expand"></i> Modo Foco
+                        </button>
                     </div>
                     <div class="w-full aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/50 relative shadow-inner">
                         <iframe src="https://gamma.app/embed/ul1zqxubw9dppo4" loading="lazy" style="width: 100%; height: 100%; position: absolute; top:0; left:0;" allow="fullscreen" title="Curso Porte & Limpeza de Ficha" frameborder="0"></iframe>
@@ -953,11 +961,64 @@
         </div>
     </div>
 
+    <!-- Modal de Curso (Expandido/Modo Foco) -->
+    <div id="curso-modal" class="fixed inset-0 z-[300] bg-black/95 backdrop-blur-xl hidden flex-col items-center justify-center p-4 lg:p-8 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="w-full max-w-7xl h-full flex flex-col relative bg-[#0a0f18] rounded-2xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center px-6 py-4 border-b border-white/10 bg-black/40 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#d4af37]/20 flex items-center justify-center border border-[#d4af37]/30">
+                        <i class="fa-solid fa-graduation-cap text-[#d4af37] text-sm"></i>
+                    </div>
+                    <h3 id="modal-curso-title" class="text-white font-bold uppercase tracking-widest text-sm lg:text-base">Curso</h3>
+                </div>
+                <button onclick="closeCursoModal()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-red-500/80 text-white flex items-center justify-center transition-all border border-white/10 hover:border-red-500" title="Fechar Modo Foco">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <!-- Iframe Container -->
+            <div class="w-full flex-1 bg-black relative">
+                <!-- Ícone de Loading por trás do iframe enquanto carrega -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                    <i class="fa-solid fa-circle-notch fa-spin text-4xl text-[#d4af37]/50"></i>
+                </div>
+                <iframe id="modal-curso-iframe" src="" class="w-full h-full relative z-10" frameborder="0" allow="fullscreen"></iframe>
+            </div>
+        </div>
+    </div>
+
     <script>
         // CONFIGURAÇÕES GLOBAIS
         const CONFIG = {
             SHEET_URL: "https://script.google.com/macros/s/AKfycbwdPwwk4TF_MiyJ642Jk-4nUOqSohfWHlduhUhhbggUAgPmR3uHmDWPQdEJilmqqr6Vsw/exec"
         };
+
+        // ==================== CONTROLE DE MODAL DOS CURSOS ====================
+        function openCursoModal(url, title) {
+            const modal = document.getElementById('curso-modal');
+            const iframe = document.getElementById('modal-curso-iframe');
+            const titleEl = document.getElementById('modal-curso-title');
+            
+            titleEl.innerText = title;
+            iframe.src = url;
+            
+            modal.classList.remove('hidden');
+            // Pequeno delay para a transição de opacidade do Tailwind (UX)
+            setTimeout(() => {
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+            }, 10);
+        }
+
+        function closeCursoModal() {
+            const modal = document.getElementById('curso-modal');
+            const iframe = document.getElementById('modal-curso-iframe');
+            
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                iframe.src = ''; // Limpa o iframe para interromper vídeos/áudios instantaneamente
+            }, 300); // Espera a animação de fade out terminar
+        }
 
         // ==================== CONTROLE DO MENU MOBILE ====================
         let mobileMenuOpen = false;
