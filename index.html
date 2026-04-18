@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Judiciário | Brasil RP</title>
     
+    <!-- Preload de Imagens Críticas (Força o navegador a carregar mais rápido) -->
+    <link rel="preload" href="https://i.imgur.com/7NDAXqU.png" as="image" crossorigin="anonymous">
+    <link rel="preload" href="https://i.imgur.com/DPg5b1B.png" as="image" crossorigin="anonymous">
+    <link rel="preload" href="https://i.imgur.com/mLampIb.png" as="image" crossorigin="anonymous">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -20,7 +25,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Nova Fonte Premium para a UI -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet"> 
 
     <style>
         :root {
@@ -36,11 +41,26 @@
             background-color: var(--bg-base);
             color: #e2e8f0;
             margin: 0;
-            /* Fundo sutil animado */
-            background-image: 
-                radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
-                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
+            /* Fundo sutil animado com pseudo-elemento abaixo */
             background-attachment: fixed;
+        }
+        
+        /* Fundo Animado Premium Pulsante */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.04) 0%, transparent 40%);
+            z-index: -1;
+            animation: pulseGlow 8s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.1); }
         }
 
         /* Mantendo a fonte Assistant APENAS para o documento para não quebrar o layout do PDF */
@@ -50,10 +70,14 @@
             font-family: "lindsey-signature", sans-serif;
             font-weight: 400;
             font-style: normal;
+            text-transform: none !important; /* Garante que a assinatura respeite as maiúsculas/minúsculas digitadas */
         }
 
         /* Custom Scrollbar Premium */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        @media (min-width: 1024px) {
+            ::-webkit-scrollbar { width: 6px; height: 6px; }
+        }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; transition: all 0.3s; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.5); }
@@ -103,11 +127,12 @@
         }
         .input-premium::placeholder { color: rgba(255,255,255,0.3); }
 
-        /* Abas e Crimes */
+        /* Desktop Tabs */
         .tab-btn { 
             position: relative;
             transition: all 0.3s ease; 
             color: rgba(255,255,255,0.5);
+            white-space: nowrap; 
         }
         .tab-btn:hover { color: white; background: rgba(255,255,255,0.03); }
         .tab-btn.active { color: var(--primary); background: transparent; }
@@ -118,6 +143,27 @@
             height: 2px;
             background: var(--primary);
             box-shadow: 0 -2px 10px rgba(212, 175, 55, 0.5);
+        }
+
+        /* Mobile Dropdown Tabs */
+        .mob-tab-btn {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255,255,255,0.5);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+        }
+        .mob-tab-btn:hover { background: rgba(255,255,255,0.02); color: white; }
+        .mob-tab-btn.active { 
+            color: var(--primary); 
+            background: linear-gradient(90deg, rgba(212,175,55,0.1) 0%, transparent 100%); 
+            border-left: 3px solid var(--primary); 
         }
 
         .crime-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
@@ -132,9 +178,12 @@
             box-shadow: inset 2px 0 0 0 var(--primary); 
         }
 
-        /* --- ESTILOS DO DOCUMENTO A4 (INTACTOS PARA NÃO QUEBRAR O PDF) --- */
+        /* --- ESTILOS DO DOCUMENTO A4 --- */
+        /* Medidas convertidas de mm para pixels perfeitos (96dpi) para resolver o corte e proporção no PDF */
         .a4-container {
-            width: 210mm; height: 296mm; overflow: hidden; background: white; color: black;
+            width: 794px; 
+            height: 1123px; 
+            overflow: hidden; background: white; color: black;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); margin: 0 auto; position: relative;
             transform-origin: top center; transition: transform 0.3s ease-out;
         }
@@ -144,7 +193,10 @@
         .doc-cell { padding: 4px 8px; border-right: 2px solid #000; display: flex; flex-direction: column; justify-content: center; }
         .doc-cell:last-child { border-right: none; }
         .doc-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; color: #333; margin-bottom: 2px; }
+        
+        /* Sem text-transform: uppercase para espelhar exatamente a digitação */
         .doc-value { font-size: 0.85rem; font-weight: 600; min-height: 1.2rem; color: #000; }
+        
         .tj-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.85rem; }
         .tj-table td { padding: 4px 0; border-bottom: 1px solid #e5e7eb; color: #111827; }
         .tj-table tr:last-child td { border-bottom: none; }
@@ -192,129 +244,187 @@
         .toast-exit { animation: fadeOutRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden selection:bg-[#d4af37] selection:text-black">
+<body class="flex flex-col h-screen overflow-hidden selection:bg-[#d4af37] selection:text-black relative">
 
-    <!-- Container de Notificações -->
-    <div id="toast-container" class="fixed top-5 right-5 z-[200] flex flex-col gap-3 pointer-events-none"></div>
+    <!-- Container de Notificações Responsivo -->
+    <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-[200] flex flex-col gap-3 pointer-events-none w-[90%] sm:w-auto min-w-[300px] max-w-[400px]"></div>
 
-    <!-- Loading Screen Premium & Imersiva -->
-    <div id="loading-screen" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000">
+    <!-- Nova Loading Screen Premium (Design Limpo e Institucional) -->
+    <div id="loading-screen" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000 overflow-hidden">
         
-        <!-- Fundo Animado do Loading -->
+        <!-- Fundo Animado Sutil -->
         <div class="absolute inset-0 overflow-hidden flex justify-center items-center pointer-events-none">
-            <div class="absolute w-[600px] h-[600px] border border-[#d4af37]/10 rounded-full animate-[spin_12s_linear_infinite] border-dashed"></div>
-            <div class="absolute w-[450px] h-[450px] border border-[#d4af37]/20 rounded-full animate-[spin_8s_linear_infinite_reverse]"></div>
-            <div class="absolute w-[300px] h-[300px] bg-[#d4af37]/5 rounded-full blur-[80px] animate-pulse"></div>
+            <div class="absolute w-[800px] h-[800px] bg-[#d4af37]/5 rounded-full blur-[100px] animate-pulse"></div>
         </div>
 
-        <!-- Elemento Central -->
-        <div class="relative z-10 flex flex-col items-center">
+        <!-- Card Central de Loading -->
+        <div class="relative z-10 flex flex-col items-center glass-card p-10 md:p-16 rounded-[2rem] border border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.5)]">
             
-            <div class="relative w-36 h-36 flex items-center justify-center mb-6 overflow-hidden rounded-full border border-white/5 bg-black/40 backdrop-blur-md shadow-[0_0_50px_rgba(212,175,55,0.1)]">
-                <div class="absolute inset-0 bg-[#d4af37] blur-[40px] opacity-20 animate-pulse"></div>
-                <i class="fa-solid fa-scale-balanced text-6xl text-gradient relative z-10 drop-shadow-[0_0_15px_rgba(212,175,55,0.6)]"></i>
-                <div class="animate-scan"></div>
+            <!-- Logo / Ícone Dinâmico -->
+            <div class="relative w-28 h-28 md:w-32 md:h-32 flex items-center justify-center mb-8">
+                <!-- Anéis Giratórios -->
+                <div class="absolute inset-0 border-2 border-transparent border-t-[#d4af37]/40 border-b-[#d4af37]/10 rounded-full animate-spin"></div>
+                <div class="absolute inset-2 border border-transparent border-l-[#d4af37]/30 border-r-[#d4af37]/30 rounded-full animate-[spin_3s_linear_infinite_reverse]"></div>
+                <!-- Brilho Interno -->
+                <div class="absolute inset-0 bg-[#d4af37] blur-[30px] opacity-10"></div>
+                <!-- Ícone da Balança -->
+                <i class="fa-solid fa-scale-balanced text-5xl md:text-6xl text-gradient relative z-10 drop-shadow-md"></i>
             </div>
 
-            <h2 class="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] via-white to-[#d4af37] font-extrabold text-2xl tracking-[0.3em] uppercase mb-2 drop-shadow-lg text-center">
-                Tribunal de Justiça
+            <h2 class="text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-white font-light text-xl md:text-2xl tracking-[0.2em] md:tracking-[0.4em] uppercase mb-1 text-center">
+                Tribunal de <span class="font-extrabold text-[#d4af37]">Justiça</span>
             </h2>
-            <div class="h-[2px] w-24 bg-gradient-to-r from-transparent via-[#d4af37] to-transparent mb-8"></div>
+            <p class="text-gray-500 text-[0.65rem] md:text-xs uppercase tracking-widest mb-10 font-medium">Sistema Eletrônico de Registros</p>
 
-            <div class="flex flex-col items-center gap-3 w-72">
-                <div class="w-full bg-white/5 rounded-full h-1.5 overflow-hidden backdrop-blur-sm border border-white/10 relative">
-                    <div id="loading-progress" class="absolute top-0 left-0 bg-gradient-to-r from-[#b5952f] to-[#f3e5ab] h-full rounded-full w-0 transition-all duration-300 ease-out shadow-[0_0_15px_#d4af37]"></div>
+            <div class="flex flex-col items-center gap-4 w-full min-w-[240px] md:min-w-[300px]">
+                <div class="w-full bg-black/50 rounded-full h-1 overflow-hidden relative">
+                    <div id="loading-progress" class="absolute top-0 left-0 bg-gradient-to-r from-[#d4af37] to-[#f3e5ab] h-full rounded-full w-0 transition-all duration-300 ease-out shadow-[0_0_10px_#d4af37]"></div>
                 </div>
-                <p id="loading-text" class="text-[#d4af37]/80 text-[0.65rem] font-bold tracking-[0.2em] uppercase animate-pulse">Iniciando protocolo seguro...</p>
+                <p id="loading-text" class="text-[#d4af37]/80 text-[0.6rem] md:text-[0.65rem] font-bold tracking-[0.2em] uppercase animate-pulse">Estabelecendo conexão...</p>
             </div>
 
         </div>
     </div>
     
-    <!-- Cookie Banner Premium -->
-    <div id="cookie-banner" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 translate-y-[150%] bg-white/5 backdrop-blur-xl border border-white/10 p-5 z-50 flex flex-col md:flex-row justify-between items-center transition-transform duration-700 shadow-2xl rounded-2xl gap-4 md:gap-8 w-[90%] max-w-4xl">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0 border border-[#d4af37]/20">
-                <i class="fa-solid fa-shield-halved text-[#d4af37] text-xl"></i>
+    <!-- Cookie Banner Premium Responsivo -->
+    <div id="cookie-banner" class="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 translate-y-[150%] bg-black/80 backdrop-blur-xl border border-white/10 p-4 md:p-5 z-50 flex flex-col md:flex-row justify-between items-center transition-transform duration-700 shadow-2xl rounded-2xl gap-4 md:gap-8 w-[95%] sm:w-[90%] max-w-4xl">
+        <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-left">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0 border border-[#d4af37]/20">
+                <i class="fa-solid fa-shield-halved text-[#d4af37] text-lg md:text-xl"></i>
             </div>
-            <p class="text-sm text-slate-300 font-medium">Este sistema de alto nível utiliza cookies para otimizar sua experiência e salvar preferências locais.<br>Continuando, você concorda com nossos termos de uso.</p>
+            <p class="text-[0.7rem] md:text-sm text-slate-300 font-medium leading-tight">Este sistema utiliza cookies para otimizar sua experiência e salvar preferências locais.<br class="hidden md:block">Continuando, você concorda com nossos termos de uso.</p>
         </div>
-        <button onclick="aceitarCookies()" class="bg-gradient-to-r from-[#d4af37] to-[#b5952f] text-black px-8 py-3 rounded-xl font-bold text-sm shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] hover:-translate-y-0.5 transition-all w-full md:w-auto whitespace-nowrap">Concordar e Fechar</button>
+        <button onclick="aceitarCookies()" class="bg-gradient-to-r from-[#d4af37] to-[#b5952f] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] hover:-translate-y-0.5 transition-all w-full md:w-auto whitespace-nowrap">Concordar</button>
     </div>
 
-    <!-- Header Premium -->
-    <header class="glass-panel border-b-0 border-white/5 h-auto lg:h-20 flex flex-col lg:flex-row items-center justify-between px-0 lg:px-8 shrink-0 z-20 relative">
-        <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+    <!-- WRAPPER DO CABEÇALHO PARA SUPORTAR O MENU DROPDOWN NO MOBILE -->
+    <div class="relative z-30 shrink-0">
+        <!-- Header Premium Responsivo -->
+        <header class="glass-panel border-b-0 border-white/5 h-16 lg:h-20 flex items-center justify-between px-3 sm:px-4 lg:px-8 relative z-20">
+            
+            <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
 
-        <div class="flex items-center gap-5 w-full lg:w-auto justify-center lg:justify-start py-4 lg:py-0 border-b border-white/5 lg:border-none">
-            <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-10 lg:h-12 object-contain drop-shadow-md">
-            <div class="h-8 w-px bg-white/10"></div>
-            <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-10 lg:h-12 object-contain drop-shadow-md">
-        </div>
-
-        <nav class="flex h-14 lg:h-full w-full lg:w-auto overflow-x-auto no-scrollbar justify-start lg:justify-center border-b border-white/5 lg:border-none">
-            <button onclick="switchTab('cnpj')" id="tab-cnpj" class="tab-btn active h-full px-8 flex items-center justify-center gap-2.5 font-bold uppercase text-[0.8rem] tracking-wider shrink-0">
-                <i class="fa-solid fa-file-contract text-lg"></i> Emissão CNPJ
-            </button>
-            <button onclick="switchTab('porte')" id="tab-porte" class="tab-btn h-full px-8 flex items-center justify-center gap-2.5 font-bold uppercase text-[0.8rem] tracking-wider shrink-0">
-                <i class="fa-solid fa-id-card-clip text-lg"></i> Solicitação Porte
-            </button>
-            <button onclick="switchTab('calc')" id="tab-calc" class="tab-btn h-full px-8 flex items-center justify-center gap-2.5 font-bold uppercase text-[0.8rem] tracking-wider shrink-0">
-                <i class="fa-solid fa-scale-unbalanced text-lg"></i> Calculadora Penal
-            </button>
-        </nav>
-
-        <div class="hidden lg:flex items-center gap-4">
-            <div class="text-right">
-                <h1 class="text-gradient font-bold text-sm tracking-[0.15em] uppercase">Sistema Jurídico</h1>
-                <p class="text-xs text-slate-500 font-medium tracking-wider">Acesso Autenticado</p>
+            <!-- Logos Ajustadas para Mobile com FetchPriority High -->
+            <div class="flex items-center gap-2 sm:gap-3 lg:gap-5 h-full shrink-0">
+                <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" fetchpriority="high" alt="Brasil RP" class="h-6 sm:h-8 lg:h-12 object-contain drop-shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer">
+                <div class="h-4 sm:h-6 lg:h-8 w-px bg-white/10"></div>
+                <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" fetchpriority="high" alt="Judiciário" class="h-6 sm:h-8 lg:h-12 object-contain drop-shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer">
             </div>
-            <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                <i class="fa-solid fa-fingerprint text-[#d4af37]"></i>
+
+            <!-- Navegação Desktop (Escondida no Mobile) -->
+            <nav class="hidden lg:flex h-full w-auto justify-center">
+                <button onclick="switchTab('cnpj')" class="tab-btn btn-nav-cnpj active h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
+                    <i class="fa-solid fa-file-contract text-lg"></i> Emissão CNPJ
+                </button>
+                <button onclick="switchTab('porte')" class="tab-btn btn-nav-porte h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
+                    <i class="fa-solid fa-id-card-clip text-lg"></i> Solicitação Porte
+                </button>
+                <button onclick="switchTab('calc')" class="tab-btn btn-nav-calc h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
+                    <i class="fa-solid fa-scale-unbalanced text-lg"></i> Calculadora Penal
+                </button>
+                <!-- NOVA ABA CURSOS DESKTOP -->
+                <button onclick="switchTab('cursos')" class="tab-btn btn-nav-cursos h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i> Academia
+                </button>
+            </nav>
+
+            <!-- Container da Direita: Relógio + Info do Usuário + Controles de Som (Desktop) -->
+            <div class="hidden lg:flex items-center gap-5">
+                <!-- Relógio do Sistema -->
+                <div class="flex items-center gap-3 bg-black/40 px-4 py-2 rounded-xl border border-white/5 shadow-inner">
+                    <i class="fa-regular fa-clock text-[#d4af37]"></i>
+                    <span id="system-clock-desktop" class="text-xs text-slate-300 font-mono tracking-widest font-bold">00:00:00</span>
+                </div>
+
+                <!-- Botão de Som -->
+                <button id="btn-mute-desktop" onclick="toggleMute()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95 group" title="Ativar/Desativar Som do Sistema">
+                    <i class="fa-solid fa-volume-high text-[#d4af37] transition-colors"></i>
+                </button>
+
+                <!-- Ícone Fingerprint -->
+                <div class="flex items-center gap-4 border-l border-white/10 pl-5">
+                    <div class="text-right">
+                        <h1 class="text-gradient font-bold text-sm tracking-[0.15em] uppercase">Sistema Jurídico</h1>
+                        <p class="text-[0.65rem] text-emerald-400/80 font-bold tracking-widest uppercase animate-pulse flex items-center justify-end gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 block"></span> Operacional</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-[#d4af37]/10 flex items-center justify-center border border-[#d4af37]/30 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                        <i class="fa-solid fa-fingerprint text-[#d4af37]"></i>
+                    </div>
+                </div>
             </div>
+
+            <!-- Menu Mobile: Relógio + Botões de Ação com Correção de Margem -->
+            <div class="lg:hidden flex items-center gap-2 sm:gap-4 shrink-0">
+                <div class="hidden sm:flex flex-col items-end mr-1">
+                    <span id="system-clock-mobile" class="text-[0.65rem] text-slate-300 font-mono tracking-widest font-bold">00:00</span>
+                    <p class="text-[0.55rem] text-emerald-400/80 font-bold tracking-widest uppercase flex items-center gap-1 mt-0.5"><span class="w-1 h-1 rounded-full bg-emerald-400 block"></span> Online</p>
+                </div>
+                <button id="btn-mute-mobile" onclick="toggleMute()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 active:scale-95 group">
+                    <i class="fa-solid fa-volume-high text-[0.65rem] sm:text-[0.7rem] text-[#d4af37] transition-colors"></i>
+                </button>
+                <!-- Botão Menu Hambúrguer -->
+                <button id="btn-mobile-menu" onclick="toggleMobileMenu()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#d4af37]/10 flex items-center justify-center border border-[#d4af37]/30 active:scale-95 text-[#d4af37] transition-all">
+                    <i class="fa-solid fa-bars text-base sm:text-lg"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu Mobile Dropdown (Desliza de Cima pra Baixo) -->
+        <div id="mobile-menu" class="lg:hidden absolute top-full left-0 w-full bg-[#0a0f18]/95 backdrop-blur-3xl border-b border-white/10 transition-all duration-300 origin-top scale-y-0 opacity-0 flex flex-col shadow-2xl z-10 pointer-events-none">
+            <button onclick="switchTab('cnpj')" class="mob-tab-btn btn-nav-cnpj active"><i class="fa-solid fa-file-contract text-lg w-6 text-center"></i> Emissão CNPJ</button>
+            <button onclick="switchTab('porte')" class="mob-tab-btn btn-nav-porte"><i class="fa-solid fa-id-card-clip text-lg w-6 text-center"></i> Solicitação Porte</button>
+            <button onclick="switchTab('calc')" class="mob-tab-btn btn-nav-calc"><i class="fa-solid fa-scale-unbalanced text-lg w-6 text-center"></i> Calculadora Penal</button>
+            <button onclick="switchTab('cursos')" class="mob-tab-btn btn-nav-cursos"><i class="fa-solid fa-graduation-cap text-lg w-6 text-center"></i> Academia Jurídica</button>
         </div>
-    </header>
+    </div>
 
     <!-- ==================== ABA 1: CNPJ ==================== -->
     <div id="view-cnpj" class="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
-        <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-6 flex flex-col gap-5 relative z-10 shrink-0 custom-scrollbar">
+        <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4 lg:gap-5 relative z-10 shrink-0 custom-scrollbar">
             
-            <div class="glass-card p-5 rounded-2xl">
-                <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-building"></i> Dados Empresariais</h2>
+            <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-building"></i> Dados Empresariais</h2>
                 <div class="mb-4">
                     <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Número do CNPJ</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-cnpj" class="w-full input-premium rounded-xl px-4 py-3 font-mono text-sm" readonly>
-                        <button onclick="gerarCNPJ()" class="bg-[#d4af37] text-black px-4 py-3 rounded-xl font-bold hover:bg-[#b5952f] transition-all hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] active:scale-95 flex items-center justify-center"><i class="fa-solid fa-rotate"></i></button>
+                        <input type="text" id="input-cnpj" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 font-mono text-xs lg:text-sm" readonly>
+                        <button onclick="gerarCNPJ()" class="bg-[#d4af37] text-black px-4 py-2.5 lg:py-3 rounded-xl font-bold hover:bg-[#b5952f] transition-all hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] active:scale-95 flex items-center justify-center"><i class="fa-solid fa-rotate"></i></button>
                     </div>
                 </div>
                 <div class="space-y-4">
                     <div>
                         <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Razão Social <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-razao" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
+                        <input type="text" id="input-razao" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm">
                     </div>
                     <div>
                         <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Fantasia <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
+                        <input type="text" id="input-fantasia" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm">
                     </div>
                     <div>
                         <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Endereço Sede <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
+                        <input type="text" id="input-endereco" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm">
                     </div>
                 </div>
             </div>
 
-            <div class="glass-card p-5 rounded-2xl">
-                <h2 class="text-white font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase text-slate-400"></i> Natureza da Operação</h2>
+            <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                <h2 class="text-white font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-briefcase text-slate-400"></i> Natureza da Operação</h2>
                 <div class="space-y-4">
-                    <select id="input-cnae" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm appearance-none cursor-pointer">
+                    <!-- NOVOS CNAEs ADICIONADOS PARA RP CRIMINAL/DISFARCE -->
+                    <select id="input-cnae" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.7rem] lg:text-xs appearance-none cursor-pointer max-w-full truncate">
                         <option value="">Selecione a Atividade (CNAE)... *</option>
-                        <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições.">2542-0/00 - Indústria Bélica</option>
-                        <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos.">4520-0/01 - Mecânica</option>
-                        <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares.">9329-8/01 - Boate</option>
-                        <option value="8610-1/01 - Atividades de atendimento hospitalar.">8610-1/01 - Hospital</option>
+                        <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições">2542-0/00 - Indústria Bélica</option>
+                        <option value="2092-4/01 - Indústria e Comércio de Pirotecnia e Explosivos Civis">2092-4/01 - Pirotecnia / Fogos (Pólvora)</option>
+                        <option value="9312-7/00 - Clubes Sociais, Esportivos e Tiro ao Alvo">9312-7/00 - Clube de Tiro (Armamento)</option>
+                        <option value="4930-2/02 - Transporte Rodoviário de Carga">4930-2/02 - Transportadora (Logística)</option>
+                        <option value="2121-1/01 - Fabricação de Medicamentos Alopáticos">2121-1/01 - Indústria Farmacêutica</option>
+                        <option value="0119-9/99 - Cultivo de Outras Plantas de Lavoura">0119-9/99 - Cultivo Botânico (Estufa)</option>
+                        <option value="4511-1/02 - Comércio a Varejo de Automóveis Usados">4511-1/02 - Comércio de Veículos (Desmanche)</option>
+                        <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos">4520-0/01 - Oficina Mecânica</option>
+                        <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares">9329-8/01 - Casa Noturna / Boate</option>
+                        <option value="8610-1/01 - Atividades de atendimento hospitalar">8610-1/01 - Centro Médico / Hospital</option>
                     </select>
-                    <select id="input-natureza" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm appearance-none cursor-pointer">
+                    <select id="input-natureza" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.75rem] lg:text-sm appearance-none cursor-pointer">
                         <option value="">Selecione a Natureza Jurídica... *</option>
                         <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
                         <option value="213-5 - Empresário Individual">213-5 - EI</option>
@@ -322,63 +432,62 @@
                 </div>
             </div>
 
-            <div class="glass-card p-5 rounded-2xl">
-                <h2 class="text-white font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-user-tie text-slate-400"></i> Representação Legal</h2>
-                <div class="flex gap-6 mb-5 bg-black/30 p-3 rounded-xl border border-white/5">
-                    <label class="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase tracking-wider hover:text-[#d4af37] transition-colors"><input type="radio" name="tipo_rep" value="Representante" checked onchange="updateDoc()" class="accent-[#d4af37] w-4 h-4"> Representante</label>
-                    <label class="flex items-center gap-2 cursor-pointer text-xs font-bold uppercase tracking-wider hover:text-[#d4af37] transition-colors"><input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#d4af37] w-4 h-4"> Preposto</label>
+            <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                <h2 class="text-white font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-user-tie text-slate-400"></i> Representação Legal</h2>
+                <div class="flex gap-4 lg:gap-6 mb-4 bg-black/30 p-2.5 lg:p-3 rounded-xl border border-white/5">
+                    <label class="flex items-center gap-2 cursor-pointer text-[0.65rem] lg:text-xs font-bold uppercase tracking-wider hover:text-[#d4af37] transition-colors"><input type="radio" name="tipo_rep" value="Representante" checked onchange="updateDoc()" class="accent-[#d4af37] w-3 h-3 lg:w-4 lg:h-4"> Representante</label>
+                    <label class="flex items-center gap-2 cursor-pointer text-[0.65rem] lg:text-xs font-bold uppercase tracking-wider hover:text-[#d4af37] transition-colors"><input type="radio" name="tipo_rep" value="Preposto" onchange="updateDoc()" class="accent-[#d4af37] w-3 h-3 lg:w-4 lg:h-4"> Preposto</label>
                 </div>
                 <div class="space-y-4">
-                    <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="NOME COMPLETO DO REP. *">
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" id="input-rep-cpf" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="PASSAPORTE (Apenas N°) *">
-                        <input type="text" id="input-rep-data" oninput="maskDate(this); updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="DD/MM/AAAA">
+                    <input type="text" id="input-rep-nome" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome Completo do Rep. *">
+                    <div class="grid grid-cols-2 gap-3 lg:gap-4">
+                        <input type="text" id="input-rep-cpf" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Passaporte (Apenas N°) *">
+                        <input type="text" id="input-rep-data" oninput="maskDate(this); updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="DD/MM/AAAA">
                     </div>
                 </div>
             </div>
 
-            <div class="glass-card p-5 rounded-2xl border-[#d4af37]/30 bg-[#d4af37]/5">
-                <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-gavel"></i> Assinatura Jurídica</h2>
+            <div class="glass-card p-4 lg:p-5 rounded-2xl border-[#d4af37]/30 bg-[#d4af37]/5">
+                <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-gavel"></i> Assinatura Jurídica</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="NOME DO ADVOGADO">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-adv-nome" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome do Advogado">
                     </div>
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: FMA6Y4JE">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-adv-id" oninput="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: FMA6Y4JE">
                     </div>
                     <div class="pt-2">
-                        <label class="block text-[0.65rem] font-bold text-[#5865F2] mb-1.5 tracking-widest uppercase flex items-center gap-1.5"><i class="fa-brands fa-discord text-sm"></i> Destino (Webhook)</label>
-                        <input type="password" id="input-webhook" value="https://discord.com/api/webhooks/1492550407308837057/JInr_ekobOHNb9MFZRIDaKCWxmUhmjlvdvqgLfzBsMFZMYJkN5TJJ_AlJOL76GDIwPJQ" class="w-full input-premium bg-[#5865F2]/10 border-[#5865F2]/30 rounded-xl px-4 py-3 text-xs focus:border-[#5865F2] focus:ring-[#5865F2]/20">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-[#5865F2] mb-1.5 tracking-widest uppercase flex items-center gap-1.5"><i class="fa-brands fa-discord text-sm"></i> Destino (Webhook)</label>
+                        <input type="password" id="input-webhook" value="https://discord.com/api/webhooks/1492550407308837057/JInr_ekobOHNb9MFZRIDaKCWxmUhmjlvdvqgLfzBsMFZMYJkN5TJJ_AlJOL76GDIwPJQ" class="w-full input-premium bg-[#5865F2]/10 border-[#5865F2]/30 rounded-xl px-4 py-2.5 lg:py-3 text-[0.65rem] lg:text-xs focus:border-[#5865F2] focus:ring-[#5865F2]/20">
                     </div>
                 </div>
             </div>
 
             <div class="flex flex-col gap-3 mt-2 mb-8 lg:mb-4">
-                <button onclick="downloadPDF('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md"><i class="fa-solid fa-file-arrow-down text-lg"></i> Salvar Cópia Local (PDF)</button>
-                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.9rem] uppercase tracking-wider active:scale-95"><i class="fa-brands fa-discord text-xl"></i> Efetivar Registro & Discord</button>
+                <button onclick="downloadPDF('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md"><i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Salvar Cópia Local (PDF)</button>
+                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95"><i class="fa-brands fa-discord text-lg lg:text-xl"></i> Efetivar Registro & Discord</button>
             </div>
         </aside>
 
-        <!-- Preview Area mantém as regras visuais para o PDF -->
-        <main class="w-full lg:flex-1 bg-[#0f172a]/50 relative overflow-y-visible lg:overflow-y-auto p-4 lg:p-10 flex justify-center items-start min-h-[600px] custom-scrollbar doc-font" id="preview-area">
-            <!-- O container A4 não recebe estilos dark premium para garantir que a impressão seja folha branca padrão -->
-            <div id="documento-pdf" class="a4-container p-10 flex flex-col relative z-0">
+        <!-- Preview Area da Página CNPJ -->
+        <main class="w-full lg:flex-1 bg-[#0f172a]/50 relative overflow-auto p-4 lg:p-10 flex justify-center items-start min-h-[500px] lg:min-h-[600px] custom-scrollbar doc-font" id="preview-area">
+            <div id="documento-pdf" class="a4-container p-10 flex flex-col relative z-0 shrink-0">
                 <div class="flex items-center justify-between mb-4 border-b-2 border-black pb-4">
-                    <div class="w-1/4"><img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" class="h-16 grayscale opacity-90"></div>
+                    <div class="w-1/4"><img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" fetchpriority="high" class="h-16 grayscale opacity-90"></div>
                     <div class="w-2/4 text-center">
                         <h2 class="font-bold text-xl uppercase leading-tight">República Federativa do Brasil RP</h2>
                         <h3 class="font-bold text-lg uppercase mt-1">Cadastro Nacional da Pessoa Jurídica</h3>
                     </div>
-                    <div class="w-1/4 flex justify-end"><img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" class="h-16 grayscale opacity-90"></div>
+                    <div class="w-1/4 flex justify-end"><img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" fetchpriority="high" class="h-16 grayscale opacity-90"></div>
                 </div>
                 <div class="doc-border flex flex-col mb-4">
                     <div class="doc-row"><div class="doc-cell w-full text-center bg-gray-100 py-2"><span class="doc-label">NÚMERO DE INSCRIÇÃO (CNPJ)</span><span class="doc-value text-xl font-bold tracking-widest mt-1" id="doc-cnpj"></span></div></div>
                     <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">01. NOME EMPRESARIAL</span><span class="doc-value mt-1" id="doc-razao"></span></div></div>
                     <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">02. NOME FANTASIA</span><span class="doc-value mt-1" id="doc-fantasia"></span></div></div>
                     <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">03. LOCAL DA EMPRESA (ENDEREÇO)</span><span class="doc-value mt-1" id="doc-endereco"></span></div></div>
-                    <div class="doc-row"><div class="doc-cell w-full min-h-[50px]"><span class="doc-label">04. CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA</span><span class="doc-value mt-1 text-sm leading-tight" id="doc-cnae"></span></div></div>
+                    <div class="doc-row"><div class="doc-cell w-full min-h-[50px]"><span class="doc-label">04. CÓDIGO E DESCRIÇÃO DA ATIVIDADE ECONÔMICA</span><span class="doc-value mt-1 text-[0.8rem] leading-tight" id="doc-cnae"></span></div></div>
                     <div class="doc-row"><div class="doc-cell w-full"><span class="doc-label">05. CÓDIGO E DESCRIÇÃO DA NATUREZA JURÍDICA</span><span class="doc-value mt-1" id="doc-natureza"></span></div></div>
                     <div class="doc-row bg-gray-100"><div class="doc-cell w-full text-center py-1"><span class="doc-label !mb-0">06. IDENTIFICAÇÃO DO REPRESENTANTE</span></div></div>
                     <div class="doc-row">
@@ -423,7 +532,7 @@
                 </div>
                 <div class="mt-auto pt-4 flex justify-between items-end">
                     <div class="flex items-center gap-4 w-3/4">
-                        <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" class="h-12 grayscale opacity-90">
+                        <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" fetchpriority="high" class="h-12 grayscale opacity-90">
                         <div class="text-[0.55rem] text-gray-800 font-bold leading-tight text-justify border-l-2 border-black pl-3 uppercase">Confira os dados, se houver divergência providencie atualização cadastral.</div>
                     </div>
                     <div class="w-1/4 text-right"><span class="text-[0.55rem] text-gray-600 font-bold">IN RFB nº 1.470/2014.</span></div>
@@ -434,33 +543,33 @@
 
     <!-- ==================== ABA 2: PORTE DE ARMA ==================== -->
     <div id="view-porte" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
-        <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-6 flex flex-col gap-5 relative z-10 shrink-0 custom-scrollbar">
+        <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4 lg:gap-5 relative z-10 shrink-0 custom-scrollbar">
             
-            <div class="glass-card p-5 rounded-2xl">
-                <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Dados do Requerente</h2>
+            <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-user-shield"></i> Dados do Requerente</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Completo <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-porte-nome" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome Completo <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-porte-nome" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3 lg:gap-4">
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (CPF) <span class="text-red-500">*</span></label>
-                            <input type="text" id="input-porte-passaporte" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="Apenas N°">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (CPF) <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-porte-passaporte" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Apenas N°">
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nascimento <span class="text-red-500">*</span></label>
-                            <input type="text" id="input-porte-nasc" oninput="maskDate(this); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="DD/MM/AAAA">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nascimento <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-porte-nasc" oninput="maskDate(this); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="DD/MM/AAAA">
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3 lg:gap-4">
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Telefone <span class="text-red-500">*</span></label>
-                            <input type="text" id="input-porte-tel" oninput="maskPhone(this); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="XXX-XXX">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Telefone <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-porte-tel" oninput="maskPhone(this); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="XXX-XXX">
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Estado Civil</label>
-                            <select id="input-porte-civil" onchange="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm appearance-none cursor-pointer">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Estado Civil</label>
+                            <select id="input-porte-civil" onchange="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm appearance-none cursor-pointer">
                                 <option value="Solteiro(a)">Solteiro(a)</option>
                                 <option value="Casado(a)">Casado(a)</option>
                                 <option value="Divorciado(a)">Divorciado(a)</option>
@@ -471,76 +580,76 @@
                 </div>
             </div>
 
-            <div class="glass-card p-5 rounded-2xl">
-                <h2 class="text-white font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check text-slate-400"></i> Dossiê Complementar</h2>
+            <div class="glass-card p-4 lg:p-5 rounded-2xl">
+                <h2 class="text-white font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check text-slate-400"></i> Dossiê Complementar</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Profissão Atual</label>
-                        <input type="text" id="input-porte-profissao" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: Líder Mecânica">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Profissão Atual</label>
+                        <input type="text" id="input-porte-profissao" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: Líder Mecânica">
                     </div>
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-3 gap-3 lg:gap-4">
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Filhos</label>
-                            <input type="number" min="0" id="input-porte-filhos" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Filhos</label>
+                            <input type="number" min="0" id="input-porte-filhos" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm text-center" value="0">
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Imóveis</label>
-                            <input type="number" min="0" id="input-porte-casas" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Imóveis</label>
+                            <input type="number" min="0" id="input-porte-casas" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm text-center" value="0">
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Veículos</label>
-                            <input type="number" min="0" id="input-porte-carros" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm text-center" value="0">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Veículos</label>
+                            <input type="number" min="0" id="input-porte-carros" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm text-center" value="0">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Renda Mensal (R$) <span class="text-red-500">*</span></label>
-                        <input type="number" min="0" id="input-porte-salario" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 text-sm" placeholder="Ex: 10000">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Renda Mensal (R$) <span class="text-red-500">*</span></label>
+                        <input type="number" min="0" id="input-porte-salario" oninput="this.value = this.value.replace(/[^0-9]/g, ''); updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: 10000">
                     </div>
                 </div>
             </div>
 
-            <div class="glass-card p-5 rounded-2xl border-[#d4af37]/30 bg-[#d4af37]/5">
-                <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-signature"></i> Homologação</h2>
+            <div class="glass-card p-4 lg:p-5 rounded-2xl border-[#d4af37]/30 bg-[#d4af37]/5">
+                <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-signature"></i> Homologação</h2>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Autoridade Emissora (Adv.) <span class="text-red-500">*</span></label>
-                        <input type="text" id="input-porte-adv-nome" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: Vitor Lazerri">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Autoridade Emissora (Adv.) <span class="text-red-500">*</span></label>
+                        <input type="text" id="input-porte-adv-nome" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: Vitor Lazerri">
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-2 gap-3 lg:gap-4">
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Cargo</label>
-                            <input type="text" id="input-porte-adv-cargo" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: Advogado Sênior">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Cargo</label>
+                            <input type="text" id="input-porte-adv-cargo" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: Advogado Sênior">
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB <span class="text-red-500">*</span></label>
-                            <input type="text" id="input-porte-adv-oab" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: FMA6Y4JE">
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nº da OAB <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-porte-adv-oab" oninput="updatePorteDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: FMA6Y4JE">
                         </div>
                     </div>
                     <div class="pt-2">
-                        <label class="block text-[0.65rem] font-bold text-[#5865F2] mb-1.5 tracking-widest uppercase flex items-center gap-1.5"><i class="fa-brands fa-discord text-sm"></i> Destino (Webhook)</label>
-                        <input type="password" id="input-webhook-porte" value="https://discord.com/api/webhooks/1492636062592274442/c3fsqPnSm4VACNr351knOcBLGl8a9uxtmD3gFLNDHCkNY0G0CJWTFXOHX88aZX5s7Pzj" class="w-full input-premium bg-[#5865F2]/10 border-[#5865F2]/30 rounded-xl px-4 py-3 text-xs focus:border-[#5865F2] focus:ring-[#5865F2]/20">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-[#5865F2] mb-1.5 tracking-widest uppercase flex items-center gap-1.5"><i class="fa-brands fa-discord text-sm"></i> Destino (Webhook)</label>
+                        <input type="password" id="input-webhook-porte" value="https://discord.com/api/webhooks/1492636062592274442/c3fsqPnSm4VACNr351knOcBLGl8a9uxtmD3gFLNDHCkNY0G0CJWTFXOHX88aZX5s7Pzj" class="w-full input-premium bg-[#5865F2]/10 border-[#5865F2]/30 rounded-xl px-4 py-2.5 lg:py-3 text-[0.65rem] lg:text-xs focus:border-[#5865F2] focus:ring-[#5865F2]/20">
                     </div>
                 </div>
             </div>
 
             <div class="flex flex-col gap-3 mt-2 mb-8 lg:mb-4">
-                <button onclick="downloadPDF('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md">
-                    <i class="fa-solid fa-file-arrow-down text-lg"></i> Gerar Documento (PDF)
+                <button onclick="downloadPDF('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md">
+                    <i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Gerar Documento (PDF)
                 </button>
-                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.9rem] uppercase tracking-wider active:scale-95">
-                    <i class="fa-brands fa-discord text-xl"></i> Efetivar Registro & Discord
+                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95">
+                    <i class="fa-brands fa-discord text-lg lg:text-xl"></i> Efetivar Registro & Discord
                 </button>
             </div>
         </aside>
 
         <!-- Preview Area Documento Porte -->
-        <main class="w-full lg:flex-1 bg-[#0f172a]/50 relative overflow-y-visible lg:overflow-y-auto p-4 lg:p-10 flex justify-center items-start min-h-[600px] custom-scrollbar doc-font" id="preview-area-porte">
-            <div id="documento-pdf-porte" class="a4-container p-10 flex flex-col bg-white text-black justify-between relative z-0">
+        <main class="w-full lg:flex-1 bg-[#0f172a]/50 relative overflow-auto p-4 lg:p-10 flex justify-center items-start min-h-[500px] lg:min-h-[600px] custom-scrollbar doc-font" id="preview-area-porte">
+            <div id="documento-pdf-porte" class="a4-container p-10 flex flex-col bg-white text-black justify-between relative z-0 shrink-0">
                 <div>
                     <!-- CABEÇALHO TRIBUNAL DE JUSTIÇA -->
                     <div class="w-full text-center pb-4 mb-6">
                         <div class="border-t-[1.5px] border-black pt-5 mb-4 mx-auto w-full"></div>
-                        <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" alt="Judiciário" class="h-[70px] mx-auto mb-3 drop-shadow-sm opacity-90">
+                        <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" fetchpriority="high" alt="Judiciário" class="h-[70px] mx-auto mb-3 drop-shadow-sm opacity-90">
                         <h2 class="font-bold text-[0.8rem] italic uppercase mt-1">- Poder Judiciário do Estado -</h2>
                         <h1 class="font-bold text-lg uppercase tracking-wide">Tribunal de Justiça</h1>
                         <div class="text-xs tracking-[0.2em] mb-4 text-gray-500">******************************</div>
@@ -593,8 +702,8 @@
 
                     <!-- RODAPÉ COM LOGOS -->
                     <div class="mt-8 flex items-end justify-center gap-12 pb-2">
-                        <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" alt="Brasil RP" class="h-10 opacity-90 grayscale">
-                        <img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" alt="OAB" class="h-10 opacity-90 grayscale">
+                        <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" fetchpriority="high" alt="Brasil RP" class="h-10 opacity-90 grayscale">
+                        <img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" fetchpriority="high" alt="OAB" class="h-10 opacity-90 grayscale">
                     </div>
                 </div>
             </div>
@@ -606,98 +715,100 @@
         
         <!-- COLUNA 1: CRIMES (Tabela Lateral) -->
         <div class="w-full lg:w-1/3 lg:min-w-[380px] lg:max-w-[420px] bg-black/40 border-r border-white/5 flex flex-col shrink-0 lg:h-full z-10">
-            <div class="p-6 border-b border-white/5 backdrop-blur-md">
-                <h2 class="text-gradient font-bold text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-book-journal-whills"></i> Código Penal Aplicado</h2>
+            <div class="p-4 lg:p-6 border-b border-white/5 backdrop-blur-md">
+                <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-book-journal-whills"></i> Código Penal Aplicado</h2>
                 <div class="relative group">
                     <i class="fa-solid fa-search absolute left-4 top-3.5 text-slate-500 group-focus-within:text-[#d4af37] transition-colors"></i>
-                    <input type="text" id="crimeSearchInput" placeholder="Procurar artigo ou infração..." class="w-full input-premium bg-black/50 border-white/10 rounded-xl pl-11 pr-4 py-3 text-sm focus:border-[#d4af37] shadow-inner">
+                    <input type="text" id="crimeSearchInput" placeholder="Procurar artigo ou infração..." class="w-full input-premium bg-black/50 border-white/10 rounded-xl pl-11 pr-4 py-2.5 lg:py-3 text-xs lg:text-sm focus:border-[#d4af37] shadow-inner">
                 </div>
             </div>
-            <div class="flex-1 overflow-y-auto p-4 custom-scrollbar bg-black/20" id="crimes-container">
+            <div class="flex-1 overflow-y-auto p-3 lg:p-4 custom-scrollbar bg-black/20" id="crimes-container">
                 <!-- Crimes dinâmicos via JS -->
             </div>
         </div>
 
         <!-- COLUNA 2: RESULTADOS E FORMULÁRIO -->
-        <div class="w-full lg:flex-1 bg-[#050505]/40 overflow-y-visible lg:overflow-y-auto p-4 lg:p-8 flex flex-col gap-6 custom-scrollbar">
+        <div class="w-full lg:flex-1 bg-[#050505]/40 overflow-y-visible lg:overflow-y-auto p-4 lg:p-8 flex flex-col gap-5 lg:gap-6 custom-scrollbar relative z-10">
             
-            <div class="max-w-4xl mx-auto w-full flex flex-col gap-6">
+            <div class="max-w-4xl mx-auto w-full flex flex-col gap-5 lg:gap-6">
                 <!-- ALERTA DE ERRO (0 MESES) -->
-                <div id="alerta-0-meses" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-5 shadow-[0_0_30px_rgba(239,68,68,0.1)] flex items-center gap-5 shrink-0 backdrop-blur-xl">
-                    <div class="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 border border-red-500/30">
-                        <i class="fa-solid fa-triangle-exclamation text-red-400 text-xl animate-pulse"></i>
+                <div id="alerta-0-meses" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-4 lg:p-5 shadow-[0_0_30px_rgba(239,68,68,0.1)] flex items-center gap-4 lg:gap-5 shrink-0 backdrop-blur-xl">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 border border-red-500/30">
+                        <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg lg:text-xl animate-pulse"></i>
                     </div>
                     <div>
-                        <h4 class="text-red-400 font-bold text-[0.8rem] uppercase tracking-widest">Ação Restrita Pelo Sistema</h4>
-                        <p class="text-slate-300 text-sm mt-1">Lançamentos contendo apenas agravantes de pena (0 meses) são inválidos. Selecione primeiramente a infração base.</p>
+                        <h4 class="text-red-400 font-bold text-[0.7rem] lg:text-[0.8rem] uppercase tracking-widest">Ação Restrita Pelo Sistema</h4>
+                        <p class="text-slate-300 text-xs lg:text-sm mt-1 leading-snug">Lançamentos contendo apenas agravantes de pena (0 meses) são inválidos. Selecione primeiramente a infração base.</p>
                     </div>
                 </div>
 
                 <!-- DADOS DA PRISÃO -->
-                <div class="glass-card rounded-2xl p-6 lg:p-8 flex flex-col gap-6 shrink-0">
-                    <h3 class="text-gradient font-bold text-sm uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3"><i class="fa-solid fa-address-card"></i> Ficha de Custódia</h3>
+                <div class="glass-card rounded-2xl p-5 lg:p-8 flex flex-col gap-5 lg:gap-6 shrink-0 relative overflow-hidden group hover:border-[#d4af37]/30 transition-colors">
+                    <div class="absolute -top-24 -right-24 w-48 h-48 bg-[#d4af37]/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-[#d4af37]/10 transition-colors"></div>
+
+                    <h3 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3"><i class="fa-solid fa-address-card"></i> Ficha de Custódia</h3>
                     
                     <!-- MDT Drag and Drop -->
                     <div>
-                        <label class="block text-[0.65rem] font-bold text-slate-400 mb-2 tracking-widest uppercase">Imagem Comprobatória (MDT) <span class="text-red-500">*</span></label>
-                        <div id="mdt-dropzone" class="dropzone w-full h-28 rounded-xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-2 tracking-widest uppercase">Imagem Comprobatória (MDT) <span class="text-red-500">*</span></label>
+                        <div id="mdt-dropzone" class="dropzone w-full h-24 lg:h-28 rounded-xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group/mdt">
                             <input type="file" id="mdt-file-input" class="hidden" accept="image/*">
-                            <div id="mdt-placeholder" class="text-slate-400 flex flex-col items-center group-hover:text-white transition-colors">
-                                <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2 group-hover:-translate-y-1 transition-transform"></i>
-                                <span class="text-xs font-semibold uppercase tracking-wider">Clique, cole ou arraste a imagem</span>
+                            <div id="mdt-placeholder" class="text-slate-400 flex flex-col items-center group-hover/mdt:text-white transition-colors">
+                                <i class="fa-solid fa-cloud-arrow-up text-xl lg:text-2xl mb-1 lg:mb-2 group-hover/mdt:-translate-y-1 transition-transform"></i>
+                                <span class="text-[0.65rem] lg:text-xs font-semibold uppercase tracking-wider text-center px-2">Clique, cole ou arraste a imagem</span>
                             </div>
                             <img id="mdt-preview" class="hidden absolute inset-0 w-full h-full object-cover opacity-80" alt="Preview MDT">
-                            <button id="mdt-remove" class="hidden absolute top-3 right-3 bg-red-500/80 backdrop-blur-md text-white rounded-full w-8 h-8 flex items-center justify-center text-sm hover:bg-red-500 transition border border-white/20"><i class="fa-solid fa-times"></i></button>
+                            <button id="mdt-remove" class="hidden absolute top-2 right-2 lg:top-3 lg:right-3 bg-red-500/80 backdrop-blur-md text-white rounded-full w-7 h-7 lg:w-8 lg:h-8 flex items-center justify-center text-xs lg:text-sm hover:bg-red-500 transition border border-white/20"><i class="fa-solid fa-times"></i></button>
                         </div>
                     </div>
 
                     <!-- Dados Infrator e Oficiais -->
-                    <div class="grid grid-cols-1 gap-5">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 gap-4 lg:gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome do Acusado <span class="text-red-500">*</span></label>
-                                <input type="text" id="calc-infrator-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Ex: John Doe">
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Nome do Acusado <span class="text-red-500">*</span></label>
+                                <input type="text" id="calc-infrator-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Ex: John Doe">
                             </div>
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (ID) <span class="text-red-500">*</span></label>
-                                <input type="text" id="calc-infrator-passaporte" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full input-premium rounded-xl px-4 py-3 text-sm font-mono" placeholder="Apenas N°">
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte (ID) <span class="text-red-500">*</span></label>
+                                <input type="text" id="calc-infrator-passaporte" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="Apenas N°">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Policiais Envolvidos <span class="text-red-500">*</span></label>
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Policiais Envolvidos <span class="text-red-500">*</span></label>
                             <div class="flex gap-2 mb-3">
-                                <input type="text" id="calc-policial-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm" placeholder="Nome do Oficial">
-                                <input type="text" id="calc-policial-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-3 text-sm font-mono" placeholder="Nº Passaporte">
-                                <button onclick="adicionarPolicial()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-5 rounded-xl transition-all hover:shadow-lg"><i class="fa-solid fa-plus"></i></button>
+                                <input type="text" id="calc-policial-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome do Oficial">
+                                <input type="text" id="calc-policial-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="Nº Passaporte">
+                                <button onclick="adicionarPolicial()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="lista-policiais" class="flex flex-wrap gap-2 empty:hidden"></div>
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Histórico / Descrição da Abordagem</label>
-                            <textarea id="calc-descricao" rows="2" class="w-full input-premium rounded-xl px-4 py-3 text-sm resize-none custom-scrollbar" placeholder="Relate os fatos relevantes..."></textarea>
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Histórico / Descrição da Abordagem</label>
+                            <textarea id="calc-descricao" rows="2" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm resize-none custom-scrollbar" placeholder="Relate os fatos relevantes..."></textarea>
                         </div>
                     </div>
 
                     <!-- Defesa Legal -->
-                    <div class="bg-black/30 p-5 rounded-xl border border-white/5 mt-2">
-                        <h4 class="text-white font-bold text-[0.75rem] uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-[#d4af37]"></i> Defesa Legal Acionada</h4>
+                    <div class="bg-black/30 p-4 lg:p-5 rounded-xl border border-white/5 mt-1 lg:mt-2">
+                        <h4 class="text-white font-bold text-[0.7rem] lg:text-[0.75rem] uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-[#d4af37]"></i> Defesa Legal Acionada</h4>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5 mb-4">
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável <span id="adv-req-mark" class="text-red-500">*</span></label>
-                                <input type="text" id="calc-advogado-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome Completo">
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Advogado Responsável <span id="adv-req-mark" class="text-red-500">*</span></label>
+                                <input type="text" id="calc-advogado-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome Completo">
                             </div>
                             <div>
-                                <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte <span id="oab-req-mark" class="text-red-500">*</span></label>
-                                <input type="text" id="calc-advogado-id" class="w-full input-premium rounded-xl px-4 py-3 text-sm disabled:opacity-20 disabled:cursor-not-allowed uppercase" placeholder="Passaporte">
+                                <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Passaporte <span id="oab-req-mark" class="text-red-500">*</span></label>
+                                <input type="text" id="calc-advogado-id" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Passaporte">
                             </div>
                         </div>
                         <div>
-                            <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Assessores / Estagiários Presentes</label>
+                            <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Assessores / Estagiários Presentes</label>
                             <div class="flex gap-2 mb-3">
-                                <input type="text" id="calc-acomp-nome" class="w-full input-premium rounded-xl px-4 py-3 uppercase text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome">
-                                <input type="text" id="calc-acomp-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-3 text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Passaporte">
-                                <button id="btn-add-acomp" onclick="adicionarAcompanhante()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed"><i class="fa-solid fa-plus"></i></button>
+                                <input type="text" id="calc-acomp-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome">
+                                <input type="text" id="calc-acomp-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Passaporte">
+                                <button id="btn-add-acomp" onclick="adicionarAcompanhante()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="lista-acompanhantes" class="flex flex-wrap gap-2 empty:hidden"></div>
                         </div>
@@ -705,79 +816,82 @@
                 </div>
 
                 <!-- BALANÇO PENAL -->
-                <div class="glass-card rounded-2xl p-6 lg:p-8 transition-all duration-300 shrink-0 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/5 blur-[80px] pointer-events-none"></div>
+                <div class="glass-card rounded-2xl p-5 lg:p-8 transition-all duration-300 shrink-0 relative overflow-hidden group hover:border-[#d4af37]/30">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/5 blur-[80px] pointer-events-none group-hover:bg-[#d4af37]/10 transition-colors"></div>
                     
-                    <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-3 relative z-10">
-                        <h3 class="text-gradient font-bold text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar"></i> Resultado Judicial</h3>
-                        <span id="badge-status-pena" class="bg-white/10 text-white border border-white/10 text-[0.65rem] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm">Aguardando Lançamento</span>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-5 lg:mb-6 border-b border-white/5 pb-3 relative z-10">
+                        <h3 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar"></i> Resultado Judicial</h3>
+                        <div class="flex items-center gap-3 lg:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+                            <button onclick="limparCalculadora()" class="text-slate-500 hover:text-red-400 transition-colors text-[0.6rem] lg:text-[0.65rem] uppercase tracking-widest font-bold flex items-center gap-1.5 px-2 py-1 bg-black/20 rounded-lg sm:bg-transparent sm:rounded-none"><i class="fa-solid fa-trash-can"></i> Limpar Dossiê</button>
+                            <span id="badge-status-pena" class="bg-white/10 text-white border border-white/10 text-[0.6rem] lg:text-[0.65rem] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm whitespace-nowrap">Aguardando Lançamento</span>
+                        </div>
                     </div>
 
                     <!-- Crimes Selecionados -->
-                    <ul id="selected-crimes-list" class="space-y-3 mb-6 empty:hidden text-sm relative z-10"></ul>
-                    <div id="empty-crimes" class="text-slate-500 text-[0.8rem] uppercase tracking-widest text-center py-6 bg-black/20 rounded-xl border border-white/5 border-dashed mb-6 relative z-10">
-                        <i class="fa-solid fa-folder-open text-2xl mb-2 opacity-50"></i><br>Dossiê Criminal Vazio
+                    <ul id="selected-crimes-list" class="space-y-3 mb-5 lg:mb-6 empty:hidden text-xs lg:text-sm relative z-10"></ul>
+                    <div id="empty-crimes" class="text-slate-500 text-[0.75rem] lg:text-[0.8rem] uppercase tracking-widest text-center py-5 lg:py-6 bg-black/20 rounded-xl border border-white/5 border-dashed mb-5 lg:mb-6 relative z-10">
+                        <i class="fa-solid fa-folder-open text-xl lg:text-2xl mb-1.5 opacity-50"></i><br>Dossiê Criminal Vazio
                     </div>
 
                     <!-- Atenuantes e Reduções -->
-                    <div class="bg-black/40 rounded-xl border border-white/5 p-5 mb-6 relative z-10">
-                        <label class="block text-[0.65rem] font-bold text-[#d4af37] mb-4 tracking-widest uppercase"><i class="fa-solid fa-tags"></i> Fatores Atenuantes (Redução de Pena)</label>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" id="red-advogado" checked onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#d4af37] rounded bg-white/10 border-white/20">
-                                <span class="text-sm text-slate-300 group-hover:text-white transition-colors font-medium">Assistência Jurídica (-30%)</span>
+                    <div class="bg-black/40 rounded-xl border border-white/5 p-4 lg:p-5 mb-5 lg:mb-6 relative z-10">
+                        <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-[#d4af37] mb-3 lg:mb-4 tracking-widest uppercase"><i class="fa-solid fa-tags"></i> Fatores Atenuantes (Redução de Pena)</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mb-4 lg:mb-5">
+                            <label class="flex items-center gap-2.5 lg:gap-3 cursor-pointer group/chk">
+                                <input type="checkbox" id="red-advogado" checked onchange="updateCalculadoraUI()" class="w-3.5 h-3.5 lg:w-4 lg:h-4 accent-[#d4af37] rounded bg-white/10 border-white/20">
+                                <span class="text-xs lg:text-sm text-slate-300 group-hover/chk:text-white transition-colors font-medium">Assistência Jurídica (-30%)</span>
                             </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" id="red-primario" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#d4af37] rounded bg-white/10 border-white/20">
-                                <span class="text-sm text-slate-300 group-hover:text-white transition-colors font-medium">Réu Primário (-20%)</span>
+                            <label class="flex items-center gap-2.5 lg:gap-3 cursor-pointer group/chk">
+                                <input type="checkbox" id="red-primario" onchange="updateCalculadoraUI()" class="w-3.5 h-3.5 lg:w-4 lg:h-4 accent-[#d4af37] rounded bg-white/10 border-white/20">
+                                <span class="text-xs lg:text-sm text-slate-300 group-hover/chk:text-white transition-colors font-medium">Réu Primário (-20%)</span>
                             </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" id="red-confesso" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#d4af37] rounded bg-white/10 border-white/20">
-                                <span class="text-sm text-slate-300 group-hover:text-white transition-colors font-medium">Réu Confesso (-20%)</span>
+                            <label class="flex items-center gap-2.5 lg:gap-3 cursor-pointer group/chk">
+                                <input type="checkbox" id="red-confesso" onchange="updateCalculadoraUI()" class="w-3.5 h-3.5 lg:w-4 lg:h-4 accent-[#d4af37] rounded bg-white/10 border-white/20">
+                                <span class="text-xs lg:text-sm text-slate-300 group-hover/chk:text-white transition-colors font-medium">Réu Confesso (-20%)</span>
                             </label>
                         </div>
 
-                        <div class="border-t border-white/5 pt-4">
-                            <label class="flex items-center justify-between cursor-pointer group w-full" id="label-fianca">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox" id="red-fianca" onchange="updateCalculadoraUI()" class="w-4 h-4 accent-[#d4af37] rounded bg-white/10 border-white/20 transition-all">
-                                    <span class="text-sm font-bold text-slate-300 group-hover:text-white transition-colors uppercase tracking-wider" id="txt-fianca">Quitação de Fiança (-100%)</span>
+                        <div class="border-t border-white/5 pt-3 lg:pt-4">
+                            <label class="flex flex-col sm:flex-row sm:items-center justify-between cursor-pointer group w-full gap-2 sm:gap-0" id="label-fianca">
+                                <div class="flex items-center gap-2.5 lg:gap-3">
+                                    <input type="checkbox" id="red-fianca" onchange="updateCalculadoraUI()" class="w-3.5 h-3.5 lg:w-4 lg:h-4 accent-[#d4af37] rounded bg-white/10 border-white/20 transition-all">
+                                    <span class="text-xs lg:text-sm font-bold text-slate-300 group-hover:text-white transition-colors uppercase tracking-wider" id="txt-fianca">Quitação de Fiança (-100%)</span>
                                 </div>
-                                <div id="preview-fianca" class="text-xs text-slate-400 font-mono"></div>
+                                <div id="preview-fianca" class="text-[0.65rem] lg:text-xs text-slate-400 font-mono ml-6 sm:ml-0"></div>
                             </label>
-                            <div id="aviso-fianca" class="hidden mt-4 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-xl p-4 text-[#e2c392] text-xs leading-relaxed">
+                            <div id="aviso-fianca" class="hidden mt-3 lg:mt-4 bg-[#d4af37]/10 border border-[#d4af37]/30 rounded-xl p-3 lg:p-4 text-[#e2c392] text-[0.65rem] lg:text-xs leading-relaxed">
                                 <i class="fa-solid fa-circle-info text-[#d4af37]"></i> <strong class="text-white">Aviso Operacional:</strong> O alvará de soltura deve processar em até 5 minutos no MDT. Em caso de delay sistêmico, o oficial plantonista deve ser acionado para soltura manual.
                             </div>
                         </div>
                     </div>
 
                     <!-- Totais -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 relative z-10">
-                        <div class="bg-black/50 p-5 rounded-xl border border-white/5 flex flex-col justify-center shadow-inner">
-                            <span class="text-slate-400 text-[0.65rem] font-bold uppercase tracking-widest">Multa</span>
-                            <div class="text-2xl font-bold text-red-400/90 mt-2 truncate font-mono" id="calc-valor-multa">R$ 0</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-5 relative z-10">
+                        <div class="bg-black/50 p-4 lg:p-5 rounded-xl border border-white/5 flex flex-col justify-center shadow-inner">
+                            <span class="text-slate-400 text-[0.6rem] lg:text-[0.65rem] font-bold uppercase tracking-widest">Multa</span>
+                            <div class="text-xl lg:text-2xl font-bold text-red-400/90 mt-1.5 lg:mt-2 truncate font-mono" id="calc-valor-multa">R$ 0</div>
                         </div>
-                        <div class="bg-black/50 p-5 rounded-xl border border-white/5 flex flex-col justify-center shadow-inner">
-                            <span class="text-slate-400 text-[0.65rem] font-bold uppercase tracking-widest">Valor Afiançável Estimado</span>
-                            <div class="text-2xl font-bold text-emerald-400/90 mt-2 truncate font-mono" id="calc-valor-fianca">R$ 0</div>
+                        <div class="bg-black/50 p-4 lg:p-5 rounded-xl border border-white/5 flex flex-col justify-center shadow-inner">
+                            <span class="text-slate-400 text-[0.6rem] lg:text-[0.65rem] font-bold uppercase tracking-widest">Valor Afiançável Estimado</span>
+                            <div class="text-xl lg:text-2xl font-bold text-emerald-400/90 mt-1.5 lg:mt-2 truncate font-mono" id="calc-valor-fianca">R$ 0</div>
                         </div>
-                        <div class="bg-gradient-to-br from-[#d4af37]/20 to-[#b5952f]/5 p-5 rounded-xl border border-[#d4af37]/30 relative overflow-hidden flex flex-col justify-center shadow-[inset_0_0_20px_rgba(212,175,55,0.1)]">
-                            <span class="text-[#d4af37] text-[0.65rem] font-bold uppercase tracking-widest relative z-10 flex justify-between items-center">
+                        <div class="sm:col-span-2 md:col-span-1 bg-gradient-to-br from-[#d4af37]/20 to-[#b5952f]/5 p-4 lg:p-5 rounded-xl border border-[#d4af37]/30 relative overflow-hidden flex flex-col justify-center shadow-[inset_0_0_20px_rgba(212,175,55,0.1)] hover:shadow-[inset_0_0_30px_rgba(212,175,55,0.2)] transition-shadow">
+                            <span class="text-[#d4af37] text-[0.6rem] lg:text-[0.65rem] font-bold uppercase tracking-widest relative z-10 flex justify-between items-center">
                                 Tempo de Reclusão
-                                <span id="calc-pena-original" class="line-through text-white/40 text-[0.6rem] bg-black/20 px-2 py-0.5 rounded-full font-mono">0m</span>
+                                <span id="calc-pena-original" class="line-through text-white/40 text-[0.55rem] lg:text-[0.6rem] bg-black/20 px-2 py-0.5 rounded-full font-mono">0m</span>
                             </span>
-                            <div class="text-3xl font-extrabold text-white mt-2 relative z-10 truncate drop-shadow-md" id="calc-valor-pena">0 Meses</div>
+                            <div class="text-2xl lg:text-3xl font-extrabold text-white mt-1.5 lg:mt-2 relative z-10 truncate drop-shadow-md" id="calc-valor-pena">0 Meses</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Botões de Ação -->
-                <div class="flex flex-col gap-4 shrink-0 mt-2">
-                    <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-3 text-xs uppercase tracking-widest hover:shadow-lg active:scale-95 backdrop-blur-md">
-                        <i class="fa-regular fa-copy text-lg"></i> Copiar Extrato Local (Clipboard)
+                <div class="flex flex-col gap-3 lg:gap-4 shrink-0 mt-1 lg:mt-2 mb-6 lg:mb-0">
+                    <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3.5 lg:py-4 rounded-xl transition-all flex items-center justify-center gap-2 lg:gap-3 text-[0.7rem] lg:text-xs uppercase tracking-widest hover:shadow-lg active:scale-95 backdrop-blur-md">
+                        <i class="fa-regular fa-copy text-base lg:text-lg"></i> Copiar Extrato Local (Clipboard)
                     </button>
-                    <button onclick="enviarDiscordCalc()" id="btn-discord-calc" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-bold py-5 rounded-xl shadow-[0_0_25px_rgba(88,101,242,0.3)] hover:shadow-[0_0_35px_rgba(88,101,242,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-widest active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
-                        <i class="fa-brands fa-discord text-2xl"></i> Transmitir Relatório Oficial
+                    <button onclick="enviarDiscordCalc()" id="btn-discord-calc" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-bold py-4 lg:py-5 rounded-xl shadow-[0_0_20px_rgba(88,101,242,0.3)] lg:shadow-[0_0_25px_rgba(88,101,242,0.3)] hover:shadow-[0_0_35px_rgba(88,101,242,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 lg:gap-3 text-xs lg:text-sm uppercase tracking-widest active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                        <i class="fa-brands fa-discord text-xl lg:text-2xl"></i> Transmitir Relatório Oficial
                     </button>
                 </div>
             </div>
@@ -785,59 +899,154 @@
         </div>
     </div>
 
+    <!-- ==================== NOVA ABA 4: CURSOS & DOSSIÊS ==================== -->
+    <div id="view-cursos" class="hidden flex-col flex-1 overflow-y-auto animate-fade-up p-4 lg:p-10 custom-scrollbar">
+        <div class="max-w-6xl mx-auto w-full flex flex-col gap-6 lg:gap-8">
+            
+            <!-- Header da Seção -->
+            <div class="glass-card p-5 lg:p-6 rounded-2xl flex items-center justify-between border-l-4 border-l-[#d4af37]">
+                <div>
+                    <h2 class="text-white font-bold uppercase tracking-widest text-base lg:text-lg flex items-center gap-3">
+                        <i class="fa-solid fa-graduation-cap text-[#d4af37]"></i> Academia Jurídica Oficial
+                    </h2>
+                    <p class="text-slate-400 text-[0.75rem] lg:text-sm mt-1">Módulos de capacitação e diretrizes para advogados, oficiais e estagiários.</p>
+                </div>
+                <div class="hidden sm:flex w-12 h-12 rounded-full bg-[#d4af37]/10 items-center justify-center border border-[#d4af37]/20 shrink-0">
+                    <i class="fa-solid fa-book-bookmark text-[#d4af37] text-xl"></i>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8 mb-8">
+                <!-- Curso 1: Código Penal e Prisões -->
+                <div class="glass-card rounded-2xl p-4 lg:p-6 flex flex-col gap-4 group hover:border-[#d4af37]/30 transition-colors">
+                    <div class="flex items-center gap-4 border-b border-white/5 pb-4">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shrink-0">
+                            <i class="fa-solid fa-gavel text-blue-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-bold uppercase tracking-widest text-[0.8rem] lg:text-sm">Código Penal e Prisões</h3>
+                            <p class="text-slate-500 text-[0.65rem] lg:text-xs mt-0.5">Módulo de Diretrizes Oficiais</p>
+                        </div>
+                    </div>
+                    <div class="w-full aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/50 relative shadow-inner">
+                        <iframe src="https://gamma.app/embed/hifcd7nt1esjf0j" loading="lazy" style="width: 100%; height: 100%; position: absolute; top:0; left:0;" allow="fullscreen" title="Código Penal e Prisões" frameborder="0"></iframe>
+                    </div>
+                </div>
+
+                <!-- Curso 2: Porte & Limpeza de Ficha -->
+                <div class="glass-card rounded-2xl p-4 lg:p-6 flex flex-col gap-4 group hover:border-[#d4af37]/30 transition-colors">
+                    <div class="flex items-center gap-4 border-b border-white/5 pb-4">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                            <i class="fa-solid fa-file-shield text-emerald-400 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-bold uppercase tracking-widest text-[0.8rem] lg:text-sm">Porte & Limpeza de Ficha</h3>
+                            <p class="text-slate-500 text-[0.65rem] lg:text-xs mt-0.5">Procedimentos de Reabilitação Criminal</p>
+                        </div>
+                    </div>
+                    <div class="w-full aspect-video rounded-xl overflow-hidden border border-white/10 bg-black/50 relative shadow-inner">
+                        <iframe src="https://gamma.app/embed/ul1zqxubw9dppo4" loading="lazy" style="width: 100%; height: 100%; position: absolute; top:0; left:0;" allow="fullscreen" title="Curso Porte & Limpeza de Ficha" frameborder="0"></iframe>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <script>
-        // CONFIGURAÇÕES GLOBAIS - SEU APPS SCRIPT INTACTO
+        // CONFIGURAÇÕES GLOBAIS
         const CONFIG = {
             SHEET_URL: "https://script.google.com/macros/s/AKfycbwdPwwk4TF_MiyJ642Jk-4nUOqSohfWHlduhUhhbggUAgPmR3uHmDWPQdEJilmqqr6Vsw/exec"
         };
 
+        // ==================== CONTROLE DO MENU MOBILE ====================
+        let mobileMenuOpen = false;
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.querySelector('#btn-mobile-menu i');
+            const btn = document.getElementById('btn-mobile-menu');
+            
+            mobileMenuOpen = !mobileMenuOpen;
+            
+            if(mobileMenuOpen) {
+                menu.classList.remove('scale-y-0', 'opacity-0', 'pointer-events-none');
+                menu.classList.add('scale-y-100', 'opacity-100');
+                icon.classList.replace('fa-bars', 'fa-xmark');
+                btn.classList.add('bg-[#d4af37]/20');
+            } else {
+                menu.classList.remove('scale-y-100', 'opacity-100');
+                menu.classList.add('scale-y-0', 'opacity-0', 'pointer-events-none');
+                icon.classList.replace('fa-xmark', 'fa-bars');
+                btn.classList.remove('bg-[#d4af37]/20');
+            }
+        }
+
         // ==================== SISTEMA DE NOTIFICAÇÃO & AUDIO ====================
-        // Audio Rádio Policial (Erro/Aviso) - Atualizado para MP3 para total compatibilidade
         const audioError = new Audio('https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/7c858b78fee58506ad81e937979386ff/f8e7d14e5e9d2866ac93287bc9b9fd12/STREAMING-ui-error-negative-mallets-om-fx-1-00-01.mp3');
-        // Audio Sucesso (Sino de Confirmação) - Solicitado pelo usuário
         const audioSuccess = new Audio('https://cdn.uppbeat.io/audio-files/06ae18f31ba6d2a5dd6b6f941ae28d0a/aee3c0f7fecb0f199e67cd561f596edf/150e1666acd575b27ce8cdd9c538923d/STREAMING-notification-bells-sms-received-jam-fx-medium-1-00-01.mp3');
+
+        let isMuted = false;
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btnDesktop = document.getElementById('btn-mute-desktop');
+            const iconDesktop = btnDesktop.querySelector('i');
+            const btnMobile = document.getElementById('btn-mute-mobile');
+            const iconMobile = btnMobile.querySelector('i');
+
+            if(isMuted) {
+                iconDesktop.className = 'fa-solid fa-volume-xmark text-slate-500 transition-colors';
+                iconMobile.className = 'fa-solid fa-volume-xmark text-[0.65rem] text-slate-500 transition-colors';
+                btnDesktop.classList.replace('border-white/10', 'border-red-500/30');
+                btnMobile.classList.replace('border-white/10', 'border-red-500/30');
+            } else {
+                iconDesktop.className = 'fa-solid fa-volume-high text-[#d4af37] transition-colors';
+                iconMobile.className = 'fa-solid fa-volume-high text-[0.65rem] text-[#d4af37] transition-colors';
+                btnDesktop.classList.replace('border-red-500/30', 'border-white/10');
+                btnMobile.classList.replace('border-red-500/30', 'border-white/10');
+            }
+        }
 
         function showNotification(message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
 
-            let icon = type === 'error' ? '<i class="fa-solid fa-walkie-talkie text-red-400 text-xl"></i>' : '<i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>';
+            let icon = type === 'error' ? '<i class="fa-solid fa-walkie-talkie text-red-400 text-lg md:text-xl"></i>' : '<i class="fa-solid fa-circle-check text-emerald-400 text-lg md:text-xl"></i>';
             let border = type === 'error' ? 'border-red-500/30' : 'border-emerald-500/30';
             let bg = type === 'error' ? 'bg-red-500/10' : 'bg-emerald-500/10';
             let title = type === 'error' ? 'Atenção Operacional' : 'Protocolo Concluído';
 
-            toast.className = `flex items-center gap-4 ${bg} ${border} border backdrop-blur-2xl p-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] toast-enter pointer-events-auto`;
+            toast.className = `flex items-center gap-3 md:gap-4 ${bg} ${border} border backdrop-blur-2xl p-3 md:p-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] toast-enter pointer-events-auto`;
             toast.innerHTML = `
-                <div class="w-10 h-10 rounded-full flex items-center justify-center bg-black/40 shrink-0 border border-white/5 shadow-inner">
+                <div class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center bg-black/40 shrink-0 border border-white/5 shadow-inner">
                     ${icon}
                 </div>
                 <div>
-                    <h4 class="text-white font-bold text-[0.7rem] uppercase tracking-widest">${title}</h4>
-                    <p class="text-slate-300 text-xs mt-0.5">${message}</p>
+                    <h4 class="text-white font-bold text-[0.65rem] md:text-[0.7rem] uppercase tracking-widest leading-tight">${title}</h4>
+                    <p class="text-slate-300 text-[0.65rem] md:text-xs mt-0.5 leading-snug">${message}</p>
                 </div>
             `;
 
             container.appendChild(toast);
 
-            // Tocar som com tratamento correto de Promise (Evita UnhandledRejection)
-            const audioToPlay = type === 'error' ? audioError : audioSuccess;
-            audioToPlay.currentTime = 0;
-            const playPromise = audioToPlay.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.log('Auto-play bloqueado ou formato não suportado pelo navegador:', error);
-                });
+            if(!isMuted) {
+                const audioToPlay = type === 'error' ? audioError : audioSuccess;
+                audioToPlay.currentTime = 0;
+                const playPromise = audioToPlay.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.log('Auto-play bloqueado:', error);
+                    });
+                }
             }
 
-            // Remover após 4.5s
             setTimeout(() => {
                 toast.classList.remove('toast-enter');
                 toast.classList.add('toast-exit');
                 setTimeout(() => toast.remove(), 400);
             }, 4500);
         }
-
 
         // ==================== MÁSCARAS DE INPUT ====================
         function maskDate(input) {
@@ -877,23 +1086,48 @@
 
         // ==================== LÓGICA DE ABAS ====================
         function switchTab(tab) {
-            document.getElementById('view-cnpj').classList.add('hidden');
-            document.getElementById('view-cnpj').classList.remove('flex');
-            document.getElementById('view-calc').classList.add('hidden');
-            document.getElementById('view-calc').classList.remove('flex');
-            document.getElementById('view-porte').classList.add('hidden');
-            document.getElementById('view-porte').classList.remove('flex');
+            const allTabs = ['cnpj', 'porte', 'calc', 'cursos'];
             
-            document.getElementById('tab-cnpj').classList.remove('active');
-            document.getElementById('tab-calc').classList.remove('active');
-            document.getElementById('tab-porte').classList.remove('active');
+            allTabs.forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                if (view) {
+                    view.classList.add('hidden');
+                    view.classList.remove('flex', 'animate-fade-up');
+                }
+                
+                // Remove classe ativa de TODOS os botões (desktop e mobile)
+                document.querySelectorAll(`.btn-nav-${t}`).forEach(btn => {
+                    btn.classList.remove('active');
+                });
+            });
 
-            document.getElementById(`view-${tab}`).classList.remove('hidden');
-            document.getElementById(`view-${tab}`).classList.add('flex');
-            document.getElementById(`tab-${tab}`).classList.add('active');
+            // Mostra a tab certa
+            const targetView = document.getElementById(`view-${tab}`);
+            if (targetView) {
+                targetView.classList.remove('hidden');
+                // Pequeno delay para reativar a animação
+                setTimeout(() => targetView.classList.add('flex', 'animate-fade-up'), 10);
+            }
+            
+            // Adiciona classe ativa nos botões correspondentes
+            document.querySelectorAll(`.btn-nav-${tab}`).forEach(btn => {
+                btn.classList.add('active');
+            });
 
             if(tab === 'cnpj') ajustarEscala('preview-area', 'documento-pdf');
             if(tab === 'porte') ajustarEscala('preview-area-porte', 'documento-pdf-porte');
+            
+            if(tab === 'calc') {
+                setTimeout(() => {
+                    const searchInput = document.getElementById('crimeSearchInput');
+                    if(searchInput && window.innerWidth > 1024) searchInput.focus();
+                }, 100);
+            }
+
+            // Fecha o menu mobile se estiver aberto
+            if(mobileMenuOpen) {
+                toggleMobileMenu();
+            }
         }
 
         function formatBRL(value) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }); }
@@ -908,12 +1142,15 @@
             const wrapper = document.getElementById(wrapperId);
             const doc = document.getElementById(docId);
             if (!wrapper || !doc || wrapper.clientWidth === 0) return;
-            const availableWidth = wrapper.clientWidth - 32; 
+            
+            const margin = window.innerWidth < 1024 ? 16 : 32;
+            const availableWidth = wrapper.clientWidth - margin; 
             const docWidth = 794; 
+            
             if (availableWidth < docWidth) {
                 const scale = availableWidth / docWidth;
                 doc.style.transform = `scale(${scale})`;
-                doc.style.marginBottom = `-${(1 - scale) * 1118}px`; 
+                doc.style.marginBottom = `-${(1 - scale) * 1123}px`; 
             } else {
                 doc.style.transform = 'scale(1)';
                 doc.style.marginBottom = '0';
@@ -937,14 +1174,15 @@
             const filename = `${namePrefix}_${nomeStr.replace(/\s+/g, '_').toUpperCase()}.pdf`;
 
             html2pdf().set({
-                margin: [0, 0, 0, 0], filename: filename, image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             }).from(element).save().then(() => {
                 btn.innerHTML = originalText;
                 btn.classList.remove('loading-pdf');
                 element.style.transform = oldTransform;
                 element.style.marginBottom = oldMargin;
-                showNotification("Documento salvo no seu computador.", "success");
+                showNotification("Documento salvo no seu dispositivo.", "success");
             });
         }
 
@@ -987,7 +1225,6 @@
         }
 
         async function enviarDiscordCNPJ() {
-            // VALIDAÇÃO
             const webhookUrl = document.getElementById('input-webhook').value.trim();
             if(!webhookUrl) return showNotification('Insira o link do Webhook do Discord.', 'error');
             
@@ -1041,8 +1278,9 @@
 
             try {
                 const pdfBlob = await html2pdf().set({
-                    margin: [0,0,0,0], filename: filename, image: { type: 'jpeg', quality: 1 },
-                    html2canvas: { scale: 3, useCORS: true, logging: false }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    margin: 0, filename: filename, image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 }, 
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 }).from(element).output('blob');
 
                 const formData = new FormData();
@@ -1106,7 +1344,6 @@
         }
 
         async function enviarDiscordPorte() {
-            // VALIDAÇÃO
             const webhookUrl = document.getElementById('input-webhook-porte').value.trim();
             if(!webhookUrl) return showNotification('Insira o link do Webhook do Discord.', 'error');
 
@@ -1155,7 +1392,7 @@
             });
 
             try {
-                const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false });
+                const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false, windowWidth: 794 });
                 const imgBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9));
 
                 const formData = new FormData();
@@ -1250,7 +1487,7 @@
                 if(searchStr.includes(search)) {
                     const isSelected = selectedCrimesForCalc.some(c => c.id === crime.id);
                     const div = document.createElement('div');
-                    div.className = `crime-item p-4 mb-3 rounded-xl border ${isSelected ? 'selected' : 'border-white/5 bg-white/[0.02]'} flex justify-between items-center shadow-sm backdrop-blur-sm relative overflow-hidden group`;
+                    div.className = `crime-item p-3 lg:p-4 mb-2 lg:mb-3 rounded-xl border ${isSelected ? 'selected' : 'border-white/5 bg-white/[0.02]'} flex justify-between items-center shadow-sm backdrop-blur-sm relative overflow-hidden group`;
                     
                     if(isSelected) {
                         div.innerHTML = `<div class="absolute inset-0 bg-gradient-to-r from-[#d4af37]/10 to-transparent pointer-events-none"></div>`;
@@ -1261,20 +1498,20 @@
                     div.onclick = () => toggleCrime(crime);
                     
                     const mesesBadge = crime.meses === 0 
-                        ? `<span class="bg-red-500/20 text-red-400 border border-red-500/20 text-[0.6rem] px-2 py-0.5 rounded font-bold uppercase tracking-wider">Agravante</span>`
-                        : `<span class="text-slate-400 text-[0.7rem] bg-black/40 px-2 py-0.5 rounded-md border border-white/5"><i class="fa-regular fa-clock text-[#d4af37]"></i> ${crime.meses}m</span>`;
+                        ? `<span class="bg-red-500/20 text-red-400 border border-red-500/20 text-[0.55rem] lg:text-[0.6rem] px-1.5 lg:px-2 py-0.5 rounded font-bold uppercase tracking-wider">Agravante</span>`
+                        : `<span class="text-slate-400 text-[0.65rem] lg:text-[0.7rem] bg-black/40 px-1.5 lg:px-2 py-0.5 rounded-md border border-white/5"><i class="fa-regular fa-clock text-[#d4af37]"></i> ${crime.meses}m</span>`;
 
                     div.innerHTML += `
-                        <div class="w-4/5 pr-2 flex flex-col gap-1.5 relative z-10">
-                            <h4 class="text-slate-200 font-bold text-[0.8rem] tracking-wide leading-tight group-hover:text-white transition-colors">${crime.crime}</h4>
-                            <p class="text-slate-500 text-[0.6rem] leading-snug">${crime.description}</p>
-                            <div class="flex items-center gap-3 mt-1">
-                                <span class="text-emerald-400/90 font-mono text-[0.7rem] font-bold">${formatBRL(crime.multa)}</span>
+                        <div class="w-[75%] lg:w-4/5 pr-2 flex flex-col gap-1 lg:gap-1.5 relative z-10">
+                            <h4 class="text-slate-200 font-bold text-[0.7rem] lg:text-[0.8rem] tracking-wide leading-tight group-hover:text-white transition-colors">${crime.crime}</h4>
+                            <p class="text-slate-500 text-[0.55rem] lg:text-[0.6rem] leading-snug line-clamp-2 lg:line-clamp-none">${crime.description}</p>
+                            <div class="flex items-center gap-2 lg:gap-3 mt-1">
+                                <span class="text-emerald-400/90 font-mono text-[0.65rem] lg:text-[0.7rem] font-bold">${formatBRL(crime.multa)}</span>
                                 ${mesesBadge}
                             </div>
                         </div>
-                        <div class="w-1/5 text-right flex items-center justify-end relative z-10">
-                            ${isSelected ? `<i class="fa-solid fa-circle-check text-2xl text-[#d4af37] drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>` : `<i class="fa-regular fa-circle text-2xl text-slate-600 group-hover:text-slate-400 transition-colors"></i>`}
+                        <div class="w-[25%] lg:w-1/5 text-right flex items-center justify-end relative z-10">
+                            ${isSelected ? `<i class="fa-solid fa-circle-check text-xl lg:text-2xl text-[#d4af37] drop-shadow-[0_0_10px_rgba(212,175,55,0.5)]"></i>` : `<i class="fa-regular fa-circle text-xl lg:text-2xl text-slate-600 group-hover:text-slate-400 transition-colors"></i>`}
                         </div>`;
                     container.appendChild(div);
                 }
@@ -1290,6 +1527,33 @@
         }
 
         document.getElementById('crimeSearchInput').addEventListener('input', (e) => { renderCrimes(e.target.value); });
+
+        function limparCalculadora() {
+            selectedCrimesForCalc = [];
+            oficiaisEnvolvidos = [];
+            acompanhantesEnvolvidos = [];
+            
+            document.getElementById('calc-infrator-nome').value = '';
+            document.getElementById('calc-infrator-passaporte').value = '';
+            document.getElementById('calc-descricao').value = '';
+            document.getElementById('calc-advogado-nome').value = '';
+            document.getElementById('calc-advogado-id').value = '';
+            document.getElementById('calc-acomp-nome').value = '';
+            document.getElementById('calc-acomp-id').value = '';
+            
+            document.getElementById('red-advogado').checked = true;
+            document.getElementById('red-primario').checked = false;
+            document.getElementById('red-confesso').checked = false;
+            document.getElementById('red-fianca').checked = false;
+            
+            if(mdtImageFile) document.getElementById('mdt-remove').click();
+
+            renderCrimes(document.getElementById('crimeSearchInput').value);
+            renderPoliciais();
+            renderAcompanhantes();
+            updateCalculadoraUI();
+            showNotification("Calculadora limpa para novo uso.", "success");
+        }
 
         function updateCalculadoraUI() {
             const valMultaEl = document.getElementById('calc-valor-multa');
@@ -1344,13 +1608,13 @@
             if (selectedCrimesForCalc.length === 0) {
                 valMultaEl.innerText = "R$ 0";
                 valFiancaEl.innerText = "R$ 0";
-                valFiancaEl.className = "text-2xl font-bold text-emerald-400/90 mt-2 truncate font-mono";
+                valFiancaEl.className = "text-xl lg:text-2xl font-bold text-emerald-400/90 mt-1.5 lg:mt-2 truncate font-mono";
                 valPenaEl.innerText = "0 Meses";
                 valPenaOriginal.innerText = "0m";
                 emptyEl.classList.remove('hidden');
                 alerta0Meses.classList.add('hidden');
                 badgeStatus.innerText = "Aguardando Lançamento";
-                badgeStatus.className = "bg-white/10 text-white border border-white/10 text-[0.65rem] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm";
+                badgeStatus.className = "bg-white/10 text-white border border-white/10 text-[0.6rem] lg:text-[0.65rem] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm whitespace-nowrap";
                 
                 previewFianca.innerHTML = "";
                 avisoFianca.classList.add('hidden');
@@ -1370,8 +1634,8 @@
                 const li = document.createElement('li');
                 li.className = "flex justify-between items-center text-slate-300 border-b border-white/5 pb-2 pt-1 relative";
                 li.innerHTML = `
-                    <span class="w-3/5 truncate text-[0.8rem]"><i class="fa-solid fa-gavel text-[#d4af37]/60 mr-2"></i> ${crime.crime}</span>
-                    <span class="w-2/5 text-right font-mono text-[0.7rem] text-slate-400">${formatBRL(crime.multa)} <span class="text-white/20 mx-1">|</span> <span class="text-white/80">${crime.meses}m</span></span>
+                    <span class="w-[65%] sm:w-3/5 truncate text-[0.75rem] lg:text-[0.8rem]"><i class="fa-solid fa-gavel text-[#d4af37]/60 mr-2"></i> ${crime.crime}</span>
+                    <span class="w-[35%] sm:w-2/5 text-right font-mono text-[0.65rem] lg:text-[0.7rem] text-slate-400">${formatBRL(crime.multa)} <span class="text-white/20 mx-0.5 lg:mx-1">|</span> <span class="text-white/80">${crime.meses}m</span></span>
                 `;
                 listEl.appendChild(li);
 
@@ -1390,13 +1654,13 @@
                 redFianca.checked = false;
                 labelFiancaBox.classList.add('opacity-50', 'cursor-not-allowed');
                 valFiancaEl.innerText = "INAFIANÇÁVEL";
-                valFiancaEl.className = "text-2xl font-bold text-red-500/90 mt-2 truncate font-mono";
+                valFiancaEl.className = "text-xl lg:text-2xl font-bold text-red-500/90 mt-1.5 lg:mt-2 truncate font-mono";
                 avisoFianca.classList.add('hidden');
             } else {
                 redFianca.disabled = false;
                 labelFiancaBox.classList.remove('opacity-50', 'cursor-not-allowed');
                 valFiancaEl.innerText = formatBRL(totalFianca);
-                valFiancaEl.className = "text-2xl font-bold text-emerald-400/90 mt-2 truncate font-mono";
+                valFiancaEl.className = "text-xl lg:text-2xl font-bold text-emerald-400/90 mt-1.5 lg:mt-2 truncate font-mono";
                 if (redFianca.checked) {
                     avisoFianca.classList.remove('hidden');
                 } else {
@@ -1409,7 +1673,7 @@
                 valPenaEl.innerText = "BLOQUEADO";
                 alerta0Meses.classList.remove('hidden');
                 badgeStatus.innerText = "SÓ AGRAVANTES!";
-                badgeStatus.className = "bg-red-500/20 text-red-400 border border-red-500/30 text-[0.65rem] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm";
+                badgeStatus.className = "bg-red-500/20 text-red-400 border border-red-500/30 text-[0.6rem] lg:text-[0.65rem] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm whitespace-nowrap";
                 return;
             }
 
@@ -1425,11 +1689,11 @@
             
             if (redFianca.checked && !isInafiancavel) {
                 mesesFinais = 0;
-                badgeStatus.innerText = "Liberação sob Fiança";
-                badgeStatus.className = "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 text-[0.65rem] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.2)]";
+                badgeStatus.innerText = "Fiança Autorizada";
+                badgeStatus.className = "bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 text-[0.6rem] lg:text-[0.65rem] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.2)] whitespace-nowrap";
             } else {
                 badgeStatus.innerText = "Reclusão Aplicada";
-                badgeStatus.className = "bg-red-500/20 text-red-400 border border-red-500/30 text-[0.65rem] px-3 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm";
+                badgeStatus.className = "bg-red-500/20 text-red-400 border border-red-500/30 text-[0.6rem] lg:text-[0.65rem] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm whitespace-nowrap";
             }
 
             valPenaEl.innerText = `${mesesFinais} Meses`;
@@ -1459,7 +1723,7 @@
             container.innerHTML = '';
             oficiaisEnvolvidos.forEach((oficial, i) => {
                 const badge = document.createElement('div');
-                badge.className = "flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-200 px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider";
+                badge.className = "flex items-center gap-1.5 lg:gap-2 bg-blue-500/10 border border-blue-500/20 text-blue-200 px-2 lg:px-3 py-1 lg:py-1.5 rounded-full text-[0.6rem] lg:text-[0.65rem] font-bold uppercase tracking-wider";
                 badge.innerHTML = `
                     <i class="fa-solid fa-shield-halved text-blue-400"></i> ${oficial.nome} (${oficial.id})
                     <button onclick="removerPolicial(${i})" class="ml-1 text-red-400 hover:text-red-300 transition-colors"><i class="fa-solid fa-xmark"></i></button>
@@ -1491,7 +1755,7 @@
             container.innerHTML = '';
             acompanhantesEnvolvidos.forEach((acomp, i) => {
                 const badge = document.createElement('div');
-                badge.className = "flex items-center gap-2 bg-white/5 border border-white/10 text-slate-300 px-3 py-1.5 rounded-full text-[0.65rem] font-bold uppercase tracking-wider";
+                badge.className = "flex items-center gap-1.5 lg:gap-2 bg-white/5 border border-white/10 text-slate-300 px-2 lg:px-3 py-1 lg:py-1.5 rounded-full text-[0.6rem] lg:text-[0.65rem] font-bold uppercase tracking-wider";
                 badge.innerHTML = `
                     <i class="fa-solid fa-user-graduate text-slate-400"></i> ${acomp.nome} (${acomp.id})
                     <button onclick="removerAcompanhante(${i})" class="ml-1 text-red-400 hover:text-red-300 transition-colors"><i class="fa-solid fa-xmark"></i></button>
@@ -1716,6 +1980,7 @@
                     btn.classList.replace('to-[#4752c4]', 'to-emerald-500');
                     btn.classList.replace('shadow-[0_0_25px_rgba(88,101,242,0.3)]', 'shadow-[0_0_25px_rgba(16,185,129,0.3)]');
                     showNotification("Ficha de custódia protocolada com sucesso.", "success");
+                    limparCalculadora(); // Auto Limpeza após envio
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Falha de Conexão';
@@ -1733,24 +1998,38 @@
             }
         }
 
-        // ==================== INICIALIZAÇÃO / LOADING ANIMATION ====================
+        // ==================== INICIALIZAÇÃO / RELÓGIO / LOADING ====================
         function aceitarCookies() {
             localStorage.setItem('rp_juridico_cookies_accepted', 'true');
             document.getElementById('cookie-banner').classList.add('translate-y-[150%]');
         }
 
-        window.onload = () => {
+        // Relógio do Cabeçalho
+        setInterval(() => {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('pt-BR');
+            const dateString = now.toLocaleDateString('pt-BR');
+            // Desktop
+            const clockDesktop = document.getElementById('system-clock-desktop');
+            if(clockDesktop) clockDesktop.innerText = `${timeString} | ${dateString}`;
+            // Mobile
+            const clockMobile = document.getElementById('system-clock-mobile');
+            if(clockMobile) clockMobile.innerText = `${timeString.substring(0,5)}`;
+        }, 1000);
+
+        // Subsituição do window.onload para não travar nos iFrames
+        document.addEventListener('DOMContentLoaded', () => {
             const loader = document.getElementById('loading-screen');
             const banner = document.getElementById('cookie-banner');
             const loadingText = document.getElementById('loading-text');
             const progressBar = document.getElementById('loading-progress');
 
-            // Passos da animação da barra de progresso e textos do Tribunal de Justiça
+            // Passos da animação da barra de progresso (Textos Institucionais)
             const bootSteps = [
-                { text: "Autenticando credenciais OAB...", progress: 30, time: 400 },
-                { text: "Acessando Tribunal de Justiça...", progress: 60, time: 1200 },
-                { text: "Sincronizando banco de dados...", progress: 85, time: 2000 },
-                { text: "Protocolo Liberado", progress: 100, time: 2600 }
+                { text: "Carregando Módulos do Sistema...", progress: 30, time: 400 },
+                { text: "Autenticando Certificado Digital...", progress: 60, time: 1200 },
+                { text: "Estabelecendo Conexão com o Tribunal...", progress: 85, time: 2000 },
+                { text: "Ambiente Seguro Pronto.", progress: 100, time: 2600 }
             ];
 
             if (!localStorage.getItem('rp_juridico_visited')) {
@@ -1790,14 +2069,17 @@
             document.getElementById('doc-carimbo-data').innerText = `${hoje.getDate().toString().padStart(2, '0')}/${(hoje.getMonth()+1).toString().padStart(2, '0')}/${hoje.getFullYear()}`;
 
             gerarCNPJ();
-            ajustarEscala('preview-area', 'documento-pdf');
+            
+            // Pequeno delay para garantir que as fontes carregaram antes de escalar
+            setTimeout(() => {
+                ajustarEscala('preview-area', 'documento-pdf');
+                ajustarEscala('preview-area-porte', 'documento-pdf-porte');
+            }, 300);
             
             updatePorteDoc();
-            ajustarEscala('preview-area-porte', 'documento-pdf-porte');
-            
             renderCrimes();
             updateCalculadoraUI();
-        };
+        });
         
         window.onresize = () => {
             ajustarEscala('preview-area', 'documento-pdf');
