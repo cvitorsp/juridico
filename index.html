@@ -122,6 +122,20 @@
         }
         .input-premium::placeholder { color: rgba(255,255,255,0.3); }
 
+        /* Animação de Erro (Shake e Borda Vermelha) */
+        @keyframes shakeError {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); border-color: #ef4444; }
+            50% { transform: translateX(5px); border-color: #ef4444; }
+            75% { transform: translateX(-5px); border-color: #ef4444; }
+        }
+        .input-error {
+            animation: shakeError 0.4s ease-in-out;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.25) !important;
+            background: rgba(239, 68, 68, 0.05) !important;
+        }
+
         .tab-btn { 
             position: relative;
             transition: all 0.3s ease; 
@@ -234,6 +248,14 @@
 
     <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-[200] flex flex-col gap-3 pointer-events-none w-[90%] sm:w-auto min-w-[300px] max-w-[400px]"></div>
 
+    <!-- Créditos - Flutuante Discreto -->
+    <div class="fixed bottom-3 right-3 lg:bottom-4 lg:right-4 z-50 pointer-events-auto">
+        <a href="https://www.instagram.com/jv.criativo/" target="_blank" aria-label="Créditos do Desenvolvedor" class="flex items-center gap-2 glass-card px-3 py-1.5 lg:px-4 lg:py-2 rounded-full hover:border-[#d4af37]/50 hover:bg-black/60 transition-all text-[0.6rem] lg:text-[0.65rem] text-slate-400 hover:text-[#d4af37] group shadow-lg">
+            <span>Desenvolvido por <strong class="text-slate-300 group-hover:text-white transition-colors">@cvitorsp</strong></span>
+            <i class="fa-brands fa-instagram text-[0.7rem] lg:text-sm"></i>
+        </a>
+    </div>
+
     <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000 overflow-hidden">
         <div class="absolute inset-0 overflow-hidden flex justify-center items-center pointer-events-none">
@@ -299,7 +321,7 @@
                     <i class="fa-regular fa-clock text-[#d4af37]"></i>
                     <span id="system-clock-desktop" class="text-xs text-slate-300 font-mono tracking-widest font-bold">00:00:00</span>
                 </div>
-                <button id="btn-mute-desktop" onclick="toggleMute()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95 group" title="Ativar/Desativar Som do Sistema">
+                <button id="btn-mute-desktop" aria-label="Alternar Som" onclick="toggleMute()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 hover:bg-white/10 transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] active:scale-95 group" title="Ativar/Desativar Som do Sistema">
                     <i class="fa-solid fa-volume-high text-[#d4af37] transition-colors"></i>
                 </button>
                 <div class="flex items-center gap-4 border-l border-white/10 pl-5">
@@ -319,10 +341,10 @@
                     <span id="system-clock-mobile" class="text-[0.65rem] text-slate-300 font-mono tracking-widest font-bold">00:00</span>
                     <p class="text-[0.55rem] text-emerald-400/80 font-bold tracking-widest uppercase flex items-center gap-1 mt-0.5"><span class="w-1 h-1 rounded-full bg-emerald-400 block"></span> Online</p>
                 </div>
-                <button id="btn-mute-mobile" onclick="toggleMute()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 active:scale-95 group">
+                <button id="btn-mute-mobile" aria-label="Alternar Som" onclick="toggleMute()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 active:scale-95 group">
                     <i class="fa-solid fa-volume-high text-[0.65rem] sm:text-[0.7rem] text-[#d4af37] transition-colors"></i>
                 </button>
-                <button id="btn-mobile-menu" onclick="toggleMobileMenu()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#d4af37]/10 flex items-center justify-center border border-[#d4af37]/30 active:scale-95 text-[#d4af37] transition-all">
+                <button id="btn-mobile-menu" aria-label="Menu" onclick="toggleMobileMenu()" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#d4af37]/10 flex items-center justify-center border border-[#d4af37]/30 active:scale-95 text-[#d4af37] transition-all">
                     <i class="fa-solid fa-bars text-base sm:text-lg"></i>
                 </button>
             </div>
@@ -346,7 +368,7 @@
                     <label class="block text-[0.65rem] font-bold text-slate-400 mb-1.5 tracking-widest uppercase">Número do CNPJ</label>
                     <div class="flex gap-2">
                         <input type="text" id="input-cnpj" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 font-mono text-xs lg:text-sm" readonly>
-                        <button onclick="gerarCNPJ()" class="bg-[#d4af37] text-black px-4 py-2.5 lg:py-3 rounded-xl font-bold hover:bg-[#b5952f] transition-all hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] active:scale-95 flex items-center justify-center"><i class="fa-solid fa-rotate"></i></button>
+                        <button aria-label="Gerar CNPJ Aleatório" onclick="gerarCNPJ()" class="bg-[#d4af37] text-black px-4 py-2.5 lg:py-3 rounded-xl font-bold hover:bg-[#b5952f] transition-all hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] active:scale-95 flex items-center justify-center"><i class="fa-solid fa-rotate"></i></button>
                     </div>
                 </div>
                 <div class="space-y-4">
@@ -437,8 +459,10 @@
             </div>
 
             <div class="flex flex-col gap-3 mt-4 mb-8 lg:mb-4">
-                <button onclick="downloadJPG('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md"><i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Salvar Cópia Local (JPG)</button>
-                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95"><i class="fa-brands fa-discord text-lg lg:text-xl"></i> Efetivar Registro & Discord</button>
+                <!-- Botão Secundário UI/UX aprimorado -->
+                <button onclick="downloadJPG('documento-pdf', 'btn-pdf', 'CNPJ')" id="btn-pdf" class="w-full bg-black/40 hover:bg-white/10 border border-white/10 hover:border-white/30 text-slate-300 hover:text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider active:scale-95 backdrop-blur-md"><i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Salvar Cópia Local (JPG)</button>
+                <!-- Botão Primário em Destaque -->
+                <button onclick="enviarDiscordCNPJ()" id="btn-discord" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-extrabold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95"><i class="fa-brands fa-discord text-lg lg:text-xl"></i> Efetivar Registro & Discord</button>
             </div>
         </aside>
 
@@ -604,10 +628,10 @@
             </div>
 
             <div class="flex flex-col gap-3 mt-2 mb-8 lg:mb-4">
-                <button onclick="downloadJPG('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider hover:shadow-lg active:scale-95 backdrop-blur-md">
+                <button onclick="downloadJPG('documento-pdf-porte', 'btn-pdf-porte', 'PORTE')" id="btn-pdf-porte" class="w-full bg-black/40 hover:bg-white/10 border border-white/10 hover:border-white/30 text-slate-300 hover:text-white font-bold py-3 lg:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-[0.75rem] lg:text-sm uppercase tracking-wider active:scale-95 backdrop-blur-md">
                     <i class="fa-solid fa-file-arrow-down text-base lg:text-lg"></i> Gerar Documento (JPG)
                 </button>
-                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95">
+                <button onclick="enviarDiscordPorte()" id="btn-discord-porte" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-extrabold py-3.5 lg:py-4 rounded-xl shadow-[0_4px_20px_rgba(88,101,242,0.4)] hover:shadow-[0_8px_30px_rgba(88,101,242,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-[0.8rem] lg:text-[0.9rem] uppercase tracking-wider active:scale-95">
                     <i class="fa-brands fa-discord text-lg lg:text-xl"></i> Efetivar Registro & Discord
                 </button>
             </div>
@@ -750,7 +774,7 @@
                             <div class="flex gap-2 mb-3">
                                 <input type="text" id="calc-policial-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm" placeholder="Nome do Oficial">
                                 <input type="text" id="calc-policial-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm font-mono" placeholder="Nº Passaporte">
-                                <button onclick="adicionarPolicial()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"><i class="fa-solid fa-plus"></i></button>
+                                <button aria-label="Adicionar Policial" onclick="adicionarPolicial()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="lista-policiais" class="flex flex-wrap gap-2 empty:hidden"></div>
                         </div>
@@ -779,7 +803,7 @@
                             <div class="flex gap-2 mb-3">
                                 <input type="text" id="calc-acomp-nome" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Nome">
                                 <input type="text" id="calc-acomp-id" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="w-1/3 input-premium rounded-xl px-4 py-2.5 lg:py-3 text-xs lg:text-sm disabled:opacity-20 disabled:cursor-not-allowed" placeholder="Passaporte">
-                                <button id="btn-add-acomp" onclick="adicionarAcompanhante()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"><i class="fa-solid fa-plus"></i></button>
+                                <button id="btn-add-acomp" aria-label="Adicionar Acompanhante" onclick="adicionarAcompanhante()" class="bg-white/10 hover:bg-white/20 border border-white/10 text-white px-4 lg:px-5 rounded-xl transition-all disabled:opacity-20 disabled:cursor-not-allowed hover:shadow-[0_0_15px_rgba(255,255,255,0.2)]"><i class="fa-solid fa-plus"></i></button>
                             </div>
                             <div id="lista-acompanhantes" class="flex flex-wrap gap-2 empty:hidden"></div>
                         </div>
@@ -793,7 +817,7 @@
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-5 lg:mb-6 border-b border-white/5 pb-3 relative z-10">
                         <h3 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest flex items-center gap-2"><i class="fa-solid fa-file-invoice-dollar"></i> Resultado Judicial</h3>
                         <div class="flex items-center gap-3 lg:gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                            <button onclick="limparCalculadora()" class="text-slate-500 hover:text-red-400 transition-colors text-[0.6rem] lg:text-[0.65rem] uppercase tracking-widest font-bold flex items-center gap-1.5 px-2 py-1 bg-black/20 rounded-lg sm:bg-transparent sm:rounded-none"><i class="fa-solid fa-trash-can"></i> Limpar Dossiê</button>
+                            <button onclick="limparCalculadora(true)" class="text-slate-500 hover:text-red-400 transition-colors text-[0.6rem] lg:text-[0.65rem] uppercase tracking-widest font-bold flex items-center gap-1.5 px-2 py-1 bg-black/20 rounded-lg sm:bg-transparent sm:rounded-none"><i class="fa-solid fa-trash-can"></i> Limpar Dossiê</button>
                             <span id="badge-status-pena" class="bg-white/10 text-white border border-white/10 text-[0.6rem] lg:text-[0.65rem] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest shadow-sm whitespace-nowrap">Aguardando Lançamento</span>
                         </div>
                     </div>
@@ -858,10 +882,12 @@
 
                 <!-- Botões de Ação -->
                 <div class="flex flex-col gap-3 lg:gap-4 shrink-0 mt-1 lg:mt-2 mb-6 lg:mb-0">
-                    <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3.5 lg:py-4 rounded-xl transition-all flex items-center justify-center gap-2 lg:gap-3 text-[0.7rem] lg:text-xs uppercase tracking-widest hover:shadow-lg active:scale-95 backdrop-blur-md">
+                    <!-- Botão Secundário UI/UX -->
+                    <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-black/40 hover:bg-white/10 border border-white/10 hover:border-white/30 text-slate-300 hover:text-white font-bold py-3.5 lg:py-4 rounded-xl transition-all flex items-center justify-center gap-2 lg:gap-3 text-[0.7rem] lg:text-xs uppercase tracking-widest active:scale-95 backdrop-blur-md">
                         <i class="fa-regular fa-copy text-base lg:text-lg"></i> Copiar Extrato Local (Clipboard)
                     </button>
-                    <button onclick="enviarDiscordCalc()" id="btn-discord-calc" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-bold py-4 lg:py-5 rounded-xl shadow-[0_0_20px_rgba(88,101,242,0.3)] lg:shadow-[0_0_25px_rgba(88,101,242,0.3)] hover:shadow-[0_0_35px_rgba(88,101,242,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 lg:gap-3 text-xs lg:text-sm uppercase tracking-widest active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
+                    <!-- Botão Primário em Destaque -->
+                    <button onclick="enviarDiscordCalc()" id="btn-discord-calc" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-extrabold py-4 lg:py-5 rounded-xl shadow-[0_0_20px_rgba(88,101,242,0.3)] lg:shadow-[0_0_25px_rgba(88,101,242,0.3)] hover:shadow-[0_0_35px_rgba(88,101,242,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 lg:gap-3 text-xs lg:text-sm uppercase tracking-widest active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
                         <i class="fa-brands fa-discord text-xl lg:text-2xl"></i> Transmitir Relatório Oficial
                     </button>
                 </div>
@@ -875,6 +901,86 @@
         const CONFIG = {
             SHEET_URL: "https://script.google.com/macros/s/AKfycbwdPwwk4TF_MiyJ642Jk-4nUOqSohfWHlduhUhhbggUAgPmR3uHmDWPQdEJilmqqr6Vsw/exec"
         };
+
+        // ==================== AUTO-SAVE (PERSISTÊNCIA) & VALIDAÇÃO VISUAL UX ====================
+        const formIdsToSave = [
+            'input-cnpj', 'input-razao', 'input-fantasia', 'input-endereco', 'input-cnae', 'input-natureza', 'input-rep-nome', 'input-rep-cpf', 'input-rep-data', 'input-adv-nome', 'input-adv-id',
+            'input-porte-nome', 'input-porte-passaporte', 'input-porte-nasc', 'input-porte-tel', 'input-porte-civil', 'input-porte-profissao', 'input-porte-filhos', 'input-porte-casas', 'input-porte-carros', 'input-porte-salario', 'input-porte-adv-nome', 'input-porte-adv-cargo', 'input-porte-adv-oab',
+            'calc-infrator-nome', 'calc-infrator-passaporte', 'calc-descricao', 'calc-advogado-nome', 'calc-advogado-id', 'calc-policial-nome', 'calc-policial-id', 'calc-acomp-nome', 'calc-acomp-id'
+        ];
+
+        function saveDraft() {
+            let draft = {};
+            formIdsToSave.forEach(id => {
+                const el = document.getElementById(id);
+                if(el && el.value) draft[id] = el.value;
+            });
+            draft.crimes = selectedCrimesForCalc.map(c => c.id);
+            draft.policiais = oficiaisEnvolvidos;
+            draft.acompanhantes = acompanhantesEnvolvidos;
+            
+            // Checkboxes Calc
+            draft.checkAdvogado = document.getElementById('red-advogado') ? document.getElementById('red-advogado').checked : true;
+            draft.checkPrimario = document.getElementById('red-primario') ? document.getElementById('red-primario').checked : false;
+            draft.checkConfesso = document.getElementById('red-confesso') ? document.getElementById('red-confesso').checked : false;
+            draft.checkFianca = document.getElementById('red-fianca') ? document.getElementById('red-fianca').checked : false;
+            
+            // Radios CNPJ
+            const tipoRepChecked = document.querySelector('input[name="tipo_rep"]:checked');
+            if(tipoRepChecked) draft.tipoRep = tipoRepChecked.value;
+
+            localStorage.setItem('rp_juridico_draft', JSON.stringify(draft));
+        }
+
+        function loadDraft() {
+            try {
+                let draftStr = localStorage.getItem('rp_juridico_draft');
+                if(!draftStr) return;
+                let draft = JSON.parse(draftStr);
+                
+                formIdsToSave.forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el && draft[id] !== undefined) el.value = draft[id];
+                });
+
+                if(draft.policiais) oficiaisEnvolvidos = draft.policiais;
+                if(draft.acompanhantes) acompanhantesEnvolvidos = draft.acompanhantes;
+                if(draft.crimes) selectedCrimesForCalc = codigoPenal.filter(c => draft.crimes.includes(c.id));
+                
+                if(document.getElementById('red-advogado') && draft.checkAdvogado !== undefined) document.getElementById('red-advogado').checked = draft.checkAdvogado;
+                if(document.getElementById('red-primario') && draft.checkPrimario !== undefined) document.getElementById('red-primario').checked = draft.checkPrimario;
+                if(document.getElementById('red-confesso') && draft.checkConfesso !== undefined) document.getElementById('red-confesso').checked = draft.checkConfesso;
+                if(document.getElementById('red-fianca') && draft.checkFianca !== undefined) document.getElementById('red-fianca').checked = draft.checkFianca;
+                
+                if(draft.tipoRep) {
+                    const r = document.querySelector(`input[name="tipo_rep"][value="${draft.tipoRep}"]`);
+                    if(r) r.checked = true;
+                }
+            } catch (e) {
+                console.log("Sem rascunho recuperável.");
+            }
+        }
+
+        // Listener global para salvar o rascunho toda vez que digitar ou selecionar algo
+        document.addEventListener('input', (e) => {
+            if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                saveDraft();
+            }
+        });
+
+        // Efeito visual de erro
+        function highlightError(elementId) {
+            const el = document.getElementById(elementId);
+            if(el) {
+                el.classList.add('input-error');
+                el.focus();
+                // Remove a animação para poder tocar de novo no futuro
+                setTimeout(() => {
+                    el.classList.remove('input-error');
+                }, 500); 
+            }
+        }
+
 
         // ==================== CONTROLE DO MENU MOBILE ====================
         let mobileMenuOpen = false;
@@ -1003,7 +1109,6 @@
 
         // ==================== LÓGICA DE ABAS ====================
         function switchTab(tab) {
-            // Removido o 'cursos' da array
             const allTabs = ['cnpj', 'porte', 'calc'];
             
             allTabs.forEach(t => {
@@ -1013,21 +1118,17 @@
                     view.classList.remove('flex', 'animate-fade-up');
                 }
                 
-                // Remove classe ativa de TODOS os botões
                 document.querySelectorAll(`.btn-nav-${t}`).forEach(btn => {
                     btn.classList.remove('active');
                 });
             });
 
-            // Mostra a tab certa
             const targetView = document.getElementById(`view-${tab}`);
             if (targetView) {
                 targetView.classList.remove('hidden');
-                // Pequeno delay para reativar a animação
                 setTimeout(() => targetView.classList.add('flex', 'animate-fade-up'), 10);
             }
             
-            // Adiciona classe ativa nos botões correspondentes
             document.querySelectorAll(`.btn-nav-${tab}`).forEach(btn => {
                 btn.classList.add('active');
             });
@@ -1042,10 +1143,7 @@
                 }, 100);
             }
 
-            // Fecha o menu mobile se estiver aberto
-            if(mobileMenuOpen) {
-                toggleMobileMenu();
-            }
+            if(mobileMenuOpen) toggleMobileMenu();
         }
 
         function formatBRL(value) { return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 }); }
@@ -1088,7 +1186,6 @@
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
-            // Aguarda o navegador repintar a tela no tamanho original (1:1) antes do print
             await new Promise(resolve => setTimeout(resolve, 150));
 
             let nameTarget = namePrefix === 'CNPJ' ? document.getElementById('input-fantasia').value : document.getElementById('input-porte-nome').value;
@@ -1143,19 +1240,21 @@
             document.getElementById('doc-adv-assinatura').innerText = advNome;
             document.getElementById('doc-adv-id-rodape').innerText = document.getElementById('input-adv-id').value || '___';
 
-            const tipoRep = document.querySelector('input[name="tipo_rep"]:checked').value;
-            if(tipoRep === 'Representante') {
-                document.getElementById('box-rep').innerHTML = '<i class="fa-solid fa-xmark text-[12px]"></i>';
-                document.getElementById('box-pre').innerHTML = '';
-            } else {
-                document.getElementById('box-rep').innerHTML = '';
-                document.getElementById('box-pre').innerHTML = '<i class="fa-solid fa-xmark text-[12px]"></i>';
+            const tipoRep = document.querySelector('input[name="tipo_rep"]:checked');
+            if(tipoRep) {
+                if(tipoRep.value === 'Representante') {
+                    document.getElementById('box-rep').innerHTML = '<i class="fa-solid fa-xmark text-[12px]"></i>';
+                    document.getElementById('box-pre').innerHTML = '';
+                } else {
+                    document.getElementById('box-rep').innerHTML = '';
+                    document.getElementById('box-pre').innerHTML = '<i class="fa-solid fa-xmark text-[12px]"></i>';
+                }
             }
         }
 
         async function enviarDiscordCNPJ() {
             const webhookUrl = document.getElementById('input-webhook').value.trim();
-            if(!webhookUrl) return showNotification('Insira o link do Webhook do Discord.', 'error');
+            if(!webhookUrl) { highlightError('input-webhook'); return showNotification('Insira o link do Webhook do Discord.', 'error'); }
             
             const cnpjNum = document.getElementById('input-cnpj').value;
             const razao = document.getElementById('input-razao').value.trim();
@@ -1168,14 +1267,18 @@
             const advNome = document.getElementById('input-adv-nome').value.trim();
             const advId = document.getElementById('input-adv-id').value.trim();
 
-            if(!razao) return showNotification('A Razão Social é obrigatória.', 'error');
-            if(!fantasia) return showNotification('O Nome Fantasia é obrigatório.', 'error');
-            if(!endereco) return showNotification('O Endereço Sede é obrigatório.', 'error');
-            if(!cnae) return showNotification('Selecione a Atividade (CNAE).', 'error');
-            if(!natureza) return showNotification('Selecione a Natureza Jurídica.', 'error');
-            if(!repNome) return showNotification('Nome do Representante é obrigatório.', 'error');
-            if(!repCpf) return showNotification('Passaporte do Representante é obrigatório.', 'error');
-            if(!advNome || !advId) return showNotification('Dados do Advogado Responsável (Nome e OAB) são obrigatórios.', 'error');
+            if(!razao) { highlightError('input-razao'); return showNotification('A Razão Social é obrigatória.', 'error'); }
+            if(!fantasia) { highlightError('input-fantasia'); return showNotification('O Nome Fantasia é obrigatório.', 'error'); }
+            if(!endereco) { highlightError('input-endereco'); return showNotification('O Endereço Sede é obrigatório.', 'error'); }
+            if(!cnae) { highlightError('input-cnae'); return showNotification('Selecione a Atividade (CNAE).', 'error'); }
+            if(!natureza) { highlightError('input-natureza'); return showNotification('Selecione a Natureza Jurídica.', 'error'); }
+            if(!repNome) { highlightError('input-rep-nome'); return showNotification('Nome do Representante é obrigatório.', 'error'); }
+            if(!repCpf) { highlightError('input-rep-cpf'); return showNotification('Passaporte do Representante é obrigatório.', 'error'); }
+            if(!advNome || !advId) { 
+                if(!advNome) highlightError('input-adv-nome');
+                if(!advId) highlightError('input-adv-id');
+                return showNotification('Dados do Advogado Responsável (Nome e OAB) são obrigatórios.', 'error'); 
+            }
 
             const btn = document.getElementById('btn-discord');
             const originalText = btn.innerHTML;
@@ -1188,7 +1291,6 @@
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
-            // Aguarda o navegador repintar a tela no tamanho original (1:1)
             await new Promise(resolve => setTimeout(resolve, 150));
 
             const filename = `CNPJ_${fantasia.replace(/\s+/g, '_').toUpperCase()}.jpg`;
@@ -1222,18 +1324,21 @@
                 const response = await fetch(webhookUrl, { method: 'POST', body: formData });
                 if (response.ok) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> Registro Concluído';
-                    btn.classList.replace('bg-[#5865F2]', 'bg-emerald-500');
+                    btn.classList.replace('from-[#5865F2]', 'from-emerald-600');
+                    btn.classList.replace('to-[#4752c4]', 'to-emerald-500');
                     showNotification("Registro CNPJ efetivado com sucesso.", "success");
+                    localStorage.removeItem('rp_juridico_draft'); // Limpa rascunho em sucesso
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Erro de Conexão';
-                btn.classList.replace('bg-[#5865F2]', 'bg-red-500');
+                btn.classList.replace('from-[#5865F2]', 'from-red-600');
+                btn.classList.replace('to-[#4752c4]', 'to-red-500');
                 showNotification("Falha ao comunicar com o servidor (Discord).", "error");
             } finally {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
-                    btn.classList.remove('loading-pdf', 'bg-emerald-500', 'bg-red-500');
-                    btn.classList.add('bg-[#5865F2]');
+                    btn.classList.remove('loading-pdf', 'from-emerald-600', 'to-emerald-500', 'from-red-600', 'to-red-500');
+                    btn.classList.add('from-[#5865F2]', 'to-[#4752c4]');
                 }, 4000);
                 element.style.transform = oldTransform;
                 element.style.marginBottom = oldMargin;
@@ -1280,7 +1385,7 @@
 
         async function enviarDiscordPorte() {
             const webhookUrl = document.getElementById('input-webhook-porte').value.trim();
-            if(!webhookUrl) return showNotification('Insira o link do Webhook do Discord.', 'error');
+            if(!webhookUrl) { highlightError('input-webhook-porte'); return showNotification('Insira o link do Webhook do Discord.', 'error'); }
 
             const cliNome = document.getElementById('input-porte-nome').value.trim();
             const cliPass = document.getElementById('input-porte-passaporte').value.trim();
@@ -1290,12 +1395,16 @@
             const advNome = document.getElementById('input-porte-adv-nome').value.trim();
             const advId = document.getElementById('input-porte-adv-oab').value.trim();
 
-            if(!cliNome) return showNotification('O Nome Completo do requerente é obrigatório.', 'error');
-            if(!cliPass) return showNotification('O Passaporte do requerente é obrigatório.', 'error');
-            if(cliNasc.length < 10) return showNotification('Preencha a Data de Nascimento completa.', 'error');
-            if(!cliTel) return showNotification('O Telefone de contato é obrigatório.', 'error');
-            if(!cliSalario) return showNotification('A Renda Mensal Declarada é obrigatória.', 'error');
-            if(!advNome || !advId) return showNotification('Dados da Autoridade Emissora (Nome e OAB) são obrigatórios.', 'error');
+            if(!cliNome) { highlightError('input-porte-nome'); return showNotification('O Nome Completo do requerente é obrigatório.', 'error'); }
+            if(!cliPass) { highlightError('input-porte-passaporte'); return showNotification('O Passaporte do requerente é obrigatório.', 'error'); }
+            if(cliNasc.length < 10) { highlightError('input-porte-nasc'); return showNotification('Preencha a Data de Nascimento completa.', 'error'); }
+            if(!cliTel) { highlightError('input-porte-tel'); return showNotification('O Telefone de contato é obrigatório.', 'error'); }
+            if(!cliSalario) { highlightError('input-porte-salario'); return showNotification('A Renda Mensal Declarada é obrigatória.', 'error'); }
+            if(!advNome || !advId) {
+                if(!advNome) highlightError('input-porte-adv-nome');
+                if(!advId) highlightError('input-porte-adv-oab');
+                return showNotification('Dados da Autoridade Emissora (Nome e OAB) são obrigatórios.', 'error');
+            }
 
             const btn = document.getElementById('btn-discord-porte');
             const originalText = btn.innerHTML;
@@ -1308,13 +1417,11 @@
             element.style.transform = 'scale(1)';
             element.style.marginBottom = '0';
 
-            // Aguarda o navegador repintar a tela no tamanho original (1:1)
             await new Promise(resolve => setTimeout(resolve, 150));
 
             const filename = `PORTE_${cliNome.replace(/\s+/g, '_').toUpperCase()}.jpg`;
             idPorteAtual = gerarIdPorte();
 
-            // PLANILHA: Substituindo a data_nasc pelo ID gerado
             salvarNaPlanilha({
                 tipo: "PORTE",
                 nome: cliNome,
@@ -1335,15 +1442,15 @@
                 const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false, windowWidth: 794 });
                 const imgBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.98));
 
-                // CRIADO O EMBED DO DISCORD PARA O PORTE
+                // EMBED DO DISCORD PARA PORTE (Em lista - inline: false)
                 const embed = {
                     title: `🔫 Concessão de Porte de Arma | ${idPorteAtual}`,
-                    color: 3066993, // Verde institucional
+                    color: 3066993, 
                     description: `**Requerente:** ${cliNome} (Passaporte: ${cliPass})\n**Telefone:** ${cliTel}`,
                     fields: [
                         { name: "📋 Processos e Antecedentes", value: "NÃO POSSUI", inline: false },
-                        { name: "⚖️ Resultado Jurídico", value: "✅ Aprovado", inline: true },
-                        { name: "👨‍⚖️ Autoridade Emissora", value: `${advNome}\nOAB: ${advId}`, inline: true }
+                        { name: "⚖️ Resultado Jurídico", value: "✅ Aprovado", inline: false },
+                        { name: "👨‍⚖️ Autoridade Emissora", value: `${advNome}\nOAB: ${advId}`, inline: false }
                     ],
                     image: { url: `attachment://${filename}` },
                     footer: { text: "Tribunal de Justiça - Registro Oficial", icon_url: "https://i.imgur.com/DPg5b1B.png" },
@@ -1361,18 +1468,21 @@
                 const response = await fetch(webhookUrl, { method: 'POST', body: formData });
                 if (response.ok) {
                     btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> Registro Concluído';
-                    btn.classList.replace('bg-[#5865F2]', 'bg-emerald-500');
+                    btn.classList.replace('from-[#5865F2]', 'from-emerald-600');
+                    btn.classList.replace('to-[#4752c4]', 'to-emerald-500');
                     showNotification("Avaliação Psicológica de Porte registrada.", "success");
+                    localStorage.removeItem('rp_juridico_draft'); // Limpa o rascunho em sucesso
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Erro de Conexão';
-                btn.classList.replace('bg-[#5865F2]', 'bg-red-500');
+                btn.classList.replace('from-[#5865F2]', 'from-red-600');
+                btn.classList.replace('to-[#4752c4]', 'to-red-500');
                 showNotification("Falha ao comunicar com o servidor (Discord).", "error");
             } finally {
                 setTimeout(() => {
                     btn.innerHTML = originalText;
-                    btn.classList.remove('loading-pdf', 'bg-emerald-500', 'bg-red-500');
-                    btn.classList.add('bg-[#5865F2]');
+                    btn.classList.remove('loading-pdf', 'from-emerald-600', 'to-emerald-500', 'from-red-600', 'to-red-500');
+                    btn.classList.add('from-[#5865F2]', 'to-[#4752c4]');
                 }, 4000);
                 element.style.transform = oldTransform;
                 element.style.marginBottom = oldMargin;
@@ -1481,11 +1591,12 @@
             else selectedCrimesForCalc.push(crime);
             renderCrimes(document.getElementById('crimeSearchInput').value);
             updateCalculadoraUI();
+            saveDraft(); // Auto save
         }
 
         document.getElementById('crimeSearchInput').addEventListener('input', (e) => { renderCrimes(e.target.value); });
 
-        function limparCalculadora() {
+        function limparCalculadora(manterRascunho = false) {
             selectedCrimesForCalc = [];
             oficiaisEnvolvidos = [];
             acompanhantesEnvolvidos = [];
@@ -1509,7 +1620,11 @@
             renderPoliciais();
             renderAcompanhantes();
             updateCalculadoraUI();
-            showNotification("Calculadora limpa para novo uso.", "success");
+
+            if(manterRascunho) {
+                localStorage.removeItem('rp_juridico_draft');
+                showNotification("Calculadora limpa para novo uso.", "success");
+            }
         }
 
         function updateCalculadoraUI() {
@@ -1522,13 +1637,11 @@
             const alerta0Meses = document.getElementById('alerta-0-meses');
             const badgeStatus = document.getElementById('badge-status-pena');
             
-            // Fiança Dinâmica
             const redFianca = document.getElementById('red-fianca');
             const labelFiancaBox = document.getElementById('label-fianca');
             const previewFianca = document.getElementById('preview-fianca');
             const avisoFianca = document.getElementById('aviso-fianca');
             
-            // Lógica habilitar/desabilitar Advogados e Acompanhantes
             const checkAdvogado = document.getElementById('red-advogado').checked;
             const inputAdvNome = document.getElementById('calc-advogado-nome');
             const inputAdvId = document.getElementById('calc-advogado-id');
@@ -1602,7 +1715,6 @@
             valMultaEl.innerText = formatBRL(totalMulta);
             valPenaOriginal.innerText = `${totalMeses}m`;
 
-            // Lógica de Fiança UI
             if (isInafiancavel) {
                 redFianca.disabled = true;
                 redFianca.checked = false;
@@ -1622,7 +1734,6 @@
                 }
             }
 
-            // Lógica de 0 Meses (Agravantes Isolados)
             if (totalMeses === 0) {
                 valPenaEl.innerText = "BLOQUEADO";
                 alerta0Meses.classList.remove('hidden');
@@ -1633,7 +1744,6 @@
 
             alerta0Meses.classList.add('hidden');
 
-            // Cálculos de Redução com tratamento float-point seguro
             let reducaoPercentual = 0;
             if (checkAdvogado) reducaoPercentual += 0.30;
             if (document.getElementById('red-primario').checked) reducaoPercentual += 0.20;
@@ -1651,6 +1761,7 @@
             }
 
             valPenaEl.innerText = `${mesesFinais} Meses`;
+            saveDraft(); // Auto save status das calculadoras
         }
 
         // ================== LÓGICA OFICIAIS E ACOMPANHANTES ==================
@@ -1665,11 +1776,13 @@
             nomeInput.value = '';
             idInput.value = '';
             renderPoliciais();
+            saveDraft(); // Auto save
         }
 
         function removerPolicial(index) {
             oficiaisEnvolvidos.splice(index, 1);
             renderPoliciais();
+            saveDraft(); // Auto save
         }
 
         function renderPoliciais() {
@@ -1697,11 +1810,13 @@
             nomeInput.value = '';
             idInput.value = '';
             renderAcompanhantes();
+            saveDraft(); // Auto save
         }
 
         function removerAcompanhante(index) {
             acompanhantesEnvolvidos.splice(index, 1);
             renderAcompanhantes();
+            saveDraft(); // Auto save
         }
 
         function renderAcompanhantes() {
@@ -1826,22 +1941,26 @@
         }
 
         async function enviarDiscordCalc() {
-            // VALIDAÇÃO RIGOROSA
+            // VALIDAÇÃO RIGOROSA UX
             let infrator = document.getElementById('calc-infrator-nome').value.trim().toUpperCase();
             let infratorPassaporte = document.getElementById('calc-infrator-passaporte').value.trim().toUpperCase();
             let advogadoNome = document.getElementById('calc-advogado-nome').value.trim().toUpperCase();
             let advogadoId = document.getElementById('calc-advogado-id').value.trim().toUpperCase();
 
-            if (!mdtImageFile) return showNotification('Anexe a imagem do MDT para continuar.', 'error');
-            if (!infrator) return showNotification('Preencha o Nome do Acusado.', 'error');
-            if (!infratorPassaporte) return showNotification('Preencha o Passaporte do Acusado.', 'error');
-            if (oficiaisEnvolvidos.length === 0) return showNotification('Adicione pelo menos 1 Oficial envolvido.', 'error');
+            if (!mdtImageFile) { highlightError('mdt-dropzone'); return showNotification('Anexe a imagem do MDT para continuar.', 'error'); }
+            if (!infrator) { highlightError('calc-infrator-nome'); return showNotification('Preencha o Nome do Acusado.', 'error'); }
+            if (!infratorPassaporte) { highlightError('calc-infrator-passaporte'); return showNotification('Preencha o Passaporte do Acusado.', 'error'); }
+            if (oficiaisEnvolvidos.length === 0) { highlightError('calc-policial-nome'); return showNotification('Adicione pelo menos 1 Oficial envolvido.', 'error'); }
             
             if (document.getElementById('red-advogado').checked) {
-                if (!advogadoNome || !advogadoId) return showNotification('Preencha os dados obrigatórios da Defesa Legal (Nome e OAB).', 'error');
+                if (!advogadoNome || !advogadoId) {
+                    if(!advogadoNome) highlightError('calc-advogado-nome');
+                    if(!advogadoId) highlightError('calc-advogado-id');
+                    return showNotification('Preencha os dados obrigatórios da Defesa Legal (Nome e OAB).', 'error');
+                }
             }
 
-            if (selectedCrimesForCalc.length === 0) return showNotification('Selecione pelo menos um crime do Código Penal.', 'error');
+            if (selectedCrimesForCalc.length === 0) { highlightError('crimeSearchInput'); return showNotification('Selecione pelo menos um crime do Código Penal.', 'error'); }
             if (document.getElementById('calc-valor-pena').innerText === "BLOQUEADO") return showNotification('Remova o bloqueio de agravantes isolados.', 'error');
 
             const btn = document.getElementById('btn-discord-calc');
@@ -1934,7 +2053,7 @@
                     btn.classList.replace('to-[#4752c4]', 'to-emerald-500');
                     btn.classList.replace('shadow-[0_0_25px_rgba(88,101,242,0.3)]', 'shadow-[0_0_25px_rgba(16,185,129,0.3)]');
                     showNotification("Ficha de custódia protocolada com sucesso.", "success");
-                    limparCalculadora(); // Auto Limpeza após envio
+                    limparCalculadora(true); // Auto Limpeza e apaga o rascunho
                 } else throw new Error();
             } catch (error) {
                 btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-xl"></i> Falha de Conexão';
@@ -1958,27 +2077,22 @@
             document.getElementById('cookie-banner').classList.add('translate-y-[150%]');
         }
 
-        // Relógio do Cabeçalho
         setInterval(() => {
             const now = new Date();
             const timeString = now.toLocaleTimeString('pt-BR');
             const dateString = now.toLocaleDateString('pt-BR');
-            // Desktop
             const clockDesktop = document.getElementById('system-clock-desktop');
             if(clockDesktop) clockDesktop.innerText = `${timeString} | ${dateString}`;
-            // Mobile
             const clockMobile = document.getElementById('system-clock-mobile');
             if(clockMobile) clockMobile.innerText = `${timeString.substring(0,5)}`;
         }, 1000);
 
-        // Subsituição do window.onload para não travar nos iFrames
         document.addEventListener('DOMContentLoaded', () => {
             const loader = document.getElementById('loading-screen');
             const banner = document.getElementById('cookie-banner');
             const loadingText = document.getElementById('loading-text');
             const progressBar = document.getElementById('loading-progress');
 
-            // Passos da animação da barra de progresso (Textos Institucionais)
             const bootSteps = [
                 { text: "Carregando Módulos do Sistema...", progress: 30, time: 400 },
                 { text: "Autenticando Certificado Digital...", progress: 60, time: 1200 },
@@ -1987,7 +2101,6 @@
             ];
 
             if (!localStorage.getItem('rp_juridico_visited')) {
-                // Primeira visita: Loading completo de 3 segundos
                 bootSteps.forEach(step => {
                     setTimeout(() => {
                         if(loadingText) loadingText.innerText = step.text;
@@ -2004,7 +2117,6 @@
                     }, 1000); 
                 }, 3200); 
             } else {
-                // Visitas subsequentes: Fast Boot (1 segundo)
                 if(progressBar) progressBar.style.width = '100%';
                 if(loadingText) loadingText.innerText = "Sessão Restaurada";
                 
@@ -2024,14 +2136,19 @@
 
             gerarCNPJ();
             
-            // Pequeno delay para garantir que as fontes carregaram antes de escalar
+            // Tenta restaurar rascunhos salvos
+            loadDraft();
+            
             setTimeout(() => {
                 ajustarEscala('preview-area', 'documento-pdf');
                 ajustarEscala('preview-area-porte', 'documento-pdf-porte');
             }, 300);
             
+            updateDoc();
             updatePorteDoc();
             renderCrimes();
+            renderPoliciais();
+            renderAcompanhantes();
             updateCalculadoraUI();
         });
         
