@@ -229,29 +229,27 @@
 
         /* ================= ESTILOS DO TOUR (UX/UI PREMIUM HOLE-PUNCH) ================= */
         
-        /* 1. Overlay Escuro Geral (Para o HUB ou Sem Foco) */
+        /* Overlay Base - Responsável pelo fundo escuro em todo o sistema. A "mágica" do clip-path vaza o buraco. */
         #tour-hub-overlay {
             position: fixed; inset: 0; z-index: 99997;
-            background: rgba(5, 5, 5, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+            background: rgba(5, 5, 5, 0.88); /* Mais escuro para destacar mais */
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 0; pointer-events: none; 
+            transition: opacity 0.4s ease;
         }
         #tour-hub-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* 2. Moldura "Furo na Tela" (Highlight Perfeito) */
+        /* Moldura de Foco - Envolve a parte que não recebe blur/sombra */
         #tour-highlight-frame {
             position: fixed;
             z-index: 99998;
             border: 2px solid #d4af37;
             border-radius: 12px;
-            /* A mágica acontece aqui: uma sombra preta gigantesca cobre a tela toda, mas o centro fica 100% transparente */
-            box-shadow: 0 0 0 9999px rgba(5, 5, 5, 0.9), inset 0 0 20px rgba(212, 175, 55, 0.2);
-            pointer-events: none; /* Impede cliques durante o tour, mas revela o conteúdo puro */
+            box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(212, 175, 55, 0.3);
+            pointer-events: none; /* Deixa você interagir ou bloquear através do JS */
             opacity: 0;
-            transition: top 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                        left 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                        width 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                        height 0.4s cubic-bezier(0.25, 1, 0.5, 1),
-                        opacity 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         #tour-hub, #tour-tooltip {
@@ -293,7 +291,7 @@
 
     <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-[200] flex flex-col gap-3 pointer-events-none w-[90%] sm:w-auto min-w-[300px] max-w-[400px]"></div>
 
-    <!-- Créditos - Flutuante Discreto -->
+    <!-- Créditos -->
     <div class="fixed bottom-3 right-3 lg:bottom-4 lg:right-4 z-50 pointer-events-auto">
         <a href="https://www.instagram.com/jv.criativo/" target="_blank" aria-label="Créditos do Desenvolvedor" class="flex items-center gap-2 glass-card px-3 py-1.5 lg:px-4 lg:py-2 rounded-full hover:border-[#d4af37]/50 hover:bg-black/60 transition-all text-[0.6rem] lg:text-[0.65rem] text-slate-400 hover:text-[#d4af37] group shadow-lg">
             <span>Desenvolvido por <strong class="text-slate-300 group-hover:text-white transition-colors">@cvitorsp</strong></span>
@@ -408,7 +406,7 @@
         <!-- Footer -->
         <div class="px-5 py-4 bg-white/[0.02] border-t border-white/5 rounded-b-[1.25rem] flex justify-between items-center">
             <button onclick="voltarParaHub()" class="text-slate-400 hover:text-white font-bold text-[0.65rem] uppercase tracking-widest flex items-center gap-2 transition-colors">
-                <i class="fa-solid fa-arrow-left"></i> Voltar ao Menu
+                <i class="fa-solid fa-arrow-left"></i> Menu
             </button>
             <div class="flex gap-2">
                 <button id="tour-btn-prev" onclick="tourAnterior()" class="bg-[#1e293b] hover:bg-[#334155] border border-white/5 text-white px-5 py-2.5 rounded-xl font-bold text-[0.65rem] uppercase tracking-widest transition-colors">Anterior</button>
@@ -2143,6 +2141,19 @@
 
         // ==================== LÓGICA DO TOUR DE INTRODUÇÃO (HUB E PASSOS) ====================
         
+        // Criei a etapa final como constante para não repetir código, já que ela aparece em todos os módulos
+        const stepFinalizar = {
+            target: null, // Fecha o tour com a imagem geral centralizada
+            title: "Tudo é Registrado!",
+            content: `
+                <p class="text-center mb-3">Lembre-se: <strong class="text-[#d4af37]">Nenhum trabalho passa despercebido.</strong> Todas as emissões geram logs de produtividade no painel geral.</p>
+                <div class="rounded-xl overflow-hidden border-2 border-white/10 shadow-lg mt-2">
+                    <img src="https://i.imgur.com/gScdSxU.png" alt="Log de Desempenho" class="w-full h-auto object-cover">
+                </div>
+                <p class="text-center text-[#d4af37] font-bold mt-3 text-lg">Módulo Finalizado!</p>
+            `
+        };
+
         // Estrutura modular para escolher o que aprender
         const tourModules = {
             cnpj: [
@@ -2177,85 +2188,122 @@
                         </ul>
                     `
                 },
-                {
-                    target: null, // Fecha o tour com a imagem geral
-                    title: "Tudo é Registrado!",
-                    content: `
-                        <p class="text-center mb-3">Lembre-se: <strong class="text-[#d4af37]">Nenhum trabalho passa despercebido.</strong> Todas as emissões geram logs de produtividade no painel geral.</p>
-                        <div class="rounded-xl overflow-hidden border-2 border-white/10 shadow-lg">
-                            <img src="https://i.imgur.com/gScdSxU.png" alt="Log de Desempenho" class="w-full h-auto object-cover">
-                        </div>
-                        <p class="text-center text-[#d4af37] font-bold mt-3 text-lg">Módulo Finalizado!</p>
-                    `
-                }
+                stepFinalizar
             ],
             porte: [
                 {
                     target: '#tour-porte-regras',
                     title: "Regras de Ouro",
                     content: `
-                        <p>A emissão de Porte de Armas é um processo sensível e rigoroso.</p>
-                        <p class="text-slate-400 mt-2">Leia com atenção o painel vermelho destacado: <strong class="text-white">Ficha limpa é inegociável</strong> e termos como <strong class="text-red-400">"Facção"</strong> invalidam e geram advertência imediata ao advogado.</p>
+                        <p>O porte é um processo minucioso em 3 etapas (Jurídico, Hospital e PF).</p>
+                        <ul class="list-disc pl-4 mt-2 space-y-2 text-slate-300">
+                            <li><strong class="text-white">Ficha limpa obrigatória</strong> (exceto policiais ou administradores).</li>
+                            <li><strong class="text-white">NUNCA</strong> mencione "facção", "gangue" ou similar no processo.</li>
+                        </ul>
                     `
                 },
                 {
                     target: '#tour-porte-dados',
-                    title: "Dados do Requerente",
+                    title: "Etapa 1: Jurídico",
                     content: `
-                        <p>Preencha os dados civis do cliente.</p>
-                        <p class="text-slate-400 mt-2"><i class="fa-solid fa-check text-emerald-400"></i> Certifique-se de perguntar o estado civil atual e conferir a documentação antes de registrar.</p>
+                        <p>Primeiro passo do cliente.</p>
+                        <ul class="list-disc pl-4 mt-2 space-y-1 text-slate-300">
+                            <li>Preencha os dados com atenção.</li>
+                            <li><strong class="text-emerald-400">Taxa da Advocacia:</strong> R$ 1.000.000</li>
+                            <li><strong class="text-[#d4af37]">Depósito no Painel:</strong> R$ 250.000</li>
+                        </ul>
+                        <p class="mt-2 text-xs text-slate-400">Encaminhe a ficha para o Hospital via Discord.</p>
                     `
                 },
                 {
                     target: null,
-                    title: "Custos e Trâmites",
+                    title: "Próximos Passos (Hosp. e PF)",
                     content: `
-                        <p class="text-[#d4af37] font-bold border-b border-white/10 pb-1 mb-2">Resumo Financeiro</p>
-                        <ul class="space-y-2 text-slate-300">
-                            <li><i class="fa-solid fa-dollar-sign text-emerald-400 w-4"></i> <strong class="text-white">Taxa do Advogado:</strong> R$ 1.000.000</li>
-                            <li><i class="fa-solid fa-building-columns text-[#d4af37] w-4"></i> <strong class="text-white">Depósito (Caixa):</strong> R$ 250.000</li>
-                            <li><i class="fa-solid fa-user-doctor text-blue-400 w-4"></i> <strong class="text-white">Psicotécnico (Hospital):</strong> ~R$ 1.500.000</li>
-                            <li><i class="fa-solid fa-shield-halved text-slate-400 w-4"></i> <strong class="text-white">Exame Policial (PF):</strong> R$ 500.000</li>
-                            <li><i class="fa-solid fa-check-double text-emerald-400 w-4"></i> <strong class="text-white">Taxa Final (PF):</strong> R$ 1.500.000</li>
-                        </ul>
+                        <div class="space-y-3 text-slate-300 text-xs">
+                            <div class="bg-white/5 p-3 rounded border border-white/10">
+                                <strong class="text-white block text-sm mb-1"><i class="fa-solid fa-user-doctor text-blue-400"></i> Etapa 2: Hospital (Psicotécnico)</strong>
+                                Valor estimado: R$ 1.500.000. O advogado pode acompanhar o cliente (opcional).
+                            </div>
+                            <div class="bg-white/5 p-3 rounded border border-white/10">
+                                <strong class="text-white block text-sm mb-1"><i class="fa-solid fa-shield-halved text-slate-400"></i> Etapa 3: Polícia Federal</strong>
+                                Acompanhamento obrigatório do advogado. Exame de tiro: R$ 500.000/tentativa. Valor final do processo na PF: R$ 1.500.000.
+                            </div>
+                        </div>
                     `
-                }
+                },
+                stepFinalizar
             ],
             calc: [
                 {
-                    target: '#tour-calc-mdt',
-                    title: "Imagem Comprobatória",
+                    target: null, // Start center
+                    title: "Atribuições do Advogado",
                     content: `
-                        <p>Toda Ficha de Custódia precisa de provas!</p>
-                        <p class="text-slate-400 mt-2">Você <strong class="text-white">deve anexar a imagem do MDT</strong> (ou da apreensão) arrastando-a para cá, clicando ou colando (Ctrl+V).</p>
+                        <div class="bg-black/30 p-3 rounded-lg border border-white/10">
+                            <h4 class="text-[#d4af37] font-bold text-sm uppercase mb-2"><i class="fa-solid fa-clock"></i> Prazos Obrigatórios</h4>
+                            <ul class="list-disc pl-4 space-y-1 text-slate-300">
+                                <li><strong class="text-white">5 minutos</strong> para atender o chamado.</li>
+                                <li><strong class="text-white">10 minutos</strong> para chegar à delegacia.</li>
+                            </ul>
+                            <p class="mt-2 text-[0.65rem] text-red-400">O descumprimento resulta na perda do atendimento.</p>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-300">
+                            <strong>Procedimento:</strong> Identifique-se com a OAB, acalme o detento, fale em particular com o policial e anote a versão oficial dos fatos.
+                        </div>
+                    `
+                },
+                {
+                    target: '#tour-calc-mdt',
+                    title: "MDT: Imagem Comprobatória",
+                    content: `
+                        <p>O MDT é apenas para REGISTRO. O policial é quem executa a prisão.</p>
+                        <ul class="list-disc pl-4 mt-2 space-y-1 text-slate-300">
+                            <li>Selecione o suspeito e os crimes no jogo.</li>
+                            <li>Tire um print do MDT e anexe aqui. Exemplo:</li>
+                        </ul>
+                        <img src="https://i.imgur.com/wISwiBZ.png" alt="Exemplo MDT" class="w-full h-auto rounded-lg mt-3 border border-white/20 opacity-90">
+                        <div class="bg-red-500/10 p-2 rounded mt-3 border border-red-500/20">
+                            <p class="text-red-400 text-xs font-bold uppercase"><i class="fa-solid fa-triangle-exclamation"></i> O advogado NUNCA clica em "realizar prisão"!</p>
+                        </div>
                     `
                 },
                 {
                     target: '#tour-calc-crimes',
-                    title: "CÓDIGO PENAL E AGRAVANTES",
+                    title: "Código Penal e Agravantes",
                     content: `
-                        <p>Aqui você seleciona os crimes imputados.</p>
-                        <div class="bg-red-500/10 border border-red-500/20 p-4 rounded-xl mt-3">
-                            <h4 class="text-red-400 font-bold mb-2 text-[0.7rem] uppercase flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> REGRA DE AGRAVANTES</h4>
-                            <p class="text-slate-300 text-[0.8rem] leading-relaxed">Crimes marcados como <strong class="text-red-400">Agravante (0 meses)</strong> não podem ser lançados sozinhos. Eles servem apenas para somar multa a um crime base de prisão.</p>
+                        <p>O MDT define os crimes para prisões rápidas. Se o crime não está no MDT, a prisão rápida não pode ser feita.</p>
+                        <div class="bg-red-500/10 border border-red-500/20 p-3 rounded-lg mt-3">
+                            <h4 class="text-red-400 font-bold mb-1 text-[0.75rem] uppercase">⚠️ Regra de Agravantes</h4>
+                            <p class="text-slate-300 text-xs">Crimes marcados como <strong class="text-red-400">Agravante (0 meses)</strong> não podem ser lançados sozinhos. Servem apenas para somar multa a um crime base de prisão.</p>
                         </div>
-                        <p class="text-slate-400 text-xs italic mt-3">Ex: Adicionar apenas "Porte de Capsulas" bloqueará o sistema. É preciso ter um crime que gere tempo de reclusão junto.</p>
                     `
                 },
                 {
                     target: '#tour-calc-dados-infrator',
-                    title: "DADOS DO CIDADÃO E OFICIAIS",
+                    title: "Polícia vs Advogado",
                     content: `
-                        <p>Registro das partes envolvidas.</p>
-                        <p class="text-slate-400 mt-2">Sempre pegue o <strong class="text-white">Passaporte (ID)</strong> correto do Infrator. E não se esqueça de adicionar <strong class="text-white">TODOS</strong> os oficiais envolvidos na ocorrência na lista.</p>
+                        <h4 class="text-[#d4af37] font-bold text-xs uppercase mb-2">Regras Críticas:</h4>
+                        <ul class="list-disc pl-4 space-y-2 text-slate-300 text-xs">
+                            <li><strong class="text-white">Troca de Penas é Proibida:</strong> Nunca substitua um crime do MDT por outro (ex: Homicídio por Roubo) apenas porque o policial quer.</li>
+                            <li><strong class="text-white">Policiais Presentes:</strong> Apenas os policiais que participaram da ação podem efetivar a prisão.</li>
+                        </ul>
+                        <p class="text-red-400 mt-2 text-xs">Se o policial insistir no erro, grave tudo e denuncie.</p>
                     `
                 },
                 {
                     target: '#tour-calc-descricao',
                     title: "Histórico da Abordagem",
                     content: `
-                        <p>O Histórico é o seu "escudo" processual.</p>
-                        <p class="text-slate-400 mt-2">Relate os fatos de forma clara e objetiva. Uma boa descrição blinda o trabalho policial e facilita a análise em caso de revisões pela Corregedoria.</p>
+                        <p>Nesta área você registra a ocorrência.</p>
+                        <div class="flex flex-col gap-2 mt-3">
+                            <div class="bg-emerald-500/10 p-2 rounded border border-emerald-500/20 text-xs text-slate-300">
+                                <strong class="text-emerald-400 block mb-1">✅ Dicas Essenciais</strong>
+                                Analise a intenção (dolo), verifique agravantes e nunca acuse sem provas.
+                            </div>
+                            <div class="bg-red-500/10 p-2 rounded border border-red-500/20 text-xs text-slate-300">
+                                <strong class="text-red-400 block mb-1">❌ Erros a Evitar</strong>
+                                Aplicar crime incorreto, ignorar atenuantes ou omitir descrição.
+                            </div>
+                        </div>
                     `
                 },
                 {
@@ -2268,12 +2316,13 @@
                 },
                 {
                     target: '#tour-calc-totais',
-                    title: "RESULTADO E FIANÇA",
+                    title: "Resultado e Fiança",
                     content: `
                         <p>Confira a Pena Final e a Fiança.</p>
                         <p class="text-slate-400 mt-2">Se os crimes selecionados forem inafiançáveis, o sistema bloqueará a opção de fiança automaticamente. Revise os dados e finalize o envio via Discord!</p>
                     `
-                }
+                },
+                stepFinalizar
             ]
         };
 
