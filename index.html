@@ -588,11 +588,34 @@
     <option value="6010-1/00 - Atividades de rádio">6010-1/00 - Rádio / Comunicação</option>
     <option value="7319-0/99 - Outras atividades de publicidade">7319-0/99 - Agência de Publicidade</option>
 </select>
-                    <select id="input-natureza" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.75rem] lg:text-sm appearance-none cursor-pointer">
-                        <option value="">Selecione a Natureza Jurídica... *</option>
-                        <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
-                        <option value="213-5 - Empresário Individual">213-5 - EI</option>
-                    </select>
+<select id="input-natureza" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.75rem] lg:text-sm appearance-none cursor-pointer">
+    <option value="">Selecione a Natureza Jurídica... *</option>
+
+    <!-- EMPRESAS PRIVADAS -->
+    <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
+    <option value="205-4 - Sociedade Anônima Fechada">205-4 - S/A Fechada</option>
+    <option value="204-6 - Sociedade Anônima Aberta">204-6 - S/A Aberta</option>
+    <option value="230-5 - Empresa Individual de Responsabilidade Limitada">230-5 - EIRELI</option>
+    <option value="213-5 - Empresário Individual">213-5 - EI</option>
+
+    <!-- ORGANIZAÇÕES -->
+    <option value="399-9 - Associação Privada">399-9 - Associação Privada</option>
+    <option value="330-1 - Organização Social">330-1 - Organização Social</option>
+    <option value="306-9 - Fundação Privada">306-9 - Fundação / Instituto</option>
+
+    <!-- SETOR PÚBLICO -->
+    <option value="101-5 - Órgão Público do Poder Executivo">101-5 - Órgão Público</option>
+    <option value="103-1 - Órgão Público Autônomo">103-1 - Autarquia Pública</option>
+
+    <!-- COOPERATIVAS -->
+    <option value="214-3 - Cooperativa">214-3 - Cooperativa</option>
+
+    <!-- SETOR FINANCEIRO -->
+    <option value="232-1 - Sociedade de Crédito Privado">232-1 - Instituição Financeira</option>
+
+    <!-- MÍDIA / COMUNICAÇÃO -->
+    <option value="224-0 - Sociedade Simples Limitada">224-0 - Empresa de Comunicação</option>
+</select>
                 </div>
             </div>
 
