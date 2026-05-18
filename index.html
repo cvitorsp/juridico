@@ -526,20 +526,68 @@
                 <div class="space-y-4">
                     <select id="input-cnae" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.7rem] lg:text-xs appearance-none cursor-pointer max-w-full truncate">
                         <option value="">Selecione a Atividade (CNAE)... *</option>
-                        <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições">2542-0/00 - Indústria Bélica</option>
-                        <option value="2092-4/01 - Indústria e Comércio de Pirotecnia e Explosivos Civis">2092-4/01 - Pirotecnia / Fogos (Pólvora)</option>
-                        <option value="9312-7/00 - Clubes Sociais, Esportivos e Tiro ao Alvo">9312-7/00 - Clube de Tiro (Armamento)</option>
-                        <option value="4930-2/02 - Transporte Rodoviário de Carga">4930-2/02 - Transportadora (Logística)</option>
-                        <option value="2121-1/01 - Fabricação de Medicamentos Alopáticos">2121-1/01 - Indústria Farmacêutica</option>
-                        <option value="0119-9/99 - Cultivo de Outras Plantas de Lavoura">0119-9/99 - Cultivo Botânico (Estufa)</option>
-                        <option value="4511-1/02 - Comércio a Varejo de Automóveis Usados">4511-1/02 - Comércio de Veículos (Desmanche)</option>
-                        <option value="4731-8/00 - Comércio varejista de combustíveis para veículos automotores">4731-8/00 - Posto de Gasolina</option>
-                        <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos automotores">4520-0/01 - Mecânica Automotiva</option>
-                        <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares">9329-8/01 - Casa Noturna / Boate</option>
-                        <option value="8610-1/01 - Atividades de atendimento hospitalar">8610-1/01 - Centro Médico / Hospital</option>
-                        <option value="9499-5/00 - Atividades associativas não especificadas anteriormente">9499-5/00 - Instituto de Caridade</option>
-                        <option value="4731-8/00 - Comércio varejista de combustíveis para veículos automotores">4731-8/00 - Posto de Gasolina</option>
-                    </select>
+    <!-- ARMAMENTO / SEGURANÇA -->
+    <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições">2542-0/00 - Indústria Bélica</option>
+    <option value="2092-4/01 - Indústria e Comércio de Pirotecnia e Explosivos Civis">2092-4/01 - Pirotecnia / Explosivos</option>
+    <option value="9312-7/00 - Clubes Sociais, Esportivos e Tiro ao Alvo">9312-7/00 - Clube de Tiro</option>
+    <option value="8011-1/01 - Atividades de vigilância e segurança privada">8011-1/01 - Segurança Privada</option>
+
+    <!-- LOGÍSTICA / TRANSPORTE -->
+    <option value="4930-2/02 - Transporte Rodoviário de Carga">4930-2/02 - Transportadora</option>
+    <option value="5229-0/99 - Outras atividades auxiliares dos transportes terrestres">5229-0/99 - Centro Logístico</option>
+    <option value="5250-8/04 - Organização logística do transporte de carga">5250-8/04 - Operadora Logística</option>
+
+    <!-- FARMÁCIA / QUÍMICA -->
+    <option value="2121-1/01 - Fabricação de Medicamentos Alopáticos">2121-1/01 - Indústria Farmacêutica</option>
+    <option value="4644-3/01 - Comércio atacadista de medicamentos e drogas de uso humano">4644-3/01 - Distribuidora Farmacêutica</option>
+    <option value="2062-2/00 - Fabricação de produtos de limpeza e polimento">2062-2/00 - Laboratório Químico</option>
+
+    <!-- CULTIVO / PRODUÇÃO -->
+    <option value="0119-9/99 - Cultivo de Outras Plantas de Lavoura">0119-9/99 - Cultivo Botânico</option>
+    <option value="0134-2/00 - Produção de mudas e outras formas de propagação vegetal">0134-2/00 - Viveiro / Estufa</option>
+
+    <!-- VEÍCULOS -->
+    <option value="4511-1/02 - Comércio a varejo de automóveis usados">4511-1/02 - Comércio de Veículos</option>
+    <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos automotores">4520-0/01 - Mecânica Automotiva</option>
+    <option value="4530-7/03 - Comércio a varejo de peças e acessórios usados para veículos">4530-7/03 - Auto Peças</option>
+    <option value="7711-0/00 - Locação de automóveis sem condutor">7711-0/00 - Locadora de Veículos</option>
+    <option value="5229-0/02 - Serviços de reboque de veículos">5229-0/02 - Guincho / Reboque</option>
+    <option value="4520-0/07 - Serviços de instalação, manutenção e reparação de acessórios para veículos">4520-0/07 - Customização Automotiva</option>
+
+    <!-- COMBUSTÍVEL -->
+    <option value="4731-8/00 - Comércio varejista de combustíveis para veículos automotores">4731-8/00 - Posto de Gasolina</option>
+    <option value="4681-8/01 - Comércio atacadista de combustíveis">4681-8/01 - Distribuidora de Combustível</option>
+
+    <!-- ENTRETENIMENTO -->
+    <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares">9329-8/01 - Casa Noturna / Boate</option>
+    <option value="5611-2/01 - Restaurantes e similares">5611-2/01 - Restaurante</option>
+    <option value="5630-2/01 - Bares e outros estabelecimentos especializados em servir bebidas">5630-2/01 - Bar / Pub</option>
+    <option value="9200-3/99 - Exploração de jogos de azar e apostas">9200-3/99 - Cassino / Apostas</option>
+
+    <!-- SAÚDE -->
+    <option value="8610-1/01 - Atividades de atendimento hospitalar">8610-1/01 - Centro Médico / Hospital</option>
+    <option value="8650-0/04 - Atividades de fisioterapia">8650-0/04 - Clínica de Reabilitação</option>
+    <option value="8640-2/99 - Atividades de serviços de complementação diagnóstica">8640-2/99 - Laboratório Médico</option>
+
+    <!-- SERVIÇOS PÚBLICOS -->
+    <option value="8424-8/00 - Segurança e ordem pública">8424-8/00 - Departamento Policial</option>
+    <option value="8425-6/00 - Defesa Civil">8425-6/00 - Corpo de Bombeiros</option>
+    <option value="8411-6/00 - Administração pública em geral">8411-6/00 - Prefeitura / Administração Pública</option>
+    <option value="5221-4/00 - Concessionárias de rodovias, pontes, túneis e serviços relacionados">5221-4/00 - Departamento de Trânsito</option>
+
+    <!-- SOCIAL -->
+    <option value="9499-5/00 - Atividades associativas não especificadas anteriormente">9499-5/00 - Instituto de Caridade</option>
+    <option value="9430-8/00 - Atividades de associações de defesa de direitos sociais">9430-8/00 - ONG Comunitária</option>
+
+    <!-- FINANCEIRO -->
+    <option value="6422-1/00 - Bancos múltiplos, com carteira comercial">6422-1/00 - Instituição Bancária</option>
+    <option value="6619-3/02 - Correspondentes de instituições financeiras">6619-3/02 - Financeira / Crédito</option>
+
+    <!-- MÍDIA -->
+    <option value="6021-7/00 - Atividades de televisão aberta">6021-7/00 - Emissora de TV</option>
+    <option value="6010-1/00 - Atividades de rádio">6010-1/00 - Rádio / Comunicação</option>
+    <option value="7319-0/99 - Outras atividades de publicidade">7319-0/99 - Agência de Publicidade</option>
+</select>
                     <select id="input-natureza" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.75rem] lg:text-sm appearance-none cursor-pointer">
                         <option value="">Selecione a Natureza Jurídica... *</option>
                         <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
