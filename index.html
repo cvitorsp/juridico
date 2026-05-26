@@ -4,27 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Judiciário | Brasil RP</title>
-    
-    <!-- Preload de Imagens Críticas -->
+    <link rel="icon" type="image/png" href="https://i.imgur.com/DPg5b1B.png">
     <link rel="preload" href="https://i.imgur.com/7NDAXqU.png" as="image" crossorigin="anonymous">
     <link rel="preload" href="https://i.imgur.com/DPg5b1B.png" as="image" crossorigin="anonymous">
     <link rel="preload" href="https://i.imgur.com/mLampIb.png" as="image" crossorigin="anonymous">
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Biblioteca Imagem -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <!-- Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Fontes -->
     <link rel="stylesheet" href="https://use.typekit.net/rvb2bnx.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet"> 
-
+/* -----------------------------------------------
+Júdico da Brasil RP - Template
+Name: R1Group - Soluções & Midia
+https://grupor1.netlify.app/
+----------------------------------------------- */
     <style>
         :root {
             --primary: #d4af37;
@@ -42,7 +38,6 @@
             background-attachment: fixed;
         }
         
-        /* Fundo Animado */
         body::before {
             content: '';
             position: fixed;
@@ -69,7 +64,6 @@
             text-transform: none !important;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         @media (min-width: 1024px) {
             ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -122,7 +116,6 @@
         }
         .input-premium::placeholder { color: rgba(255,255,255,0.3); }
 
-        /* Animação de Erro */
         @keyframes shakeError {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-5px); border-color: #ef4444; }
@@ -229,7 +222,6 @@
 
         /* ================= ESTILOS DO TOUR (UX/UI PREMIUM HOLE-PUNCH) ================= */
         
-        /* Overlay Base - Responsável pelo fundo escuro em todo o sistema. A "mágica" do clip-path vaza o buraco. */
         #tour-hub-overlay {
             position: fixed; inset: 0; z-index: 99997;
             background: rgba(5, 5, 5, 0.88); /* Mais escuro para destacar mais */
@@ -240,14 +232,13 @@
         }
         #tour-hub-overlay.active { opacity: 1; pointer-events: auto; }
 
-        /* Moldura de Foco - Envolve a parte que não recebe blur/sombra */
         #tour-highlight-frame {
             position: fixed;
             z-index: 99998;
             border: 2px solid #d4af37;
             border-radius: 12px;
             box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.15), 0 0 40px rgba(212, 175, 55, 0.3);
-            pointer-events: none; /* Deixa você interagir ou bloquear através do JS */
+            pointer-events: none; 
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
@@ -267,7 +258,6 @@
             pointer-events: auto;
         }
 
-        /* Menu Hub do Tour */
         #tour-hub {
             top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
         }
@@ -291,7 +281,6 @@
 
     <div id="toast-container" class="fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-5 sm:translate-x-0 z-[200] flex flex-col gap-3 pointer-events-none w-[90%] sm:w-auto min-w-[300px] max-w-[400px]"></div>
 
-    <!-- Créditos -->
     <div class="fixed bottom-3 right-3 lg:bottom-4 lg:right-4 z-50 pointer-events-auto">
         <a href="https://www.instagram.com/jv.criativo/" target="_blank" aria-label="Créditos do Desenvolvedor" class="flex items-center gap-2 glass-card px-3 py-1.5 lg:px-4 lg:py-2 rounded-full hover:border-[#d4af37]/50 hover:bg-black/60 transition-all text-[0.6rem] lg:text-[0.65rem] text-slate-400 hover:text-[#d4af37] group shadow-lg">
             <span>Desenvolvido por <strong class="text-slate-300 group-hover:text-white transition-colors">@cvitorsp</strong></span>
@@ -299,7 +288,6 @@
         </a>
     </div>
 
-    <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-[#050505] z-[100] flex flex-col items-center justify-center transition-opacity duration-1000 overflow-hidden">
         <div class="absolute inset-0 overflow-hidden flex justify-center items-center pointer-events-none">
             <div class="absolute w-[800px] h-[800px] bg-[#d4af37]/5 rounded-full blur-[100px] animate-pulse"></div>
@@ -324,7 +312,6 @@
         </div>
     </div>
     
-    <!-- Cookie Banner -->
     <div id="cookie-banner" class="fixed bottom-4 sm:bottom-6 left-1/2 transform -translate-x-1/2 translate-y-[150%] bg-black/80 backdrop-blur-xl border border-white/10 p-4 md:p-5 z-50 flex flex-col md:flex-row justify-between items-center transition-transform duration-700 shadow-2xl rounded-2xl gap-4 md:gap-8 w-[95%] sm:w-[90%] max-w-4xl">
         <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 text-center sm:text-left">
             <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0 border border-[#d4af37]/20">
@@ -335,11 +322,9 @@
         <button onclick="aceitarCookies()" class="bg-gradient-to-r from-[#d4af37] to-[#b5952f] text-black px-6 md:px-8 py-2.5 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)] hover:-translate-y-0.5 transition-all w-full md:w-auto whitespace-nowrap">Concordar</button>
     </div>
 
-    <!-- ================== UI DO TOUR DE INTRODUÇÃO ================== -->
     <div id="tour-hub-overlay"></div>
     <div id="tour-highlight-frame"></div>
     
-    <!-- Menu HUB do Tour -->
     <div id="tour-hub" class="glass-card p-6 md:p-8 rounded-[2rem] w-[90%] max-w-[500px] shadow-[0_0_60px_rgba(0,0,0,0.8)] border border-white/10 flex flex-col gap-6 text-center">
         <div class="w-16 h-16 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/30 flex items-center justify-center mx-auto mb-2">
             <i class="fa-solid fa-graduation-cap text-3xl text-[#d4af37]"></i>
@@ -383,13 +368,9 @@
                 <i class="fa-solid fa-chevron-right ml-auto text-slate-600 group-hover:text-[#d4af37]"></i>
             </button>
         </div>
-        
         <button onclick="encerrarTour()" class="mt-2 text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">Agora Não</button>
     </div>
-
-    <!-- Tooltip Premium (Estilo do Print) -->
     <div id="tour-tooltip" class="fixed z-[99999] w-[90%] max-w-[420px] bg-[#0b1120] border border-white/10 rounded-[1.25rem] flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.8)] opacity-0 pointer-events-none transform scale-95 transition-all duration-400">
-        <!-- Header -->
         <div class="px-5 py-4 flex justify-between items-center border-b border-white/5">
             <h3 id="tour-title" class="text-[#d4af37] font-bold text-[0.8rem] uppercase tracking-widest flex items-center gap-2">
                 <i class="fa-solid fa-map-location-dot"></i> <span>TÍTULO</span>
@@ -399,11 +380,8 @@
                 <button onclick="voltarParaHub()" class="text-slate-500 hover:text-white transition-colors flex items-center justify-center w-6 h-6"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
         </div>
-        <!-- Content -->
         <div id="tour-content" class="px-5 py-6 text-slate-300 text-[0.85rem] leading-relaxed max-h-[50vh] overflow-y-auto custom-scrollbar flex flex-col gap-4">
-            <!-- Injetado pelo JS -->
         </div>
-        <!-- Footer -->
         <div class="px-5 py-4 bg-white/[0.02] border-t border-white/5 rounded-b-[1.25rem] flex justify-between items-center">
             <button onclick="voltarParaHub()" class="text-slate-400 hover:text-white font-bold text-[0.65rem] uppercase tracking-widest flex items-center gap-2 transition-colors">
                 <i class="fa-solid fa-arrow-left"></i> Menu
@@ -414,20 +392,14 @@
             </div>
         </div>
     </div>
-    <!-- ============================================================== -->
-
     <div class="relative z-30 shrink-0">
-        <!-- Header -->
         <header class="glass-panel border-b-0 border-white/5 h-16 lg:h-20 flex items-center justify-between px-3 sm:px-4 lg:px-8 relative z-20">
             <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
-
             <div class="flex items-center gap-2 sm:gap-3 lg:gap-5 h-full shrink-0">
                 <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" fetchpriority="high" alt="Brasil RP" class="h-6 sm:h-8 lg:h-12 object-contain drop-shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer">
                 <div class="h-4 sm:h-6 lg:h-8 w-px bg-white/10"></div>
                 <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" fetchpriority="high" alt="Judiciário" class="h-6 sm:h-8 lg:h-12 object-contain drop-shadow-md hover:scale-105 transition-transform duration-300 cursor-pointer">
             </div>
-
-            <!-- Navegação Desktop -->
             <nav class="hidden lg:flex h-full w-auto justify-center">
                 <button onclick="switchTab('cnpj')" class="tab-btn btn-nav-cnpj active h-full px-5 lg:px-6 flex items-center justify-center gap-2 font-bold uppercase text-[0.8rem] tracking-wider">
                     <i class="fa-solid fa-file-contract text-lg"></i> Emissão CNPJ
@@ -441,7 +413,6 @@
             </nav>
 
             <div class="hidden lg:flex items-center gap-5">
-                <!-- Botão Tour Desktop -->
                 <button onclick="abrirHubTour()" class="flex items-center gap-2 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 text-[#d4af37] px-3 py-1.5 rounded-lg transition-all text-xs font-bold uppercase tracking-widest hover:shadow-[0_0_15px_rgba(212,175,55,0.2)]">
                     <i class="fa-solid fa-graduation-cap"></i> Treinamento
                 </button>
@@ -464,9 +435,7 @@
                 </div>
             </div>
 
-            <!-- Menu Mobile -->
             <div class="lg:hidden flex items-center gap-2 sm:gap-4 shrink-0">
-                <!-- Botão Tour Mobile -->
                 <button onclick="abrirHubTour()" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#d4af37]/10 flex items-center justify-center border border-[#d4af37]/30 text-[#d4af37] hover:bg-[#d4af37]/20 transition-all" title="Treinamento">
                     <i class="fa-solid fa-graduation-cap text-[0.65rem] sm:text-[0.7rem]"></i>
                 </button>
@@ -484,7 +453,6 @@
             </div>
         </header>
 
-        <!-- Menu Mobile Dropdown -->
         <div id="mobile-menu" class="lg:hidden absolute top-full left-0 w-full bg-[#0a0f18]/95 backdrop-blur-3xl border-b border-white/10 transition-all duration-300 origin-top scale-y-0 opacity-0 flex flex-col shadow-2xl z-10 pointer-events-none">
             <button onclick="switchTab('cnpj')" class="mob-tab-btn btn-nav-cnpj active"><i class="fa-solid fa-file-contract text-lg w-6 text-center"></i> Emissão CNPJ</button>
             <button onclick="switchTab('porte')" class="mob-tab-btn btn-nav-porte"><i class="fa-solid fa-id-card-clip text-lg w-6 text-center"></i> Solicitação Porte</button>
@@ -492,7 +460,6 @@
         </div>
     </div>
 
-    <!-- ==================== ABA 1: CNPJ ==================== -->
     <div id="view-cnpj" class="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
         <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4 lg:gap-5 relative z-10 shrink-0 custom-scrollbar">
             
@@ -526,94 +493,59 @@
                 <div class="space-y-4">
                     <select id="input-cnae" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.7rem] lg:text-xs appearance-none cursor-pointer max-w-full truncate">
                         <option value="">Selecione a Atividade (CNAE)... *</option>
-    <!-- ARMAMENTO / SEGURANÇA -->
     <option value="2542-0/00 - Fabricação de armas de fogo, outras armas e munições">2542-0/00 - Indústria Bélica</option>
     <option value="2092-4/01 - Indústria e Comércio de Pirotecnia e Explosivos Civis">2092-4/01 - Pirotecnia / Explosivos</option>
     <option value="9312-7/00 - Clubes Sociais, Esportivos e Tiro ao Alvo">9312-7/00 - Clube de Tiro</option>
     <option value="8011-1/01 - Atividades de vigilância e segurança privada">8011-1/01 - Segurança Privada</option>
-
-    <!-- LOGÍSTICA / TRANSPORTE -->
     <option value="4930-2/02 - Transporte Rodoviário de Carga">4930-2/02 - Transportadora</option>
     <option value="5229-0/99 - Outras atividades auxiliares dos transportes terrestres">5229-0/99 - Centro Logístico</option>
     <option value="5250-8/04 - Organização logística do transporte de carga">5250-8/04 - Operadora Logística</option>
-
-    <!-- FARMÁCIA / QUÍMICA -->
     <option value="2121-1/01 - Fabricação de Medicamentos Alopáticos">2121-1/01 - Indústria Farmacêutica</option>
     <option value="4644-3/01 - Comércio atacadista de medicamentos e drogas de uso humano">4644-3/01 - Distribuidora Farmacêutica</option>
     <option value="2062-2/00 - Fabricação de produtos de limpeza e polimento">2062-2/00 - Laboratório Químico</option>
-
-    <!-- CULTIVO / PRODUÇÃO -->
     <option value="0119-9/99 - Cultivo de Outras Plantas de Lavoura">0119-9/99 - Cultivo Botânico</option>
     <option value="0134-2/00 - Produção de mudas e outras formas de propagação vegetal">0134-2/00 - Viveiro / Estufa</option>
-
-    <!-- VEÍCULOS -->
     <option value="4511-1/02 - Comércio a varejo de automóveis usados">4511-1/02 - Comércio de Veículos</option>
     <option value="4520-0/01 - Serviços de manutenção e reparação mecânica de veículos automotores">4520-0/01 - Mecânica Automotiva</option>
     <option value="4530-7/03 - Comércio a varejo de peças e acessórios usados para veículos">4530-7/03 - Auto Peças</option>
     <option value="7711-0/00 - Locação de automóveis sem condutor">7711-0/00 - Locadora de Veículos</option>
     <option value="5229-0/02 - Serviços de reboque de veículos">5229-0/02 - Guincho / Reboque</option>
     <option value="4520-0/07 - Serviços de instalação, manutenção e reparação de acessórios para veículos">4520-0/07 - Customização Automotiva</option>
-
-    <!-- COMBUSTÍVEL -->
     <option value="4731-8/00 - Comércio varejista de combustíveis para veículos automotores">4731-8/00 - Posto de Gasolina</option>
     <option value="4681-8/01 - Comércio atacadista de combustíveis">4681-8/01 - Distribuidora de Combustível</option>
-
-    <!-- ENTRETENIMENTO -->
     <option value="9329-8/01 - Discotecas, danceterias, salões de dança e similares">9329-8/01 - Casa Noturna / Boate</option>
     <option value="5611-2/01 - Restaurantes e similares">5611-2/01 - Restaurante</option>
     <option value="5630-2/01 - Bares e outros estabelecimentos especializados em servir bebidas">5630-2/01 - Bar / Pub</option>
     <option value="9200-3/99 - Exploração de jogos de azar e apostas">9200-3/99 - Cassino / Apostas</option>
-
-    <!-- SAÚDE -->
     <option value="8610-1/01 - Atividades de atendimento hospitalar">8610-1/01 - Centro Médico / Hospital</option>
     <option value="8650-0/04 - Atividades de fisioterapia">8650-0/04 - Clínica de Reabilitação</option>
     <option value="8640-2/99 - Atividades de serviços de complementação diagnóstica">8640-2/99 - Laboratório Médico</option>
-
-    <!-- SERVIÇOS PÚBLICOS -->
     <option value="8424-8/00 - Segurança e ordem pública">8424-8/00 - Departamento Policial</option>
     <option value="8425-6/00 - Defesa Civil">8425-6/00 - Corpo de Bombeiros</option>
     <option value="8411-6/00 - Administração pública em geral">8411-6/00 - Prefeitura / Administração Pública</option>
     <option value="5221-4/00 - Concessionárias de rodovias, pontes, túneis e serviços relacionados">5221-4/00 - Departamento de Trânsito</option>
-
-    <!-- SOCIAL -->
     <option value="9499-5/00 - Atividades associativas não especificadas anteriormente">9499-5/00 - Instituto de Caridade</option>
     <option value="9430-8/00 - Atividades de associações de defesa de direitos sociais">9430-8/00 - ONG Comunitária</option>
-
-    <!-- FINANCEIRO -->
     <option value="6422-1/00 - Bancos múltiplos, com carteira comercial">6422-1/00 - Instituição Bancária</option>
     <option value="6619-3/02 - Correspondentes de instituições financeiras">6619-3/02 - Financeira / Crédito</option>
-
-    <!-- MÍDIA -->
     <option value="6021-7/00 - Atividades de televisão aberta">6021-7/00 - Emissora de TV</option>
     <option value="6010-1/00 - Atividades de rádio">6010-1/00 - Rádio / Comunicação</option>
     <option value="7319-0/99 - Outras atividades de publicidade">7319-0/99 - Agência de Publicidade</option>
 </select>
 <select id="input-natureza" onchange="updateDoc()" class="w-full input-premium rounded-xl px-4 py-2.5 lg:py-3 text-[0.75rem] lg:text-sm appearance-none cursor-pointer">
     <option value="">Selecione a Natureza Jurídica... *</option>
-
-    <!-- EMPRESAS PRIVADAS -->
     <option value="206-2 - Sociedade Empresária Limitada">206-2 - LTDA</option>
     <option value="205-4 - Sociedade Anônima Fechada">205-4 - S/A Fechada</option>
     <option value="204-6 - Sociedade Anônima Aberta">204-6 - S/A Aberta</option>
     <option value="230-5 - Empresa Individual de Responsabilidade Limitada">230-5 - EIRELI</option>
     <option value="213-5 - Empresário Individual">213-5 - EI</option>
-
-    <!-- ORGANIZAÇÕES -->
     <option value="399-9 - Associação Privada">399-9 - Associação Privada</option>
     <option value="330-1 - Organização Social">330-1 - Organização Social</option>
     <option value="306-9 - Fundação Privada">306-9 - Fundação / Instituto</option>
-
-    <!-- SETOR PÚBLICO -->
     <option value="101-5 - Órgão Público do Poder Executivo">101-5 - Órgão Público</option>
     <option value="103-1 - Órgão Público Autônomo">103-1 - Autarquia Pública</option>
-
-    <!-- COOPERATIVAS -->
     <option value="214-3 - Cooperativa">214-3 - Cooperativa</option>
-
-    <!-- SETOR FINANCEIRO -->
     <option value="232-1 - Sociedade de Crédito Privado">232-1 - Instituição Financeira</option>
-
-    <!-- MÍDIA / COMUNICAÇÃO -->
     <option value="224-0 - Sociedade Simples Limitada">224-0 - Empresa de Comunicação</option>
 </select>
                 </div>
@@ -672,7 +604,6 @@
             </div>
         </aside>
 
-        <!-- Preview Area da Página CNPJ -->
         <main class="w-full lg:flex-1 bg-[#0f172a]/50 relative overflow-auto p-4 lg:p-10 flex justify-center items-start min-h-[500px] lg:min-h-[600px] custom-scrollbar doc-font" id="preview-area">
             <div id="documento-pdf" class="a4-container p-10 flex flex-col relative z-0 shrink-0">
                 <div class="flex items-center justify-between mb-4 border-b-2 border-black pb-4">
@@ -742,7 +673,6 @@
         </main>
     </div>
 
-    <!-- ==================== ABA 2: PORTE DE ARMA ==================== -->
     <div id="view-porte" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
         <aside class="w-full lg:w-1/3 lg:min-w-[420px] lg:max-w-[480px] bg-black/40 border-r border-white/5 overflow-y-visible lg:overflow-y-auto p-4 lg:p-6 flex flex-col gap-4 lg:gap-5 relative z-10 shrink-0 custom-scrollbar">
             
@@ -854,11 +784,9 @@
             </div>
         </aside>
 
-        <!-- Preview Area Documento Porte -->
         <main class="w-full lg:flex-1 bg-[#0f172a]/50 relative overflow-auto p-4 lg:p-10 flex justify-center items-start min-h-[500px] lg:min-h-[600px] custom-scrollbar doc-font" id="preview-area-porte">
             <div id="documento-pdf-porte" class="a4-container p-10 flex flex-col bg-white text-black justify-between relative z-0 shrink-0">
                 <div>
-                    <!-- CABEÇALHO TRIBUNAL DE JUSTIÇA -->
                     <div class="w-full text-center pb-4 mb-6">
                         <div class="border-t-[1.5px] border-black pt-5 mb-4 mx-auto w-full"></div>
                         <img src="https://i.imgur.com/DPg5b1B.png" crossorigin="anonymous" fetchpriority="high" alt="Judiciário" class="h-[70px] mx-auto mb-3 drop-shadow-sm opacity-90">
@@ -873,7 +801,6 @@
                         O <strong>PODER JUDICIÁRIO DO BRASIL RP</strong>, por intermédio deste ato administrativo, ENCAMINHA o(a) cidadão(ã) abaixo identificado(a) para realização de <strong>AVALIAÇÃO PSICOLÓGICA</strong>, etapa obrigatória e indispensável ao processo administrativo de concessão de porte de arma de fogo, nos termos das normas internas vigentes.
                     </p>
 
-                    <!-- TABELA 1: DADOS PESSOAIS -->
                     <h3 class="font-bold uppercase text-[0.85rem] mb-1">Dados Pessoais</h3>
                     <table class="tj-table mb-4">
                         <tr><td class="tj-label">Nome:</td><td id="doc-porte-nome">-</td></tr>
@@ -884,7 +811,6 @@
                         <tr><td class="tj-label">Filhos:</td><td id="doc-porte-filhos">0</td></tr>
                     </table>
 
-                    <!-- TABELA 2: INFORMAÇÕES COMPLEMENTARES -->
                     <h3 class="font-bold uppercase text-[0.85rem] mb-1">Informações Complementares</h3>
                     <table class="tj-table mb-4">
                         <tr><td class="tj-label">Situação Residencial:</td><td id="doc-porte-casas">Não informado</td></tr>
@@ -894,7 +820,6 @@
                         <tr><td class="tj-label">Declaração de Imposto:</td><td id="doc-porte-ir">Não apresentada</td></tr>
                     </table>
 
-                    <!-- TABELA 3: ANTECEDENTES -->
                     <h3 class="font-bold uppercase text-[0.85rem] mb-1">Antecedentes Criminais</h3>
                     <table class="tj-table">
                         <tr><td class="tj-label">Passagens:</td><td>não possui</td></tr>
@@ -902,7 +827,6 @@
                 </div>
 
                 <div>
-                    <!-- ÁREA DE ASSINATURA -->
                     <div class="mt-4 flex flex-col items-center justify-center w-full">
                         <span class="assinatura-font text-4xl text-black" style="transform: rotate(-2deg);" id="doc-porte-adv-assinatura"></span>
                         <div class="border-t border-gray-400 w-[45%] mx-auto mt-2 pt-1 text-center">
@@ -912,7 +836,6 @@
                         </div>
                     </div>
 
-                    <!-- RODAPÉ COM LOGOS -->
                     <div class="mt-8 flex items-end justify-center gap-12 pb-2">
                         <img src="https://i.imgur.com/7NDAXqU.png" crossorigin="anonymous" fetchpriority="high" alt="Brasil RP" class="h-10 opacity-90 grayscale">
                         <img src="https://i.imgur.com/mLampIb.png" crossorigin="anonymous" fetchpriority="high" alt="OAB" class="h-10 opacity-90 grayscale">
@@ -922,10 +845,8 @@
         </main>
     </div>
 
-    <!-- ==================== ABA 3: CALCULADORA PENAL ==================== -->
     <div id="view-calc" class="hidden flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden animate-fade-up">
         
-        <!-- COLUNA 1: CRIMES (Tabela Lateral) -->
         <div class="w-full lg:w-1/3 lg:min-w-[380px] lg:max-w-[420px] bg-black/40 border-r border-white/5 flex flex-col shrink-0 lg:h-full z-10" id="tour-calc-crimes">
             <div class="p-4 lg:p-6 border-b border-white/5 backdrop-blur-md">
                 <h2 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-book-journal-whills"></i> Código Penal Aplicado</h2>
@@ -935,15 +856,12 @@
                 </div>
             </div>
             <div class="flex-1 overflow-y-auto p-3 lg:p-4 custom-scrollbar bg-black/20" id="crimes-container">
-                <!-- Crimes dinâmicos via JS -->
             </div>
         </div>
 
-        <!-- COLUNA 2: RESULTADOS E FORMULÁRIO -->
         <div class="w-full lg:flex-1 bg-[#050505]/40 overflow-y-visible lg:overflow-y-auto p-4 lg:p-8 flex flex-col gap-5 lg:gap-6 custom-scrollbar relative z-10">
             
             <div class="max-w-4xl mx-auto w-full flex flex-col gap-5 lg:gap-6">
-                <!-- ALERTA DE ERRO (0 MESES) -->
                 <div id="alerta-0-meses" class="hidden bg-red-500/10 border border-red-500/30 rounded-2xl p-4 lg:p-5 shadow-[0_0_30px_rgba(239,68,68,0.1)] flex items-center gap-4 lg:gap-5 shrink-0 backdrop-blur-xl">
                     <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0 border border-red-500/30">
                         <i class="fa-solid fa-triangle-exclamation text-red-400 text-lg lg:text-xl animate-pulse"></i>
@@ -954,13 +872,11 @@
                     </div>
                 </div>
 
-                <!-- DADOS DA PRISÃO -->
                 <div class="glass-card rounded-2xl p-5 lg:p-8 flex flex-col gap-5 lg:gap-6 shrink-0 relative overflow-hidden group hover:border-[#d4af37]/30 transition-colors">
                     <div class="absolute -top-24 -right-24 w-48 h-48 bg-[#d4af37]/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-[#d4af37]/10 transition-colors"></div>
 
                     <h3 class="text-gradient font-bold text-xs lg:text-sm uppercase tracking-widest flex items-center gap-2 border-b border-white/5 pb-3"><i class="fa-solid fa-address-card"></i> Ficha de Custódia</h3>
                     
-                    <!-- MDT Drag and Drop -->
                     <div id="tour-calc-mdt">
                         <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-slate-400 mb-2 tracking-widest uppercase">Imagem Comprobatória (MDT) <span class="text-red-500">*</span></label>
                         <div id="mdt-dropzone" class="dropzone w-full h-24 lg:h-28 rounded-xl flex flex-col items-center justify-center cursor-pointer relative overflow-hidden group/mdt">
@@ -974,7 +890,6 @@
                         </div>
                     </div>
 
-                    <!-- Dados Infrator e Oficiais -->
                     <div class="grid grid-cols-1 gap-4 lg:gap-5" id="tour-calc-dados-infrator">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
                             <div>
@@ -1001,7 +916,6 @@
                         </div>
                     </div>
 
-                    <!-- Defesa Legal -->
                     <div class="bg-black/30 p-4 lg:p-5 rounded-xl border border-white/5 mt-1 lg:mt-2" id="tour-calc-defesa">
                         <h4 class="text-white font-bold text-[0.7rem] lg:text-[0.75rem] uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-scale-balanced text-[#d4af37]"></i> Defesa Legal Acionada</h4>
                         
@@ -1027,7 +941,6 @@
                     </div>
                 </div>
 
-                <!-- BALANÇO PENAL -->
                 <div class="glass-card rounded-2xl p-5 lg:p-8 transition-all duration-300 shrink-0 relative overflow-hidden group hover:border-[#d4af37]/30">
                     <div class="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/5 blur-[80px] pointer-events-none group-hover:bg-[#d4af37]/10 transition-colors"></div>
                     
@@ -1039,13 +952,11 @@
                         </div>
                     </div>
 
-                    <!-- Crimes Selecionados -->
                     <ul id="selected-crimes-list" class="space-y-3 mb-5 lg:mb-6 empty:hidden text-xs lg:text-sm relative z-10"></ul>
                     <div id="empty-crimes" class="text-slate-500 text-[0.75rem] lg:text-[0.8rem] uppercase tracking-widest text-center py-5 lg:py-6 bg-black/20 rounded-xl border border-white/5 border-dashed mb-5 lg:mb-6 relative z-10">
                         <i class="fa-solid fa-folder-open text-xl lg:text-2xl mb-1.5 opacity-50"></i><br>Dossiê Criminal Vazio
                     </div>
 
-                    <!-- Atenuantes e Reduções -->
                     <div class="bg-black/40 rounded-xl border border-white/5 p-4 lg:p-5 mb-5 lg:mb-6 relative z-10">
                         <label class="block text-[0.6rem] lg:text-[0.65rem] font-bold text-[#d4af37] mb-3 lg:mb-4 tracking-widest uppercase"><i class="fa-solid fa-tags"></i> Fatores Atenuantes (Redução de Pena)</label>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 lg:gap-4 mb-4 lg:mb-5">
@@ -1077,7 +988,6 @@
                         </div>
                     </div>
 
-                    <!-- Totais -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 lg:gap-5 relative z-10" id="tour-calc-totais">
                         <div class="bg-black/50 p-4 lg:p-5 rounded-xl border border-white/5 flex flex-col justify-center shadow-inner">
                             <span class="text-slate-400 text-[0.6rem] lg:text-[0.65rem] font-bold uppercase tracking-widest">Multa</span>
@@ -1097,13 +1007,10 @@
                     </div>
                 </div>
 
-                <!-- Botões de Ação -->
                 <div class="flex flex-col gap-3 lg:gap-4 shrink-0 mt-1 lg:mt-2 mb-6 lg:mb-0">
-                    <!-- Botão Secundário UI/UX -->
                     <button onclick="copiarResumoCalc()" id="btn-copiar-calc" class="w-full bg-black/40 hover:bg-white/10 border border-white/10 hover:border-white/30 text-slate-300 hover:text-white font-bold py-3.5 lg:py-4 rounded-xl transition-all flex items-center justify-center gap-2 lg:gap-3 text-[0.7rem] lg:text-xs uppercase tracking-widest active:scale-95 backdrop-blur-md">
                         <i class="fa-regular fa-copy text-base lg:text-lg"></i> Copiar Extrato Local (Clipboard)
                     </button>
-                    <!-- Botão Primário em Destaque -->
                     <button onclick="enviarDiscordCalc()" id="btn-discord-calc" class="w-full bg-gradient-to-r from-[#5865F2] to-[#4752c4] text-white font-extrabold py-4 lg:py-5 rounded-xl shadow-[0_0_20px_rgba(88,101,242,0.3)] lg:shadow-[0_0_25px_rgba(88,101,242,0.3)] hover:shadow-[0_0_35px_rgba(88,101,242,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 lg:gap-3 text-xs lg:text-sm uppercase tracking-widest active:scale-95 disabled:opacity-50 disabled:pointer-events-none">
                         <i class="fa-brands fa-discord text-xl lg:text-2xl"></i> Transmitir Relatório Oficial
                     </button>
